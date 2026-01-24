@@ -1,0 +1,30 @@
+Stack: Laravel 11 (Sail), Inertia.js, Vue 3, TypeScript, Tailwind CSS, PostgreSQL.
+Rules:
+1. Use <script setup lang="ts"> for all Vue components.
+2. Define TypeScript Interfaces for all data models.
+3. No raw JavaScript; everything must be typed.
+4. Use Laravel Service classes for business logic.
+5. All file uploads must use Presigned URLs for Cloudflare R2.
+
+Project: LUME (Enterprise Asset & Financial Engine)
+Stack: Laravel 11, Inertia.js, Vue 3 (script setup), TypeScript, Tailwind CSS, PostgreSQL.
+
+ARCHITECTURAL RULES:
+1. NO INLINE STYLES: All styling must use Tailwind utility classes.
+2. NO CUSTOM CSS: All design tokens (colors, rounding, shadows) must come from tailwind.config.js.
+3. TYPE SAFETY: Every component must have defined Interfaces for Props and Emits. NO 'any' type.
+4. COMPONENT ISOLATION: No logic should be in the script tag that isn't related to the UI. Move complex logic to Laravel Service Classes.
+5. NO DIRECT API CALLS: Use Inertia.post/get for navigation and form submissions. Use Axios only for background file uploads to R2.
+
+DESIGN TOKENS (Use these classes):
+- Primary Action: bg-brand-primary
+- Success Action: bg-brand-secondary
+- Borders: rounded-lume (LUME Standard Rounding)
+- Background: bg-brand-dark (Dark Mode Primary)
+
+FINANCIAL INTEGRITY RULES (Pillar 2: LedgerLogic):
+1. ATOMIC TRANSACTIONS: Every money movement MUST be wrapped in DB::transaction(). If the transaction record fails, the wallet balance must NOT change.
+2. DECIMAL PRECISION: All monetary values use decimal(15,2) - never use floats.
+3. REFERENCE NUMBERS: Every transaction must have a unique reference_number.
+4. AUDIT TRAIL: All transactions are immutable. Never update or delete a transaction record.
+5. BALANCE CHECKS: Always verify sufficient balance before debits. Use database-level locks with lockForUpdate().
