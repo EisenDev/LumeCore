@@ -22,7 +22,8 @@ class AuditProgressUpdated implements ShouldBroadcastNow
         public VaultAsset $asset,
         public string $step,
         public int $progress,
-        public string $status = 'processing'
+        public string $status = 'processing',
+        public ?string $details = null
     ) {}
 
     /**
@@ -53,6 +54,7 @@ class AuditProgressUpdated implements ShouldBroadcastNow
             'step' => $this->step,
             'progress' => $this->progress,
             'status' => $this->status,
+            'details' => $this->details,
         ];
     }
 }

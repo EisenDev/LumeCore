@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('vault_assets', function (Blueprint $table) {
-            //
+        Schema::table('security_audits', function (Blueprint $table) {
+            $table->json('specific_metadata')->nullable()->after('audit_type');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('vault_assets', function (Blueprint $table) {
-            //
+        Schema::table('security_audits', function (Blueprint $table) {
+            $table->dropColumn('specific_metadata');
         });
     }
 };

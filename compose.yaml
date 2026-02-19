@@ -33,7 +33,10 @@ services:
             args:
                 WWWGROUP: '${WWWGROUP}'
         image: 'sail-8.5/app'
-        entrypoint: [ 'php', '/var/www/html/artisan', 'queue:work', '--verbose', '--tries=3', '--timeout=90' ]
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        shm_size: '1gb'
+        entrypoint: [ 'php', '/var/www/html/artisan', 'queue:work', '--verbose', '--tries=3', '--timeout=1200', '--max-jobs=50' ]
         environment:
             WWWUSER: '${WWWUSER}'
             WWWGROUP: '${WWWGROUP}'

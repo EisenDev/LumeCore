@@ -28,11 +28,14 @@
     },
     "dependencies": {
         "@google/generative-ai": "^0.24.1",
+        "@types/d3": "^7.4.3",
         "@uppy/aws-s3": "^5.1.0",
         "@uppy/core": "^5.2.0",
         "@uppy/dashboard": "^5.1.0",
         "chart.js": "^4.5.1",
+        "d3": "^7.9.0",
         "dotenv": "^17.2.3",
+        "lucide-vue-next": "^0.363.0",
         "marked": "^17.0.1",
         "puppeteer": "^24.35.0",
         "vue-chartjs": "^5.3.3"

@@ -11,8 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('assets', function (Blueprint $table) {
-            //
+        Schema::table('vault_assets', function (Blueprint $table) {
+            if (!Schema::hasColumn('vault_assets', 'suggested_value')) {
+                $table->decimal('suggested_value', 10, 2)->nullable()->after('metadata');
+            }
+            if (!Schema::hasColumn('vault_assets', 'is_for_sale')) {
+                $table->boolean('is_for_sale')->default(false)->index();
+            }
+            if (!Schema::hasColumn('vault_assets', 'price')) {
+                $table->decimal('price', 10, 2)->nullable()->index();
+            }
+            if (!Schema::hasColumn('vault_assets', 'sale_count')) {
+                $table->integer('sale_count')->default(0);
+            }
         });
     }
 
@@ -21,8 +32,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('assets', function (Blueprint $table) {
-            //
+        Schema::table('vault_assets', function (Blueprint $table) {
+            $table->dropColumn(['is_for_sale', 'price', 'sale_count']);
         });
     }
 };

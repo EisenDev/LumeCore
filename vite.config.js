@@ -7,7 +7,12 @@ export default defineConfig({
         laravel({
             input: 'resources/js/app.ts',
             ssr: 'resources/js/ssr.ts',
-            refresh: true,
+            refresh: [
+                'resources/views/**',
+                'resources/js/**',
+                'resources/css/**',
+                'routes/**',
+            ],
         }),
         vue({
             template: {
@@ -18,4 +23,13 @@ export default defineConfig({
             },
         }),
     ],
+    server: {
+        watch: {
+            ignored: [
+                '**/storage/**',
+                '**/vendor/**',
+                '**/.git/**',
+            ],
+        },
+    },
 });

@@ -39,11 +39,6 @@ class AssetStatusUpdated implements ShouldBroadcastNow
     }
 
     /**
-     * The event's broadcast name.
-     */
-    public function broadcastAs(): string
-    {
-        return 'AssetStatusUpdated';
     }
 
     /**
@@ -60,7 +55,13 @@ class AssetStatusUpdated implements ShouldBroadcastNow
                 'file_size' => $this->asset->file_size,
                 'mime_type' => $this->asset->mime_type,
                 'status' => $this->asset->status,
-                'metadata' => $this->asset->metadata,
+                'metadata' => [
+                    'website_url' => $this->asset->metadata['website_url'] ?? null,
+                    'project_asset_id' => $this->asset->metadata['project_asset_id'] ?? null,
+                    'summary' => $this->asset->metadata['executive_summary'] ?? ($this->asset->metadata['summary'] ?? ''),
+                    'score' => $this->asset->score
+                ],
+                'radar_data' => $this->asset->radar_data, // Fix: Ensure chart data is broadcasted
                 'suggested_value' => $this->asset->suggested_value,
                 'is_for_sale' => $this->asset->is_for_sale,
                 'price' => $this->asset->price,

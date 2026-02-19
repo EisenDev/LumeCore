@@ -7,6 +7,7 @@ use App\Models\ProjectAsset;
 use App\Models\VaultAsset;
 use App\Services\HealthCheckService;
 use App\Services\CredentialValidationService;
+use App\Services\LedgerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +17,8 @@ class ProjectController extends Controller
 {
     public function __construct(
         private HealthCheckService $healthService,
-        private CredentialValidationService $credentialService
+        private CredentialValidationService $credentialService,
+        private LedgerService $ledgerService
     ) {}
 
     /**
@@ -37,9 +39,10 @@ class ProjectController extends Controller
             'monthly_revenue' => 'nullable|numeric|min:0',
             'monthly_visitors' => 'nullable|integer|min:0',
             'github_token' => 'nullable|string',
-            'audit_type' => 'nullable|string|in:project,design',
+            'audit_type' => 'nullable|string|in:project,design,repository',
             'proof_asset_ids' => 'nullable|array',
             'proof_asset_ids.*' => 'string|exists:vault_assets,id',
+            'batch_id' => 'nullable|string|exists:vault_assets,batch_id', // TITAN V8: Allow forcing specific batch update
         ]);
 
         // At least one URL is required
@@ -55,7 +58,25 @@ class ProjectController extends Controller
 
         // Determine the production URL (priority: website > github)
         $productionUrl = $validated['website_url'] ?? $validated['github_repo_url'];
+        
+        // REFINED AUDIT TYPE: Determine if it's a Repo Scan vs Website Scan for immediate UI feedback
         $auditType = $validated['audit_type'] ?? 'project';
+        if (empty($validated['website_url']) && !empty($validated['github_repo_url'])) {
+             $auditType = 'repository_scan';
+        }
+
+        // Defensive: Prevent website_url from being same as repo url (User error or frontend spill)
+        if (!empty($validated['website_url']) && !empty($validated['github_repo_url'])) {
+            if ($validated['website_url'] === $validated['github_repo_url']) {
+                // Determine which one it really is? 
+                // If it looks like github, prioritize repo.
+                if (str_contains($validated['website_url'], 'github.com')) {
+                    $validated['website_url'] = null;
+                } else {
+                    $validated['github_repo_url'] = null;
+                }
+            }
+        }
 
         // Create ProjectAsset for tracking
         $project = ProjectAsset::create([
@@ -81,45 +102,219 @@ class ProjectController extends Controller
         if ($existingVaultAsset && in_array($existingVaultAsset->status, ['verified', 'verified_private', 'flagged', 'action_required'])) {
             \App\Models\AuditHistory::create([
                 'vault_asset_id' => $existingVaultAsset->id,
-                'score' => $existingVaultAsset->metadata['confidence_score'] ?? ($existingVaultAsset->score ?? 0),
+                'score' => (int) ($existingVaultAsset->metadata['confidence_score'] ?? ($existingVaultAsset->score ?? 0)), // Cast to int for PGSQL
                 'status' => $existingVaultAsset->status,
                 'metadata' => $existingVaultAsset->metadata,
                 'created_at' => now(),
             ]);
         }
 
-        $vaultAsset = VaultAsset::updateOrCreate(
-            [
-                'user_id' => Auth::id(),
-                'file_name' => $productionUrl, // Unique by URL + user
-            ],
-            [
-                'file_path' => null, // No physical file for project scans
-                'file_size' => null,
-                'mime_type' => null,
-                'status' => 'processing',
-                'metadata' => [
-                    'audit_type' => $auditType,
-                    'website_url' => $validated['website_url'] ?? null,
-                    'github_repo_url' => $validated['github_repo_url'] ?? null,
-                    'project_asset_id' => $project->id,
-                    'is_project' => true,
-                    'verification_uuid' => $verificationUuid,
+        // --- ENFORCE CREDITS / QUOTA ---
+        $isSync = !empty($validated['website_url']) && !empty($validated['github_repo_url']);
+        // TITAN V9.2: Correctly map ledger type. Websites/Repos are PROJECTS (10 credits), not documents (1 credit).
+        $ledgerAuditType = $isSync ? 'sync' : 'project'; 
+        
+        if (!$this->ledgerService->hasCreditsForAudit(Auth::user(), $ledgerAuditType)) {
+             return response()->json([
+                 'success' => false,
+                 'message' => 'Insufficient credits or quota. Please upgrade your plan or purchase more credits.',
+             ], 402);
+        }
+
+        // Lock credits upfront (returns 0 if quota used)
+        $this->ledgerService->lockAuditCredits(Auth::user(), $ledgerAuditType, $validated['name']);
+
+        // 3. DISPATCH LOGIC: "The Trinity" (Web, Repo, or Sync)
+        $repoAsset = null;
+        $vaultAsset = null; // Will be assigned based on context
+        
+        // CASE A: SYNC SCAN (Web + Repo)
+        if (!empty($validated['website_url']) && !empty($validated['github_repo_url'])) {
+            Log::info('Dispatching PerformSyncScan (Dual Mode)');
+            
+            // TITAN V2: Context Isolation & History Strategy
+            // 1. Check if this PAIR already exists (Web URL + Context + Sibling Repo)
+            // TITAN V8: Check for explicit batch_id FIRST to allow forced re-scans of existing batches
+            $existingWeb = null;
+            
+            if (!empty($validated['batch_id'])) {
+                 $existingWeb = VaultAsset::where('batch_id', $validated['batch_id'])
+                    ->where('user_id', Auth::id())
+                    ->where('metadata->context', 'sync_child') // Ensure we don't pick up garbage
+                    ->first();
+            }
+
+            // Fallback: Check strictly by URLs if no batch_id provided or found
+            if (!$existingWeb) {
+                $existingWeb = VaultAsset::where('file_name', $productionUrl)
+                    ->where('user_id', Auth::id())
+                    ->where('metadata->context', 'sync_child')
+                    ->whereHas('sibling', function($q) use ($validated) {
+                         $q->where('file_name', $validated['github_repo_url']);
+                    })->first();
+            }
+
+            $batchId = null;
+            $webAsset = null;
+            $repoAsset = null;
+
+            if ($existingWeb) {
+                // SCENARIO: EXISTING PAIR -> UPDATE & ARCHIVE
+                Log::info('Found existing Sync Pair. Archiving and Updating.', ['batch_id' => $existingWeb->batch_id]);
+                
+                $batchId = $existingWeb->batch_id;
+                
+                // Find the Sibling Repo
+                $existingRepo = VaultAsset::where('batch_id', $batchId)
+                    ->where('file_name', $validated['github_repo_url'])
+                    ->first();
+
+                // Archive Both
+                foreach ([$existingWeb, $existingRepo] as $asset) {
+                    if ($asset) {
+                        \App\Models\VaultHistory::create([
+                            'vault_asset_id' => $asset->id,
+                            'batch_id' => $asset->batch_id,
+                            'score' => $asset->score,
+                            'status' => $asset->status,
+                            'metadata' => $asset->metadata,
+                            'scanned_at' => $asset->updated_at,
+                        ]);
+                    }
+                }
+
+                // Update Logic (Reuse ID)
+                $webAsset = $existingWeb;
+                $webAsset->update([
+                    'status' => 'processing',
+                    // Keep metadata but ensure URL is fresh if needed
+                    'metadata' => array_merge($webAsset->metadata ?? [], [
+                        'audit_type' => 'website_scan',
+                        'website_url' => $validated['website_url'],
+                        'project_asset_id' => $project->id,
+                        'is_project' => true,
+                        'context' => 'sync_child'
+                    ]),
+                    'radar_data' => null // Reset data
+                ]);
+
+                $repoAsset = $existingRepo;
+                $repoAsset->update([
+                    'status' => 'processing',
+                    'metadata' => array_merge($repoAsset->metadata ?? [], [
+                        'audit_type' => 'repository_scan', 
+                        'is_repo_scan' => true,
+                        'github_repo_url' => $validated['github_repo_url'],
+                        'project_asset_id' => $project->id,
+                        'is_project' => true,
+                        'context' => 'sync_child'
+                    ]),
+                    'radar_data' => null
+                ]);
+
+            } else {
+                // SCENARIO: NEW PAIR -> CREATE NEW
+                Log::info('New Sync Pair Detected. Creating new Batch.');
+                $batchId = 'SYNC-' . date('Ymd-His') . '-' . strtoupper(substr(md5(uniqid()), 0, 4));
+                
+                // 1. Create Web
+                $webAsset = VaultAsset::create([
+                    'user_id' => Auth::id(), 
+                    'file_name' => $productionUrl, 
+                    'batch_id' => $batchId,
+                    'status' => 'processing',
+                    'metadata' => [
+                        'audit_type' => 'website_scan',
+                        'website_url' => $validated['website_url'],
+                        'project_asset_id' => $project->id,
+                        'is_project' => true,
+                        'context' => 'sync_child'
+                    ],
+                ]);
+                
+                // 2. Create Repo
+                $repoAsset = VaultAsset::create([
+                    'user_id' => Auth::id(), 
+                    'file_name' => $validated['github_repo_url'], 
+                    'batch_id' => $batchId,
+                    'status' => 'processing',
+                    'metadata' => [
+                        'audit_type' => 'repository_scan', 
+                        'is_repo_scan' => true,
+                        'github_repo_url' => $validated['github_repo_url'],
+                        'project_asset_id' => $project->id,
+                        'is_project' => true,
+                        'context' => 'sync_child'
+                    ],
+                ]);
+            }
+
+            // Primary Asset for Response is the Web Asset (Dashboard convention)
+            $vaultAsset = $webAsset;
+
+            // Dispatch with the PRE-GENERATED Batch ID
+            \App\Jobs\PerformSyncScan::dispatch(
+                $project, 
+                $webAsset->id, 
+                $repoAsset->id, 
+                $validated['github_token'] ?? null,
+                $batchId // Pass the ID we just used
+            );
+        }
+        // CASE B: REPO ONLY
+        elseif (!empty($validated['github_repo_url'])) {
+             Log::info('Dispatching PerformGithubRepositoryScan (Repo Mode)');
+             
+             $vaultAsset = VaultAsset::updateOrCreate(
+                ['user_id' => Auth::id(), 'file_name' => $validated['github_repo_url'], 'batch_id' => null],
+                [
+                    'status' => 'processing',
+                    'metadata' => [
+                        'audit_type' => 'repository_scan',
+                        'is_repo_scan' => true,
+                        'github_repo_url' => $validated['github_repo_url'],
+                        'project_asset_id' => $project->id,
+                        'is_project' => true
+                    ],
+                    'radar_data' => null
+                ]
+             );
+             
+             \App\Jobs\PerformGithubRepositoryScan::dispatch($project, $validated['github_token'] ?? null, $vaultAsset->id);
+        }
+        // CASE C: WEB ONLY
+        else {
+             Log::info('Dispatching PerformProjectScan (Web Mode)');
+             
+             $vaultAsset = VaultAsset::updateOrCreate(
+                [
+                    'user_id' => Auth::id(),
+                    'file_name' => $productionUrl, // Unique by URL + user
+                    'batch_id' => null, // TITAN V2: Ensure we only touch 'Solo' assets
                 ],
-                // Reset radar_data and full_audit_report on re-scan
-                'radar_data' => null,
-                'full_audit_report' => null,
-            ]
-        );
-
-        Log::info('VaultAsset updated/created for project scan', [
-            'vault_asset_id' => $vaultAsset->id,
-            'project_id' => $project->id,
-            'was_recently_created' => $vaultAsset->wasRecentlyCreated,
-        ]);
-
-        // Link Proofs if provided
-        if (!empty($validated['proof_asset_ids'])) {
+                [
+                    'file_path' => null, // No physical file for project scans
+                    'file_size' => null,
+                    'mime_type' => null,
+                    'status' => 'processing',
+                    'metadata' => [
+                        'audit_type' => $auditType,
+                        'website_url' => $validated['website_url'] ?? null,
+                        'github_repo_url' => $validated['github_repo_url'] ?? null,
+                        'project_asset_id' => $project->id,
+                        'is_project' => true,
+                        'verification_uuid' => $verificationUuid,
+                    ],
+                    'radar_data' => null,
+                    'full_audit_report' => null,
+                ]
+            );
+             
+             \App\Jobs\PerformProjectScan::dispatch($project, $validated['github_token'] ?? null, $vaultAsset->id);
+        }
+        
+        // COMMON: Link Proofs to whichever asset became the Primary
+        if (!empty($validated['proof_asset_ids']) && $vaultAsset) {
             VaultAsset::whereIn('id', $validated['proof_asset_ids'])
                 ->update([
                     'status' => 'processing',
@@ -129,18 +324,31 @@ class ProjectController extends Controller
                 ]);
         }
 
-        // Dispatch background scan job with the VaultAsset ID
-        \App\Jobs\PerformProjectScan::dispatch($project, $validated['github_token'] ?? null, $vaultAsset->id);
-
-        Log::info('PerformProjectScan job dispatched', [
+        Log::info('Scan job dispatched', [
             'project_id' => $project->id,
             'vault_asset_id' => $vaultAsset->id,
+            'mode' => !empty($validated['github_repo_url']) ? 'repo' : 'web'
         ]);
 
         return response()->json([
             'success' => true,
             'project' => $project,
-            'asset' => $vaultAsset, // Return real VaultAsset for modal
+            'asset' => [
+                'id' => $vaultAsset->id,
+                'user_id' => $vaultAsset->user_id,
+                'file_name' => $vaultAsset->file_name,
+                'file_size' => $vaultAsset->file_size,
+                'mime_type' => $vaultAsset->mime_type,
+                'status' => $vaultAsset->status,
+                'metadata' => $vaultAsset->metadata,
+                'created_at' => $vaultAsset->created_at->toISOString(),
+                'updated_at' => $vaultAsset->updated_at->toISOString(),
+            ],
+            'repo_asset' => $repoAsset ? [
+                'id' => $repoAsset->id,
+                'status' => $repoAsset->status,
+                'file_name' => $repoAsset->file_name,
+            ] : null,
             'verification_uuid' => $verificationUuid,
             'verification_meta_tag' => "<meta name=\"lume-verification\" content=\"{$verificationUuid}\">",
         ]);
@@ -380,6 +588,49 @@ class ProjectController extends Controller
             'success' => true,
             'results' => $results,
             'project' => $project->fresh(),
+        ]);
+    }
+    /**
+     * Compare two assets (Website vs Repository).
+     */
+    public function compare(Request $request)
+    {
+        $request->validate([
+            'asset_ids' => 'required|array|min:2|max:2',
+            'asset_ids.*' => 'exists:vault_assets,id'
+        ]);
+
+        $assets = VaultAsset::whereIn('id', $request->input('asset_ids'))->get();
+        if ($assets->count() !== 2) {
+             return response()->json(['success' => false, 'message' => 'Assets not found.'], 404);
+        }
+
+        // Auto-detect which is Web and which is Repo based on metadata or audit_type
+        // Heuristic: 'project' audit_type with 'is_project' usually implies Web in the old system, 
+        // but now we have separated them. 
+        // We can check 'github_repo_url' vs 'website_url' in metadata.
+        
+        $assetA = $assets[0];
+        $assetB = $assets[1];
+        
+        // Simple heuristic: If one has 'github_data' or 'file_count' in metadata and the other doesn't?
+        // Or check the file_name (which is the url).
+        
+        $isARepo = str_contains($assetA->file_name, 'github.com');
+        $isBRepo = str_contains($assetB->file_name, 'github.com');
+        
+        $webAsset = $isARepo ? $assetB : $assetA;
+        $repoAsset = $isARepo ? $assetA : $assetB;
+        
+        // Comparator Service
+        $comparator = new \App\Services\ComparatorService();
+        $comparison = $comparator->compare($webAsset, $repoAsset);
+        
+        return response()->json([
+            'success' => true,
+            'web_asset' => $webAsset,
+            'repo_asset' => $repoAsset,
+            'comparison' => $comparison
         ]);
     }
 }

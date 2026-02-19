@@ -6,6 +6,17 @@ export interface User {
     email: string;
     email_verified_at?: string;
     is_admin: boolean;
+    credits?: number;
+    active_subscription?: {
+        id: string;
+        plan_type: 'developer' | 'agency';
+        status: 'active' | 'trialing' | 'cancelled' | 'expired';
+        daily_individual_scans_used: number;
+        daily_sync_scans_used: number;
+        monthly_pentests_used: number;
+        ends_at: string | null;
+        created_at: string;
+    };
 }
 
 export type PageProps<

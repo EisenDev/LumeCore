@@ -103,5 +103,75 @@ class GlobalHelperController extends Controller
             'messages' => $messages
         ]);
     }
+    /**
+     * Validate if a URL is accessible (HEAD request).
+     */
+    public function validateUrl(Request $request)
+    {
+        $request->validate([
+            'url' => 'required|url'
+        ]);
+
+        $url = $request->input('url');
+        
+        try {
+            $client = new \GuzzleHttp\Client(['timeout' => 5]);
+            $response = $client->head($url);
+            
+            return response()->json([
+                'valid' => $response->getStatusCode() >= 200 && $response->getStatusCode() < 400
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'valid' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * On-demand AI Generation Detection for a document asset.
+     */
+    public function aiDetection(Request $request)
+    {
+        $request->validate([
+            'asset_id' => 'required|exists:vault_assets,id',
+        ]);
+
+        $asset = \App\Models\VaultAsset::find($request->input('asset_id'));
+        if (!$asset) {
+            return response()->json(['error' => 'Asset not found'], 404);
+        }
+
+        $fullText = $asset->metadata['full_text'] ?? '';
+        if (empty($fullText)) {
+            return response()->json(['error' => 'No text content available for analysis'], 422);
+        }
+
+        try {
+            $auditor = app(\App\Services\AI\DocumentAuditor::class);
+            $result = $auditor->analyzeAiDetection($fullText);
+
+            // PERSISTENCE: Save to asset metadata
+            $meta = $asset->metadata ?? [];
+            $meta['ai_analysis'] = $result;
+            $asset->metadata = $meta;
+            $asset->save();
+
+            return response()->json($result);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('AI Detection failed: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'AI Detection analysis failed. Please try again.',
+                'ai_probability' => 50,
+                'human_probability' => 50,
+                'verdict' => 'Mixed Content',
+                'confidence' => 'Low',
+                'overall_assessment' => 'Analysis could not be completed.',
+                'reasoning' => [],
+                'flagged_passages' => [],
+            ], 500);
+        }
+    }
 }
 

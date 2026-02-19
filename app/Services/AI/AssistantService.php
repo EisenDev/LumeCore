@@ -21,7 +21,7 @@ class AssistantService
         $contextSection = "";
         
         if ($assetId) {
-            $asset = \App\Models\VaultAsset::with('project')->find($assetId);
+            $asset = \App\Models\VaultAsset::find($assetId);
             if ($asset) {
                 $contextSection = "\n=== ACTIVE CONTEXT ===\n";
                 $contextSection .= "Asset: {$asset->file_name}\n";
@@ -31,8 +31,45 @@ class AssistantService
                 if (!empty($asset->metadata['summary'])) {
                      $contextSection .= "Summary: {$asset->metadata['summary']}\n";
                 }
+
+                // Document-specific: inject full text and analysis for accurate answers
+                if (($asset->metadata['audit_type'] ?? '') === 'document') {
+                    $contextSection .= "Document Type: " . ($asset->metadata['document_type'] ?? 'Unknown') . "\n";
+                    $contextSection .= "Score: " . ($asset->metadata['score'] ?? 'N/A') . "/100\n";
+                    $contextSection .= "Verdict: " . ($asset->metadata['verdict'] ?? 'N/A') . "\n";
+
+                    // Inject key insights
+                    if (!empty($asset->metadata['key_insights'])) {
+                        $contextSection .= "\nKEY INSIGHTS:\n";
+                        foreach ($asset->metadata['key_insights'] as $insight) {
+                            $contextSection .= "- {$insight}\n";
+                        }
+                    }
+
+                    // Inject forensic highlights
+                    if (!empty($asset->metadata['forensic_highlights'])) {
+                        $contextSection .= "\nFORENSIC HIGHLIGHTS:\n";
+                        foreach (array_slice($asset->metadata['forensic_highlights'], 0, 20) as $h) {
+                            $contextSection .= "- [{$h['type']}] p.{$h['page']}: {$h['text']} — {$h['detail']}\n";
+                        }
+                    }
+
+                    // Inject content sections
+                    if (!empty($asset->metadata['content_sections'])) {
+                        $contextSection .= "\nDOCUMENT SECTIONS:\n";
+                        foreach ($asset->metadata['content_sections'] as $section) {
+                            $contextSection .= "- [{$section['heading']}] (p.{$section['page']}): {$section['summary']}\n";
+                        }
+                    }
+
+                    // Inject full extracted text (truncated) for deep Q&A
+                    if (!empty($asset->metadata['full_text'])) {
+                        $fullText = mb_substr($asset->metadata['full_text'], 0, 20000);
+                        $contextSection .= "\n=== FULL DOCUMENT TEXT (truncated) ===\n{$fullText}\n=== END DOCUMENT TEXT ===\n";
+                    }
+                }
                 
-                // Add Technical Insight if available
+                // Add Technical Insight if available (for projects)
                 if (!empty($asset->metadata['tech_assessment'])) {
                      $contextSection .= "Tech Stack: " . json_encode($asset->metadata['tech_assessment']) . "\n";
                 }
@@ -42,9 +79,13 @@ class AssistantService
                      $contextSection .= "Warnings: " . json_encode($asset->metadata['warning_flags']) . "\n";
                 }
                 
-                // Add Full Audit Data if Project
-                if ($asset->project && !empty($asset->project->audit_data)) {
-                    $contextSection .= "\nDETAILED AUDIT DATA:\n" . json_encode($asset->project->audit_data) . "\n";
+                // Add Full Audit Data if Project (safely check)
+                try {
+                    if (method_exists($asset, 'project') && $asset->project && !empty($asset->project->audit_data)) {
+                        $contextSection .= "\nDETAILED AUDIT DATA:\n" . json_encode($asset->project->audit_data) . "\n";
+                    }
+                } catch (\Exception $e) {
+                    // Relationship may not exist for document assets
                 }
             }
         }
@@ -79,7 +120,7 @@ PROMPT;
     {
         $apiKey = config('services.gemini.key');
         // Use the same model as DocumentAuditor from config
-        $model = config('services.gemini.model', 'gemini-2.5-flash');
+        $model = config('services.gemini.model', 'gemini-3-flash-preview');
         $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
 
         if (empty($apiKey)) {

@@ -14,8 +14,10 @@ class ProjectChat extends Model
     protected $fillable = [
         'user_id',
         'vault_asset_id',
+        'conversation_id', // New field
         'message',
         'role',
+        'mode',
     ];
 
     /**

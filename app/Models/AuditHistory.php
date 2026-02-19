@@ -16,6 +16,7 @@ class AuditHistory extends Model
     protected $fillable = [
         'vault_asset_id',
         'score',
+        'audit_type',
         'status',
         'metadata',
         'created_at',

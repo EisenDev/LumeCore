@@ -8,7 +8,13 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement('CREATE EXTENSION IF NOT EXISTS vector');
+        try {
+            DB::statement('CREATE EXTENSION IF NOT EXISTS vector');
+        } catch (\Exception $e) {
+            // Extension might not be installed on the server (e.g. Windows Postgres).
+            // Proceed without it; embeddings features will be disabled.
+            echo "Warning: pgvector extension could not be enabled. Vector search checks will be skipped.\n";
+        }
     }
 
     public function down(): void

@@ -1,217 +1,158 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
+import { ref, onMounted } from 'vue';
+import { Link } from '@inertiajs/vue3';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
-import NavLink from '@/Components/NavLink.vue';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import GlobalHelper from '@/Components/GlobalHelper.vue';
-import { Link } from '@inertiajs/vue3';
+import Sidebar from '@/Components/Sidebar.vue';
+import LumeAISupport from '@/Components/LumeAISupport.vue';
+import CreditPurchaseModal from '@/Components/CreditPurchaseModal.vue';
 
-const showingNavigationDropdown = ref(false);
+const isSidebarOpen = ref(true);
+const showCreditModal = ref(false);
+
+// Auto-collapse on small screens
+onMounted(() => {
+    if (window.innerWidth < 1024) {
+        isSidebarOpen.value = false;
+    }
+});
+
+const toggleSidebar = () => {
+    isSidebarOpen.value = !isSidebarOpen.value;
+};
 </script>
 
 <template>
-    <div>
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-            <nav
-                class="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800"
-            >
-                <!-- Primary Navigation Menu -->
-                <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div class="flex h-16 justify-between">
-                        <div class="flex">
-                            <!-- Logo -->
-                            <div class="flex shrink-0 items-center">
-                                <Link :href="route('dashboard')">
-                                    <ApplicationLogo
-                                        class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200"
-                                    />
-                                </Link>
-                            </div>
+    <div class="flex h-screen overflow-hidden bg-[#0A0A0B]">
+        <!-- Sidebar -->
+        <Sidebar 
+            :open="isSidebarOpen" 
+            @toggle="toggleSidebar"
+            @visit-marketplace="() => {}" 
+        />
 
-                            <!-- Navigation Links -->
-                            <div
-                                class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex"
-                            >
-                                <NavLink
-                                    :href="route('dashboard')"
-                                    :active="route().current('dashboard')"
-                                >
-                                    Dashboard
-                                </NavLink>
-                                <!-- Admin Panel Link (Admin Only) -->
-                                <a
-                                    v-if="$page.props.auth.user.is_admin"
-                                    href="/admin"
-                                    class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium leading-5 text-gray-500 transition duration-150 ease-in-out hover:border-gray-300 hover:text-gray-700 focus:border-gray-300 focus:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:border-gray-700 dark:hover:text-gray-300 dark:focus:border-gray-700 dark:focus:text-gray-300"
-                                >
-                                    Admin Panel
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="hidden sm:ms-6 sm:flex sm:items-center">
-                            <!-- Settings Dropdown -->
-                            <div class="relative ms-3">
-                                <Dropdown align="right" width="48">
-                                    <template #trigger>
-                                        <span class="inline-flex rounded-md">
-                                            <button
-                                                type="button"
-                                                class="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none dark:bg-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
-                                            >
-                                                {{ $page.props.auth.user.name }}
-
-                                                <svg
-                                                    class="-me-0.5 ms-2 h-4 w-4"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20"
-                                                    fill="currentColor"
-                                                >
-                                                    <path
-                                                        fill-rule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clip-rule="evenodd"
-                                                    />
-                                                </svg>
-                                            </button>
-                                        </span>
-                                    </template>
-
-                                    <template #content>
-                                        <DropdownLink
-                                            :href="route('profile.edit')"
-                                        >
-                                            Profile
-                                        </DropdownLink>
-                                        <DropdownLink
-                                            :href="route('logout')"
-                                            method="post"
-                                            as="button"
-                                        >
-                                            Log Out
-                                        </DropdownLink>
-                                    </template>
-                                </Dropdown>
-                            </div>
-                        </div>
-
-                        <!-- Hamburger -->
-                        <div class="-me-2 flex items-center sm:hidden">
-                            <button
-                                @click="
-                                    showingNavigationDropdown =
-                                        !showingNavigationDropdown
-                                "
-                                class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none dark:text-gray-500 dark:hover:bg-gray-900 dark:hover:text-gray-400 dark:focus:bg-gray-900 dark:focus:text-gray-400"
-                            >
-                                <svg
-                                    class="h-6 w-6"
-                                    stroke="currentColor"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        :class="{
-                                            hidden: showingNavigationDropdown,
-                                            'inline-flex':
-                                                !showingNavigationDropdown,
-                                        }"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M4 6h16M4 12h16M4 18h16"
-                                    />
-                                    <path
-                                        :class="{
-                                            hidden: !showingNavigationDropdown,
-                                            'inline-flex':
-                                                showingNavigationDropdown,
-                                        }"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Responsive Navigation Menu -->
-                <div
-                    :class="{
-                        block: showingNavigationDropdown,
-                        hidden: !showingNavigationDropdown,
-                    }"
-                    class="sm:hidden"
-                >
-                    <div class="space-y-1 pb-3 pt-2">
-                        <ResponsiveNavLink
-                            :href="route('dashboard')"
-                            :active="route().current('dashboard')"
-                        >
-                            Dashboard
-                        </ResponsiveNavLink>
-                        <!-- Admin Panel Link (Admin Only) -->
-                        <ResponsiveNavLink
-                            v-if="$page.props.auth.user.is_admin"
-                            href="/admin"
-                        >
-                            Admin Panel
-                        </ResponsiveNavLink>
-                    </div>
-
-                    <!-- Responsive Settings Options -->
-                    <div
-                        class="border-t border-gray-200 pb-1 pt-4 dark:border-gray-600"
+        <!-- Main Content Area -->
+        <div class="flex flex-1 flex-col overflow-hidden transition-all duration-300">
+            
+            <!-- Top Header (User Menu + Page Title Slot) -->
+            <header class="flex h-16 shrink-0 items-center justify-between border-b border-white/5 bg-[#0A0A0B]/60 backdrop-blur-3xl px-6 transition-all duration-500 sticky top-0 z-40">
+                
+                <!-- Page Title / Header Slot -->
+                <div class="flex items-center gap-4">
+                    <!-- Mobile Hamburger -->
+                    <button 
+                        @click="toggleSidebar"
+                        class="lg:hidden flex items-center justify-center p-2 rounded-xl bg-white/5 text-gray-400 hover:text-white"
                     >
-                        <div class="px-4">
-                            <div
-                                class="text-base font-medium text-gray-800 dark:text-gray-200"
-                            >
-                                {{ $page.props.auth.user.name }}
-                            </div>
-                            <div class="text-sm font-medium text-gray-500">
-                                {{ $page.props.auth.user.email }}
-                            </div>
-                        </div>
-
-                        <div class="mt-3 space-y-1">
-                            <ResponsiveNavLink :href="route('profile.edit')">
-                                Profile
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink
-                                :href="route('logout')"
-                                method="post"
-                                as="button"
-                            >
-                                Log Out
-                            </ResponsiveNavLink>
-                        </div>
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    <!-- Mobile Toggle (Visible only on small screens if needed, or if sidebar acts as drawer) -->
+                    <!-- For now, we rely on sidebar collapse button, but on mobile we might want a hamburger here if sidebar is hidden -->
+                    
+                    <div v-if="$slots.header" class="text-2xl font-black italic tracking-tighter text-white uppercase leading-none mt-1">
+                        <slot name="header" />
                     </div>
                 </div>
-            </nav>
 
-            <!-- Page Heading -->
-            <header
-                class="bg-white shadow dark:bg-gray-800"
-                v-if="$slots.header"
-            >
-                <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                    <slot name="header" />
+                <!-- Right Side: User Dropdown -->
+                <div class="flex items-center gap-4">
+                    <!-- Credits Display (Mini) - Optional, mimicking dashboard card -->
+                    <!-- Credits Display (Mini) -->
+                    <button 
+                        @click="showCreditModal = true"
+                        class="hidden md:flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-400 hover:bg-emerald-400/20 transition-all active:scale-95 shadow-lg shadow-emerald-400/10"
+                    >
+                       <div class="relative flex h-2 w-2">
+                           <div class="absolute inset-0 animate-ping rounded-full bg-emerald-400/40 opacity-75"></div>
+                           <div class="relative h-2 w-2 rounded-full bg-emerald-400"></div>
+                       </div>
+                       <span>{{ Number($page.props.auth.user.credits || 0).toFixed(0) }} Credits</span>
+                    </button>
+
+                    <!-- User Menu -->
+                    <div class="relative">
+                        <Dropdown align="right" width="48">
+                            <template #trigger>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center gap-3 rounded-xl border border-transparent px-3 py-2 text-sm font-bold leading-4 text-slate-300 transition-all hover:bg-white/[0.07] hover:text-white focus:outline-none"
+                                >
+                                    <!-- Avatar -->
+                                    <div class="relative">
+                                        <div class="absolute -inset-1 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 opacity-20 blur-sm"></div>
+                                        <div class="relative h-9 w-9 overflow-hidden rounded-full border border-emerald-400/30 bg-gradient-to-br from-emerald-400 to-cyan-400 flex items-center justify-center text-white font-black text-sm shadow-lg shadow-emerald-400/20">
+                                            {{ $page.props.auth.user.name.charAt(0) }}
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col items-start">
+                                        <span class="hidden md:inline-block leading-none">{{ $page.props.auth.user.name }}</span>
+                                        <span v-if="$page.props.auth.user.active_subscription?.plan_type === 'agency'" class="mt-0.5 text-[8px] font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30 px-1 rounded uppercase tracking-tighter">
+                                            Agency Badge
+                                        </span>
+                                        <span v-else-if="$page.props.auth.user.active_subscription?.plan_type === 'developer'" class="mt-0.5 text-[8px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1 rounded uppercase tracking-tighter">
+                                            Developer Badge
+                                        </span>
+                                    </div>
+
+                                    <svg
+                                        class="-me-0.5 ms-2 h-4 w-4"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20"
+                                        fill="currentColor"
+                                    >
+                                        <path
+                                            fill-rule="evenodd"
+                                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"
+                                        />
+                                    </svg>
+                                </button>
+                            </template>
+
+                            <template #content>
+                                <div class="px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                                    Account: <span class="text-slate-300 font-mono lower-case tracking-normal">{{ $page.props.auth.user.email }}</span>
+                                </div>
+                                <div class="border-t border-white/5"></div>
+
+                                <DropdownLink :href="route('profile.edit')">
+                                    Profile
+                                </DropdownLink>
+                                <DropdownLink :href="route('logout')" method="post" as="button">
+                                    Log Out
+                                </DropdownLink>
+                            </template>
+                        </Dropdown>
+                    </div>
                 </div>
             </header>
 
-            <!-- Page Content -->
-            <main>
-                <slot />
+            <!-- Page Content Scroll Area -->
+            <main class="flex-1 overflow-y-auto relative">
+                <!-- Grainy Overlay -->
+                <div class="pointer-events-none fixed inset-0 z-50 opacity-[0.03] mix-blend-overlay" style="background-image: url('https://grainy-gradients.vercel.app/noise.svg')"></div>
+                
+                <!-- Mesh Gradients -->
+                <div class="pointer-events-none absolute inset-0 overflow-hidden">
+                    <div class="absolute -top-[10%] left-[20%] h-[500px] w-[500px] rounded-full bg-emerald-400/5 blur-[120px] animate-pulse"></div>
+                    <div class="absolute bottom-[20%] right-[10%] h-[400px] w-[400px] rounded-full bg-cyan-400/5 blur-[100px] animate-pulse" style="animation-delay: 2s"></div>
+                </div>
+
+                <div class="relative z-10 p-4 sm:p-6 lg:p-10">
+                    <slot />
+                </div>
             </main>
         </div>
 
         <!-- Global AI Helper Bot -->
-        <GlobalHelper />
+        <LumeAISupport mode="global" />
+
+        <!-- Global Credit Purchase Modal -->
+        <CreditPurchaseModal
+            :show="showCreditModal"
+            @close="showCreditModal = false"
+        />
     </div>
 </template>

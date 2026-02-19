@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 class EmbeddingService
 {
     protected string $apiKey;
-    protected string $model = 'text-embedding-004'; // Gemini's embedding model
+    protected string $model = 'text-embedding-004'; // Use latest supported model
 
     public function __construct()
     {
@@ -31,7 +31,7 @@ class EmbeddingService
         // Truncate text to model limit (roughly 8k tokens, ~32k chars for safety)
         $text = mb_substr($text, 0, 32000);
 
-        $url = "https://generativelanguage.googleapis.com/v1/models/{$this->model}:embedContent?key={$this->apiKey}";
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:embedContent?key={$this->apiKey}";
 
         try {
             $response = Http::timeout(30)->post($url, [

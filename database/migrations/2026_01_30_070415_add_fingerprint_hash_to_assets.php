@@ -12,10 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('vault_assets', function (Blueprint $table) {
-            $table->decimal('suggested_value', 10, 2)->nullable()->after('metadata');
-            $table->boolean('is_for_sale')->default(false)->after('suggested_value');
-            $table->decimal('price', 15, 2)->nullable()->after('is_for_sale');
-            $table->integer('sale_count')->default(0)->after('price');
+            $table->string('fingerprint_hash')->nullable()->index()->after('metadata');
+        });
+
+        Schema::table('project_assets', function (Blueprint $table) {
+            $table->string('fingerprint_hash')->nullable()->index()->after('github_repo_url');
         });
     }
 
@@ -25,7 +26,11 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('vault_assets', function (Blueprint $table) {
-            $table->dropColumn(['suggested_value', 'is_for_sale', 'price', 'sale_count']);
+            $table->dropColumn('fingerprint_hash');
+        });
+
+        Schema::table('project_assets', function (Blueprint $table) {
+            $table->dropColumn('fingerprint_hash');
         });
     }
 };

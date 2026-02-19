@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class VaultAsset extends Model
 {
@@ -31,6 +32,12 @@ class VaultAsset extends Model
         'is_for_sale',
         'price',
         'sale_count',
+        'score',
+        'sync_score',
+        'synced_metadata',
+        'website_metadata',
+        'repository_metadata',
+        'batch_id', // TITAN V2: Sync Batch ID
     ];
 
     /**
@@ -44,6 +51,9 @@ class VaultAsset extends Model
             'file_size' => 'integer',
             'metadata' => 'array',
             'radar_data' => 'array',
+            'synced_metadata' => 'array',
+            'website_metadata' => 'array',
+            'repository_metadata' => 'array',
         ];
     }
 
@@ -58,5 +68,29 @@ class VaultAsset extends Model
     public function auditHistory(): HasMany
     {
         return $this->hasMany(AuditHistory::class)->orderBy('created_at', 'desc');
+    }
+
+    public function purchase(): HasOne
+    {
+        return $this->hasOne(Purchase::class);
+    }
+
+    /**
+     * Get the latest sync activity where this asset was the primary target.
+     * Used for Marketplace "Status" display.
+     */
+    public function latestSyncActivity(): HasOne
+    {
+        return $this->hasOne(ScanActivity::class, 'primary_asset_id')
+            ->where('type', 'sync')
+            ->orderBy('scanned_at', 'desc');
+    }
+
+    /**
+     * Get the sibling asset in the same batch (e.g., Repo for a Web asset).
+     */
+    public function sibling(): HasOne
+    {
+        return $this->hasOne(VaultAsset::class, 'batch_id', 'batch_id')->where('id', '!=', $this->id);
     }
 }

@@ -1,0 +1,9 @@
+{
+    "timestamp": "2026-02-04T01:48:33+01:00",
+    "target_host": "host.docker.internal",
+    "target_db": "lume",
+    "connection_status": "failed",
+    "column_exists": false,
+    "action_taken": "none",
+    "error": "SQLSTATE[08006] [7] could not connect to server: Connection timed out (0x0000274C\/10060)\n\tIs the server running on host \"host.docker.internal\" (192.168.1.12) and accepting\n\tTCP\/IP connections on port 5432?"
+}

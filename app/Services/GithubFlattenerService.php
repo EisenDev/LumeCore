@@ -27,7 +27,7 @@ class GithubFlattenerService
      * @param string|null $token
      * @return string
      */
-    public function flattenRepo(string $repoUrl, ?string $token = null): string
+    public function flattenRepo(string $repoUrl, ?string $token = null, ?callable $onProgress = null): string
     {
         // 1. Parse Repo
         $repoInfo = $this->parseRepoUrl($repoUrl);
@@ -42,9 +42,11 @@ class GithubFlattenerService
         
         try {
             // 3. Get Default Branch
+            if ($onProgress) $onProgress("Git: Fetching default branch...", 10);
             $defaultBranch = $this->getDefaultBranch($owner, $repo, $authToken);
             
             // 4. Get Recursive Tree
+            if ($onProgress) $onProgress("Git: Fetching file structure...", 15);
             $tree = $this->getRecursiveTree($owner, $repo, $defaultBranch, $authToken);
             
             // 5. Filter & Fetch Files
@@ -57,13 +59,28 @@ class GithubFlattenerService
             $totalSize = 0;
             $maxTotalSize = 2 * 1024 * 1024; // 2MB limit for AI context
 
-            foreach ($tree as $node) {
+            if ($onProgress) $onProgress("Git: Found " . count($tree) . " files. Filtering...", 20);
+
+            foreach ($tree as $index => $node) {
                 if ($fileCount >= $maxFiles) break;
                 if ($totalSize >= $maxTotalSize) break;
                 
                 if ($node['type'] !== 'blob') continue;
                 
                 if ($this->shouldInclude($node['path'])) {
+                    // Check file size from tree metadata before fetching (Skip > 500KB)
+                    if (isset($node['size']) && $node['size'] > 500 * 1024) {
+                         Log::info("Skipping large file: {$node['path']} (" . round($node['size'] / 1024) . "KB)");
+                         continue;
+                    }
+
+                    // Check if adding this file would exceed limits
+                    if (isset($node['size']) && ($totalSize + $node['size']) > $maxTotalSize) {
+                        Log::info("Context size limit reached. Stopping at: {$node['path']}");
+                        break;
+                    }
+
+                    if ($onProgress) $onProgress("Downloading: {$node['path']}", 20 + min(50, $fileCount));
                     $content = $this->fetchFileContent($owner, $repo, $node['path'], $authToken);
                     if ($content) {
                         $flattenedContent .= "--- FILE: {$node['path']} ---\n";
@@ -83,19 +100,98 @@ class GithubFlattenerService
         }
     }
 
+    /**
+     * Flatten a LOCAL git repository (after cloning).
+     * Much faster and more reliable for large repos.
+     * 
+     * @param string $localPath
+     * @param callable|null $onProgress
+     * @return string
+     */
+    public function flattenLocalRepo(string $localPath, ?callable $onProgress = null): string
+    {
+        try {
+            if ($onProgress) $onProgress("Local: Scanning files...", 5);
+            
+            $files = \Illuminate\Support\Facades\File::allFiles($localPath);
+            
+            $flattenedContent = "=== GITHUB REPOSITORY FLATTENED CONTEXT (LOCAL SCAN) ===\n";
+            $flattenedContent .= "TIMESTAMP: " . now()->toIso8601String() . "\n\n";
+
+            $fileCount = 0;
+            $maxFiles = 50; 
+            $totalSize = 0;
+            $maxTotalSize = 2.5 * 1024 * 1024; // 2.5MB limit (Local can handle a bit more)
+
+            if ($onProgress) $onProgress("Local: Found " . count($files) . " files. Filtering...", 10);
+
+            foreach ($files as $file) {
+                if ($fileCount >= $maxFiles) break;
+                if ($totalSize >= $maxTotalSize) {
+                    Log::info("Context size limit reached (Local).");
+                    break;
+                }
+
+                $relativePath = Str::after($file->getPathname(), $localPath . DIRECTORY_SEPARATOR);
+                // Normalize slashes
+                $relativePath = str_replace('\\', '/', $relativePath);
+
+                if ($this->shouldInclude($relativePath)) {
+                    // Check size (skip > 500KB)
+                    $size = $file->getSize();
+                    if ($size > 500 * 1024) continue;
+
+                    // Smoother Progress: 10% to 90% mapped across file count
+                    $totalFiles = max(1, count($files));
+                    $relativePercent = 10 + (($fileCount / $totalFiles) * 80);
+                    
+                    if ($onProgress) $onProgress("Reading: {$relativePath}", (int) $relativePercent);
+
+                    $content = $file->getContents();
+                    
+                    // Truncate if huge
+                    if (strlen($content) > 30000) {
+                        $content = substr($content, 0, 30000) . "\n[...TRUNCATED...]";
+                    }
+
+                    $flattenedContent .= "--- FILE: {$relativePath} ---\n";
+                    $flattenedContent .= $content . "\n\n";
+                    
+                    $fileCount++;
+                    $totalSize += strlen($content);
+                }
+            }
+
+            return $flattenedContent;
+
+        } catch (\Exception $e) {
+            Log::error("GithubFlattenerService Local Error: " . $e->getMessage());
+            return "ERROR: Failed to flatten local repo. " . $e->getMessage();
+        }
+    }
+
     protected function parseRepoUrl(string $url): ?array
     {
         preg_match('/github\.com\/([^\/]+)\/([^\/\?#]+)/', $url, $matches);
         if (count($matches) < 3) return null;
-        return ['owner' => $matches[1], 'repo' => rtrim($matches[2], '.git')];
+        
+        $repo = $matches[2];
+        // FIX: rtrim removes characters from the mask, potentially corrupting repo names ending in g, i, or t.
+        // Use regex to remove ONLY the .git suffix.
+        $repo = preg_replace('/\.git$/', '', $repo);
+
+        return ['owner' => $matches[1], 'repo' => $repo];
     }
 
     protected function getDefaultBranch(string $owner, string $repo, ?string $token): string
     {
-        $response = Http::withHeaders([
+        $url = "https://api.github.com/repos/{$owner}/{$repo}";
+        Log::info("GithubFlattener: Fetching Default Branch for [{$url}]");
+
+        $response = Http::retry(3, 200)->timeout(30)->withHeaders([
             'User-Agent' => 'LUME-Core-Auditor',
             'Authorization' => $token ? "Bearer {$token}" : null,
-        ])->get("https://api.github.com/repos/{$owner}/{$repo}");
+        ])->get($url);
 
         if (!$response->successful()) {
             throw new \Exception("Could not fetch repo info: " . $response->status());
@@ -106,7 +202,7 @@ class GithubFlattenerService
 
     protected function getRecursiveTree(string $owner, string $repo, string $branch, ?string $token): array
     {
-        $response = Http::withHeaders([
+        $response = Http::retry(3, 300)->timeout(60)->withHeaders([
             'User-Agent' => 'LUME-Core-Auditor',
             'Authorization' => $token ? "Bearer {$token}" : null,
         ])->get("https://api.github.com/repos/{$owner}/{$repo}/git/trees/{$branch}?recursive=1");
@@ -135,7 +231,7 @@ class GithubFlattenerService
     protected function fetchFileContent(string $owner, string $repo, string $path, ?string $token): ?string
     {
         try {
-            $response = Http::timeout(5)
+            $response = Http::retry(3, 100)->timeout(30)
                 ->withHeaders([
                     'User-Agent' => 'LUME-Core-Auditor',
                     'Authorization' => $token ? "Bearer {$token}" : null,

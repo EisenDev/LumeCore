@@ -21,9 +21,19 @@ export default {
             },
             colors: {
                 brand: {
-                    primary: '#4f46e5',   // Indigo (Logic/Fintech)
-                    secondary: '#10b981', // Emerald (Success/Assets)
-                    dark: '#020617',      // Slate 950 (Background)
+                    primary: '#4f46e5',   // Indigo (Legacy Logic)
+                    secondary: '#10b981', // Emerald (Legacy Success)
+                    dark: '#030712',      // Deep Space Dark
+                },
+                lume: {
+                    primary: '#34d399',   // Emerald 400
+                    secondary: '#10b981', // Emerald 500
+                    glow: 'rgba(52, 211, 153, 0.5)',
+                },
+                sovereign: {
+                    primary: '#22d3ee',   // Cyan 400
+                    secondary: '#06b6d4', // Cyan 500
+                    glow: 'rgba(34, 211, 238, 0.5)',
                 }
             },
             keyframes: {

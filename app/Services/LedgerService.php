@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Transaction;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\VaultAsset;
 use App\Models\Wallet;
@@ -31,11 +32,15 @@ class LedgerService
      * These define the credit cost for each audit type.
      */
     public const AUDIT_FEES = [
-        'document' => 1.0,  // Simple document audit (PDF, image, text)
-        'project' => 10.0,  // Complex project/website audit - Increased for Forensic Bridge Protocol
+        'document' => 1.0,  // Simple document audit
+        'project' => 10.0,  // Complex project/website audit
+        'sync' => 10.0,     // Sync scan (Web vs Repo)
+        'rescan' => 10.0,   // Re-scan of an existing project/sync
+        'pentest' => 250.0, // High-Value Deep Penetration Testing
     ];
 
     public const CHAT_FEE = 0.50; // Fee per AI Chat Message
+    public const SYSTEM_PROCESSING_FEE = 0.20; // Processing fee for system-level failures
 
     /**
      * Get the credit cost for a specific audit type.
@@ -50,6 +55,13 @@ class LedgerService
      */
     public function hasCreditsForAudit(User $user, string $auditType): bool
     {
+        // 1. Check for Active Subscription Quota
+        $subscription = $user->activeSubscription;
+        if ($subscription && $subscription->hasQuota($auditType)) {
+            return true;
+        }
+
+        // 2. Fallback to Wallet Credits
         $requiredCredits = self::getAuditFee($auditType);
         return $this->getCredits($user) >= $requiredCredits;
     }
@@ -60,6 +72,15 @@ class LedgerService
      */
     public function consumeAuditCredits(User $user, string $auditType, string $assetName = 'Asset'): float
     {
+        // 1. Check Subscription Quota first
+        $subscription = $user->activeSubscription;
+        if ($subscription && $subscription->hasQuota($auditType)) {
+            $subscription->incrementUsage($auditType);
+            Log::info("LedgerService: Used subscription quota for {$auditType} consumption on {$assetName}");
+            return 0.0; // Quota used, no credits consumed
+        }
+
+        // 2. Fallback to Wallet Credits
         $creditCost = self::getAuditFee($auditType);
         $description = "LUME {$auditType} Audit: {$assetName}";
         
@@ -74,6 +95,15 @@ class LedgerService
      */
     public function lockAuditCredits(User $user, string $auditType, string $assetName = 'Asset'): float
     {
+        // 1. Check Subscription Quota
+        $subscription = $user->activeSubscription;
+        if ($subscription && $subscription->hasQuota($auditType)) {
+            $subscription->incrementUsage($auditType);
+            Log::info("LedgerService: Used subscription quota for {$auditType} on {$assetName}");
+            return 0.0; // No credits consumed, quota used
+        }
+
+        // 2. Fallback to Credits
         $creditCost = self::getAuditFee($auditType);
         $description = "LUME Audit Lock: {$assetName}";
         
@@ -83,15 +113,43 @@ class LedgerService
     }
 
     /**
-     * Refund credits for a failed or tiered audit.
+     * Refund credits OR quota for a failed audit.
      * @param float|null $amount Optional custom amount to refund. If null, refunds full audit fee.
      */
     public function refundAuditCredits(User $user, string $auditType, string $assetName = 'Asset', ?float $amount = null): int
     {
+        // 1. Check if user has active subscription (used quota)
+        $subscription = $user->activeSubscription;
+        if ($subscription) {
+            // Refund by decrementing usage (giving quota back)
+            $subscription->decrementUsage($auditType);
+            Log::info("Refunded {$auditType} quota to user {$user->id} for {$assetName}");
+            return 0; // No credit balance changed
+        }
+        
+        // 2. Otherwise, refund credits
         $creditToRefund = $amount ?? self::getAuditFee($auditType);
-        $description = "Refund: {$auditType} audit adjustment for {$assetName}";
+        $description = "Refund: {$auditType} audit failed for {$assetName}";
         
         return $this->refundCredits($user, $creditToRefund, $description);
+    }
+
+    /**
+     * Refund credits for a system failure, deducting a processing fee.
+     * Rules:
+     * - Only applied when system (not AI) caused the failure.
+     * - Processing fee covers resource consumption before crash.
+     */
+    public function refundSystemFailure(User $user, string $auditType, string $assetName): float
+    {
+        $originalFee = self::getAuditFee($auditType);
+        $refundAmount = max(0, $originalFee - self::SYSTEM_PROCESSING_FEE);
+        
+        $description = "Partial Refund (System Exception): {$assetName} (Fee: " . self::SYSTEM_PROCESSING_FEE . ")";
+        
+        $this->refundCredits($user, $refundAmount, $description);
+        
+        return $refundAmount;
     }
 
     /**

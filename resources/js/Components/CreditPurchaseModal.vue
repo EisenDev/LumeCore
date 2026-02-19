@@ -50,56 +50,65 @@ const submitPurchase = () => {
 
 <template>
     <Modal :show="show" @close="closeModal">
-        <div class="p-6">
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                Top up Credits
-            </h2>
+        <div class="p-8 bg-[#0A0A0B]/90 backdrop-blur-3xl border border-white/5 rounded-[2rem] relative overflow-hidden">
+            <div class="absolute -right-24 -top-24 w-48 h-48 bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+            
+            <header class="relative z-10">
+                <h2 class="text-2xl font-black italic tracking-tighter text-emerald-400 uppercase">
+                    Top up Credits
+                </h2>
 
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                Select a credit bundle to purchase. Credits are used for AI Audits.
-            </p>
+                <p class="mt-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest leading-none">
+                    Select a credit bundle to purchase for your operations.
+                </p>
+            </header>
 
-            <div class="mt-6 space-y-4">
+            <div class="mt-8 space-y-3 relative z-10">
                 <div
                     v-for="tier in tiers"
                     :key="tier.credits"
                     @click="selectTier(tier.credits)"
-                    class="relative cursor-pointer rounded-lg border p-4 transition-all"
+                    class="relative cursor-pointer rounded-2xl border p-5 transition-all duration-300 group overflow-hidden"
                     :class="[
                         selectedTier === tier.credits
-                            ? 'border-brand-primary bg-brand-primary/5 ring-1 ring-brand-primary'
-                            : 'border-gray-200 hover:border-brand-primary/50 dark:border-gray-700 dark:hover:border-brand-primary/50'
+                            ? 'border-emerald-500/50 bg-emerald-500/5 shadow-[0_0_20px_rgba(16,185,129,0.1)]'
+                            : 'border-white/5 bg-white/5 hover:border-emerald-500/30 hover:bg-white/[0.07]'
                     ]"
                 >
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <span class="text-lg font-bold text-gray-900 dark:text-white">
+                    <div class="flex items-center justify-between relative z-10">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xl font-black italic tracking-tighter text-white uppercase">
                                 {{ tier.credits }} Credits
                             </span>
                             <span
                                 v-if="tier.badge"
-                                class="ml-2 rounded bg-brand-secondary/10 px-2 py-0.5 text-xs font-bold text-brand-secondary"
+                                class="rounded-lg bg-emerald-500/10 px-3 py-1 text-[8px] font-black uppercase tracking-widest text-emerald-400 border border-emerald-500/20"
                             >
                                 {{ tier.badge }}
                             </span>
                         </div>
-                        <span class="text-lg font-medium text-gray-900 dark:text-gray-100">
+                        <span class="text-xl font-black italic tracking-tighter text-white">
                             ${{ tier.price.toFixed(2) }}
                         </span>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-6 flex justify-end">
-                <SecondaryButton @click="closeModal"> Cancel </SecondaryButton>
+            <div class="mt-10 flex justify-end gap-4 relative z-10">
+                <SecondaryButton 
+                    @click="closeModal"
+                    class="bg-white/5 border-white/10 text-white text-[10px] font-black uppercase tracking-widest px-6 py-3 rounded-xl hover:bg-white/10"
+                > 
+                    Cancel 
+                </SecondaryButton>
 
                 <PrimaryButton
-                    class="ml-3"
+                    class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black italic tracking-tighter uppercase px-8 py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-emerald-500/10"
                     :class="{ 'opacity-25': form.processing || !selectedTier }"
                     :disabled="form.processing || !selectedTier"
                     @click="submitPurchase"
                 >
-                    {{ form.processing ? 'Processing...' : 'Confirm Purchase' }}
+                    {{ form.processing ? 'Processing' : 'Confirm Purchase' }}
                 </PrimaryButton>
             </div>
         </div>

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('vault_asset_id')->constrained('vault_assets')->cascadeOnDelete();
             $table->integer('score')->default(0);
+            $table->string('audit_type')->default('document');
             $table->string('status');
             $table->jsonb('metadata')->nullable();
             $table->timestamp('created_at')->useCurrent();

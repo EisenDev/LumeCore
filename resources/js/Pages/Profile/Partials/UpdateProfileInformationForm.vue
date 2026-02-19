@@ -21,11 +21,11 @@ const form = useForm({
 <template>
     <section>
         <header>
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+            <h2 class="text-xl font-black italic tracking-tighter text-white uppercase mt-1">
                 Profile Information
             </h2>
 
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            <p class="mt-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest leading-none">
                 Update your account's profile information and email address.
             </p>
         </header>
@@ -35,12 +35,12 @@ const form = useForm({
             class="mt-6 space-y-6"
         >
             <div>
-                <InputLabel for="name" value="Name" />
+                <InputLabel for="name" value="Name" class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
 
                 <TextInput
                     id="name"
                     type="text"
-                    class="mt-1 block w-full"
+                    class="mt-1 block w-full bg-white/5 border-white/10 text-white text-sm font-bold tracking-tight px-4 py-3 rounded-xl focus:ring-emerald-400/30 focus:border-emerald-400/50"
                     v-model="form.name"
                     required
                     autofocus
@@ -51,12 +51,12 @@ const form = useForm({
             </div>
 
             <div>
-                <InputLabel for="email" value="Email" />
+                <InputLabel for="email" value="Email" class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
 
                 <TextInput
                     id="email"
                     type="email"
-                    class="mt-1 block w-full"
+                    class="mt-1 block w-full bg-white/5 border-white/10 text-white text-sm font-bold tracking-tight px-4 py-3 rounded-xl focus:ring-emerald-400/30 focus:border-emerald-400/50"
                     v-model="form.email"
                     required
                     autocomplete="username"
@@ -87,7 +87,12 @@ const form = useForm({
             </div>
 
             <div class="flex items-center gap-4">
-                <PrimaryButton :disabled="form.processing">Save</PrimaryButton>
+                <PrimaryButton 
+                    :disabled="form.processing"
+                    class="bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black italic tracking-tighter uppercase px-8 py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-emerald-400/10"
+                >
+                    Save Changes
+                </PrimaryButton>
 
                 <Transition
                     enter-active-class="transition ease-in-out"
@@ -97,7 +102,7 @@ const form = useForm({
                 >
                     <p
                         v-if="form.recentlySuccessful"
-                        class="text-sm text-gray-600 dark:text-gray-400"
+                        class="text-[10px] font-black uppercase tracking-widest text-emerald-400 animate-pulse"
                     >
                         Saved.
                     </p>
