@@ -129,6 +129,13 @@ jobs:
               echo ">> Fixed APP_DEBUG to false"
             fi
 
+            # Fix DB_PORT to 6543 if using Supabase Pooler (avoids connection refused)
+            # Supabase Poolers (Transaction Mode) listen on 6543. 5432 is often refused or Session mode only.
+            if grep -q "pooler.supabase.com" .env 2>/dev/null; then
+               sed -i 's/DB_PORT=5432/DB_PORT=6543/' .env
+               echo ">> Fixed DB_PORT to 6543 for Supabase Pooler"
+            fi
+
             # Install PHP dependencies
             composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
