@@ -32,6 +32,12 @@ jobs:
 
       - name: Build assets
         run: npm run build
+        env:
+          VITE_APP_NAME: "Laravel"
+          VITE_REVERB_APP_KEY: "ibjwkrs6rvg6c7zxivit"
+          VITE_REVERB_HOST: "172.188.96.221"
+          VITE_REVERB_PORT: "8080"
+          VITE_REVERB_SCHEME: "http"
 
       # Fix permissions before uploading built assets
       - name: Prepare server directories for upload
@@ -90,11 +96,25 @@ jobs:
           script: |
             cd /var/www/lumecore
 
+            # Prevent git from asking for credentials (prevents hanging)
+            export GIT_TERMINAL_PROMPT=0
+
+            # Check if token is present
+            if [ -z "$GITHUB_TOKEN" ]; then
+              echo "ERROR: GITHUB_TOKEN is empty. Please ensure secrets.GITHUB_TOKEN_PAT is set in repo secrets."
+              exit 1
+            fi
+
             # Set remote URL with token for private repo authentication
+            # We use a masking check to avoid printing the token
             git remote set-url origin https://$GITHUB_TOKEN@github.com/EisenDev/LumeCore.git
 
-            # Pull latest changes
-            git pull origin main
+            # Fetch and Reset (safer than pull for deployments)
+            echo ">> Fetching latest changes..."
+            git fetch origin main
+
+            echo ">> Resetting to match origin/main..."
+            git reset --hard origin/main
 
             # ============================================
             # Ensure production environment
