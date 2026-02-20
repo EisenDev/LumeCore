@@ -31,13 +31,13 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Build assets
+        env: # This "injects" the secrets so Vite can "bake" them into the JS
+          VITE_REVERB_APP_KEY: ${{ secrets.VITE_REVERB_APP_KEY }}
+          VITE_REVERB_HOST: ${{ secrets.VITE_REVERB_HOST }}
+          VITE_REVERB_PORT: ${{ secrets.VITE_REVERB_PORT }}
+          VITE_REVERB_SCHEME: ${{ secrets.VITE_REVERB_SCHEME }}
+          VITE_APP_NAME: "LumeCore"
         run: npm run build
-        env:
-          VITE_APP_NAME: "Laravel"
-          VITE_REVERB_APP_KEY: "ibjwkrs6rvg6c7zxivit"
-          VITE_REVERB_HOST: "172.188.96.221"
-          VITE_REVERB_PORT: "8080"
-          VITE_REVERB_SCHEME: "http"
 
       # Fix permissions before uploading built assets
       - name: Prepare server directories for upload
@@ -85,7 +85,7 @@ jobs:
       - name: Deploy to server
         uses: appleboy/ssh-action@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN_PAT }}
+          GITHUB_TOKEN: "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"
         with:
           host: ${{ secrets.AZURE_SSH_HOST }}
           username: ${{ secrets.AZURE_SSH_USERNAME }}
