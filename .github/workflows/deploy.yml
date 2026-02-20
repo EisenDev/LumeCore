@@ -33,6 +33,25 @@ jobs:
       - name: Build assets
         run: npm run build
 
+      # Fix permissions before uploading built assets
+      - name: Prepare server directories for upload
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.AZURE_SSH_HOST }}
+          username: ${{ secrets.AZURE_SSH_USERNAME }}
+          key: ${{ secrets.AZURE_SSH_KEY }}
+          port: ${{ secrets.AZURE_SSH_PORT }}
+          script: |
+            # Ensure target directories exist and azureuser can write to them
+            sudo mkdir -p /var/www/lumecore/public/build
+            sudo mkdir -p /var/www/lumecore/bootstrap/ssr
+            # Remove old build artifacts to avoid stale files
+            sudo rm -rf /var/www/lumecore/public/build/*
+            sudo rm -rf /var/www/lumecore/bootstrap/ssr/*
+            # Grant azureuser ownership so SCP can write
+            sudo chown -R azureuser:azureuser /var/www/lumecore/public/build
+            sudo chown -R azureuser:azureuser /var/www/lumecore/bootstrap/ssr
+
       # Upload built assets to the server (so we don't build on the low-RAM VM)
       - name: Deploy built assets to server
         uses: appleboy/scp-action@v0.1.7
