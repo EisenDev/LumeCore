@@ -33,16 +33,46 @@ jobs:
       - name: Build assets
         run: npm run build
 
+      # Upload built assets to the server (so we don't build on the low-RAM VM)
+      - name: Deploy built assets to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.AZURE_SSH_HOST }}
+          username: ${{ secrets.AZURE_SSH_USERNAME }}
+          key: ${{ secrets.AZURE_SSH_KEY }}
+          port: ${{ secrets.AZURE_SSH_PORT }}
+          source: "public/build/*"
+          target: "/var/www/lumecore"
+          overwrite: true
+
+      # Upload SSR build if it exists
+      - name: Deploy SSR assets to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.AZURE_SSH_HOST }}
+          username: ${{ secrets.AZURE_SSH_USERNAME }}
+          key: ${{ secrets.AZURE_SSH_KEY }}
+          port: ${{ secrets.AZURE_SSH_PORT }}
+          source: "bootstrap/ssr/*"
+          target: "/var/www/lumecore"
+          overwrite: true
+
       - name: Deploy to server
         uses: appleboy/ssh-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN_PAT }}
         with:
           host: ${{ secrets.AZURE_SSH_HOST }}
           username: ${{ secrets.AZURE_SSH_USERNAME }}
           key: ${{ secrets.AZURE_SSH_KEY }}
           port: ${{ secrets.AZURE_SSH_PORT }}
           command_timeout: 30m
+          envs: GITHUB_TOKEN
           script: |
             cd /var/www/lumecore
+
+            # Set remote URL with token for private repo authentication
+            git remote set-url origin https://$GITHUB_TOKEN@github.com/EisenDev/LumeCore.git
 
             # Pull latest changes
             git pull origin main
@@ -50,48 +80,28 @@ jobs:
             # Install PHP dependencies
             composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
-            # Install Node dependencies and build assets
-            echo "Current user: $(whoami)"
-            echo "HOME: $HOME"
-            
-            # Source bashrc/profile to load nvm in non-interactive shell
-            [ -f "$HOME/.bashrc" ] && source "$HOME/.bashrc"
-            [ -f "$HOME/.profile" ] && source "$HOME/.profile"
-            
-            # Try loading nvm from common locations
-            export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
-            if [ -s "$NVM_DIR/nvm.sh" ]; then
-              echo "Loading nvm from $NVM_DIR..."
-              . "$NVM_DIR/nvm.sh"
-              nvm install 20
-              nvm use 20
-            else
-              echo "nvm not found, installing Node 20 via NodeSource..."
-              curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-              sudo apt-get install -y nodejs
-            fi
-            
-            echo "Node version: $(node -v)"
-            echo "NPM version: $(npm -v)"
-            npm install --legacy-peer-deps
-            npm run build
-
-            # Run migrations (before permission change so azureuser can write)
+            # Run migrations
             php artisan migrate --force
 
-            # Clear and rebuild caches (before permission change)
+            # Clear and rebuild caches
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
             php artisan event:cache
             php artisan optimize
 
-            # Fix storage & cache permissions AFTER artisan commands
+            # Fix storage & cache permissions
             sudo chown -R www-data:www-data storage bootstrap/cache
             sudo chmod -R 775 storage bootstrap/cache
 
+            # Ensure built assets have correct ownership
+            sudo chown -R www-data:www-data public/build bootstrap/ssr 2>/dev/null || true
+
             # Add azureuser to www-data group so future artisan calls work
             sudo usermod -aG www-data azureuser
+
+            # Restart PHP-FPM to pick up changes
+            sudo systemctl restart php8.4-fpm 2>/dev/null || sudo systemctl restart php8.3-fpm 2>/dev/null || true
 
             # Restart queue workers if applicable
             php artisan queue:restart 2>/dev/null || true
