@@ -31,11 +31,11 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Build assets
-        env: # This "injects" the secrets so Vite can "bake" them into the JS
-          VITE_REVERB_APP_KEY: ${{ secrets.VITE_REVERB_APP_KEY }}
-          VITE_REVERB_HOST: ${{ secrets.VITE_REVERB_HOST }}
-          VITE_REVERB_PORT: ${{ secrets.VITE_REVERB_PORT }}
-          VITE_REVERB_SCHEME: ${{ secrets.VITE_REVERB_SCHEME }}
+        env:
+          VITE_REVERB_APP_KEY: "ibjwkrs6rvg6c7zxivit"
+          VITE_REVERB_HOST: "172.188.96.221"
+          VITE_REVERB_PORT: "8080"
+          VITE_REVERB_SCHEME: "http"
           VITE_APP_NAME: "LumeCore"
         run: npm run build
 
@@ -139,10 +139,13 @@ jobs:
             # Install PHP dependencies
             composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
-            # Clear stale config cache so migrations pick up the .env changes (like DB_PORT)
+            # Force clear all possible caches to avoid stale DB settings
+            echo ">> Clearing all caches..."
+            php artisan optimize:clear
             php artisan config:clear
 
             # Run migrations
+            echo ">> Running migrations..."
             php artisan migrate --force
 
             # Clear and rebuild caches
