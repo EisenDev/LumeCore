@@ -139,6 +139,9 @@ jobs:
             # Install PHP dependencies
             composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
+            # Clear stale config cache so migrations pick up the .env changes (like DB_PORT)
+            php artisan config:clear
+
             # Run migrations
             php artisan migrate --force
 
