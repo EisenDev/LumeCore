@@ -18,10 +18,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Install npm dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
       - name: Build assets
         run: npm run build
@@ -45,8 +44,12 @@ jobs:
             # Install Node dependencies and build assets
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-            npm ci
+            npm install --legacy-peer-deps
             npm run build
+
+            # Fix storage & cache permissions
+            sudo chown -R www-data:www-data storage bootstrap/cache
+            sudo chmod -R 775 storage bootstrap/cache
 
             # Run migrations
             php artisan migrate --force
@@ -56,8 +59,9 @@ jobs:
             php artisan route:cache
             php artisan view:cache
             php artisan event:cache
+            php artisan optimize
 
             # Restart queue workers if applicable
             php artisan queue:restart 2>/dev/null || true
 
-            echo "✅ Deployment complete!"
+            echo "Deployment complete!"
