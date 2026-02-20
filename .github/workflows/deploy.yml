@@ -77,6 +77,19 @@ jobs:
             # Pull latest changes
             git pull origin main
 
+            # ============================================
+            # Ensure production environment
+            # ============================================
+            # Fix APP_ENV if it's not production (this causes white pages)
+            if grep -q "APP_ENV=local" .env 2>/dev/null; then
+              sed -i 's/APP_ENV=local/APP_ENV=production/' .env
+              echo ">> Fixed APP_ENV to production"
+            fi
+            if grep -q "APP_DEBUG=true" .env 2>/dev/null; then
+              sed -i 's/APP_DEBUG=true/APP_DEBUG=false/' .env
+              echo ">> Fixed APP_DEBUG to false"
+            fi
+
             # Install PHP dependencies
             composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
@@ -100,10 +113,33 @@ jobs:
             # Add azureuser to www-data group so future artisan calls work
             sudo usermod -aG www-data azureuser
 
+            # ============================================
+            # Setup Supervisor for queue workers & Reverb
+            # ============================================
+            # Install supervisor if not present
+            if ! command -v supervisord &> /dev/null; then
+              sudo apt-get update -qq && sudo apt-get install -y -qq supervisor
+              sudo systemctl enable supervisor
+              sudo systemctl start supervisor
+              echo ">> Installed Supervisor"
+            fi
+
+            # Copy supervisor config (from repo) to system
+            sudo cp /var/www/lumecore/deployment/supervisor/lumecore-worker.conf /etc/supervisor/conf.d/lumecore-worker.conf
+
+            # Reload supervisor config and restart programs
+            sudo supervisorctl reread
+            sudo supervisorctl update
+            sudo supervisorctl restart lumecore-queue-worker:*
+            sudo supervisorctl restart lumecore-reverb:*
+
+            echo ">> Queue workers and Reverb started via Supervisor"
+
             # Restart PHP-FPM to pick up changes
             sudo systemctl restart php8.4-fpm 2>/dev/null || sudo systemctl restart php8.3-fpm 2>/dev/null || true
 
-            # Restart queue workers if applicable
-            php artisan queue:restart 2>/dev/null || true
-
+            echo "============================================"
             echo "Deployment complete!"
+            echo "============================================"
+            echo "Services status:"
+            sudo supervisorctl status
