@@ -40,6 +40,7 @@ jobs:
           username: ${{ secrets.AZURE_SSH_USERNAME }}
           key: ${{ secrets.AZURE_SSH_KEY }}
           port: ${{ secrets.AZURE_SSH_PORT }}
+          command_timeout: 30m
           script: |
             cd /var/www/lumecore
 
@@ -50,8 +51,28 @@ jobs:
             composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
             # Install Node dependencies and build assets
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+            echo "Current user: $(whoami)"
+            echo "HOME: $HOME"
+            
+            # Source bashrc/profile to load nvm in non-interactive shell
+            [ -f "$HOME/.bashrc" ] && source "$HOME/.bashrc"
+            [ -f "$HOME/.profile" ] && source "$HOME/.profile"
+            
+            # Try loading nvm from common locations
+            export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+            if [ -s "$NVM_DIR/nvm.sh" ]; then
+              echo "Loading nvm from $NVM_DIR..."
+              . "$NVM_DIR/nvm.sh"
+              nvm install 20
+              nvm use 20
+            else
+              echo "nvm not found, installing Node 20 via NodeSource..."
+              curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+              sudo apt-get install -y nodejs
+            fi
+            
+            echo "Node version: $(node -v)"
+            echo "NPM version: $(npm -v)"
             npm install --legacy-peer-deps
             npm run build
 
