@@ -14,6 +14,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -47,19 +55,22 @@ jobs:
             npm install --legacy-peer-deps
             npm run build
 
-            # Fix storage & cache permissions
-            sudo chown -R www-data:www-data storage bootstrap/cache
-            sudo chmod -R 775 storage bootstrap/cache
-
-            # Run migrations
+            # Run migrations (before permission change so azureuser can write)
             php artisan migrate --force
 
-            # Clear and rebuild caches
+            # Clear and rebuild caches (before permission change)
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
             php artisan event:cache
             php artisan optimize
+
+            # Fix storage & cache permissions AFTER artisan commands
+            sudo chown -R www-data:www-data storage bootstrap/cache
+            sudo chmod -R 775 storage bootstrap/cache
+
+            # Add azureuser to www-data group so future artisan calls work
+            sudo usermod -aG www-data azureuser
 
             # Restart queue workers if applicable
             php artisan queue:restart 2>/dev/null || true
