@@ -39,6 +39,7 @@ class PerformSyncComparison implements ShouldQueue
 
         $webAsset = VaultAsset::find($this->webAssetId);
         $repoAsset = VaultAsset::find($this->repoAssetId);
+        $progressAsset = $webAsset; // TITAN FIX: Always use the original ID for UI broadcasting
 
         // TITAN V2: Context Isolation - Resolve Child Assets
         if ($this->syncBatchId) {
@@ -149,10 +150,10 @@ class PerformSyncComparison implements ShouldQueue
 
         try {
             // Perform AI Comparison (With Injected Identity Data)
-            event(new \App\Events\AuditProgressUpdated($webAsset, "Auditing", 88, 'processing', "Performing Semantic DNA Audit..."));
+            event(new \App\Events\AuditProgressUpdated($progressAsset, "Auditing", 88, 'processing', "Performing Semantic DNA Audit..."));
             $comparisonResult = $auditor->compare($webData, $repoData);
             
-            event(new \App\Events\AuditProgressUpdated($webAsset, "Scoring", 92, 'processing', "Calculating Forensic Alignment Score..."));            
+            event(new \App\Events\AuditProgressUpdated($progressAsset, "Scoring", 92, 'processing', "Calculating Forensic Alignment Score..."));            
             // --- TITAN ADDITIVE SCORING (V3.0) ---
             // We now calculate the score deterministically using the "Proof of Work" Additive Model.
             
@@ -507,7 +508,7 @@ class PerformSyncComparison implements ShouldQueue
                 ]
             );
 
-            event(new \App\Events\AuditProgressUpdated($webAsset, "Finalizing", 98, 'processing', "Handshake Verified. Finalizing Report..."));
+            event(new \App\Events\AuditProgressUpdated($progressAsset, "Finalizing", 98, 'processing', "Handshake Verified. Finalizing Report..."));
             
             Log::info("PerformSyncComparison: Comparison Complete. Score: " . $score . " Status: " . $status);
             
@@ -527,7 +528,7 @@ class PerformSyncComparison implements ShouldQueue
                 }
             }
 
-            event(new \App\Events\AuditProgressUpdated($webAsset, "Complete", 100, 'verified', "Titan Sync Complete."));
+            event(new \App\Events\AuditProgressUpdated($progressAsset, "Complete", 100, 'verified', "Titan Sync Complete."));
             event(new \App\Events\AuditProgressUpdated($repoAsset, "Complete", 100, 'verified', "Titan Sync Complete."));
         } catch (\Exception $e) {
             Log::error("PerformSyncComparison Failed: " . $e->getMessage());

@@ -21,6 +21,7 @@ class ScanActivity extends Model
         'sync_confidence_score',
         'individual_score',
         'vectors', // Added for fast forensic vector retrieval
+        'details',
         'scanned_at',
         'batch_id', // TITAN V2: Sync Batch ID
     ];

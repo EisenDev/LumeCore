@@ -1,0 +1,7 @@
+total 24
+drwxrwxr-x  2 azureuser azureuser 4096 Feb 19 23:27 .
+drwxrwxr-x 11 azureuser azureuser 4096 Feb 19 15:12 ..
+-rw-rw-r--  1 azureuser azureuser 2382 Feb 19 23:27 AssetStatusUpdated.php
+-rw-rw-r--  1 azureuser azureuser  408 Feb 19 23:27 AssetUploaded.php
+-rw-rw-r--  1 azureuser azureuser 1370 Feb 19 23:27 AuditFailed.php
+-rw-rw-r--  1 azureuser azureuser 1459 Feb 19 23:27 AuditProgressUpdated.php

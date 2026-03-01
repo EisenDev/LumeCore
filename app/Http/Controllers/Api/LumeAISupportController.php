@@ -379,7 +379,7 @@ PROMPT;
 
         // Use configured model or fallback
         $apiKey = config('services.gemini.key');
-        $model = config('services.gemini.model', 'gemini-1.5-flash');
+        $model = config('services.gemini.model', 'gemini-3-flash-preview');
         $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
 
         // Detailed System Instruction for High-Fidelity Prompts
@@ -455,7 +455,7 @@ PROMPT;
     protected function callGemini($prompt)
     {
         $apiKey = config('services.gemini.key');
-        $model = config('services.gemini.model', 'gemini-1.5-flash');
+        $model = config('services.gemini.model', 'gemini-3-flash-preview');
         $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
 
         try {

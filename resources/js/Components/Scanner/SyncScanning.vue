@@ -37,11 +37,13 @@ watch(() => [props.step, props.details], ([newStep, newDetails]) => {
 
     // PHASE 2: Web Scan
     // Triggered by PerformProjectScan messages
-    if (scanPhase.value === 'repo' && (
+    if (scanPhase.value !== 'comparison' && (
         text.includes('initializing forensic crawler') || 
         text.includes('crawling target') || 
         text.includes('analyzing dom') ||
-        text.includes('analyzing strategic alignment')
+        text.includes('analyzing strategic alignment') ||
+        text.includes('infrastructure analyst') ||
+        text.includes('web recon')
     )) {
         scanPhase.value = 'web';
     }
@@ -52,7 +54,10 @@ watch(() => [props.step, props.details], ([newStep, newDetails]) => {
         text.includes('synchronizing') || 
         text.includes('cross-component comparison') ||
         text.includes('semantic dna audit') ||
-        text.includes('calculating forensic alignment')
+        text.includes('calculating forensic alignment') ||
+        text.includes('syncing') || 
+        text.includes('comparison') || 
+        text.includes('finalizing report')
     )) {
         scanPhase.value = 'comparison';
     }

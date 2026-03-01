@@ -20,11 +20,11 @@ class PerformSyncScan implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct(
-        protected ProjectAsset $project,
-        protected string $webAssetId,
-        protected string $repoAssetId,
-        protected ?string $githubToken = null,
-        protected ?string $injectedBatchId = null // TITAN V2: Allow Controller to dictate Batch ID
+        public ProjectAsset $project,
+        public string $webAssetId,
+        public string $repoAssetId,
+        public ?string $githubToken = null,
+        public ?string $injectedBatchId = null // TITAN V2: Allow Controller to dictate Batch ID
     ) {}
 
     public function handle()
@@ -45,6 +45,10 @@ class PerformSyncScan implements ShouldQueue
         $batchId = $this->injectedBatchId ?? ('SYNC-' . date('Ymd-His') . '-' . strtoupper(substr(md5(uniqid()), 0, 4)));
 
         Log::info("PerformSyncScan: Generated Batch ID", ['batch_id' => $batchId]);
+        
+        // TITAN V2: Save Batch ID to assets immediately to ensure isolation persistence
+        \App\Models\VaultAsset::where('id', $this->webAssetId)->update(['batch_id' => $batchId]);
+        \App\Models\VaultAsset::where('id', $this->repoAssetId)->update(['batch_id' => $batchId]);
 
         Bus::chain([
             // 1. Repo Scan (Generates Context)

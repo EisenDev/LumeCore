@@ -35,20 +35,28 @@ class GitForensicsService
         $uuid = Str::uuid()->toString();
         $targetPath = "{$this->tempPath}/{$uuid}";
 
+        // Normalize URL (ensure https)
+        if (!str_starts_with($repoUrl, 'http')) {
+            $repoUrl = 'https://' . ltrim($repoUrl, '/');
+        }
+
         // Inject token into URL for authentication
         $authUrl = $repoUrl;
         if ($token) {
-            $authUrl = str_replace('https://', "https://oauth2:{$token}@", $repoUrl);
+            // Remove existing credentials if any
+            $cleanUrl = preg_replace('/https?:\/\/[^@]+@/', 'https://', $repoUrl);
+            $authUrl = str_replace('https://', "https://oauth2:{$token}@", $cleanUrl);
         }
 
-        // Clone with depth 1000 to get enough history for churn analysis (shallow clone is bad for churn)
-        // actually full clone is safer for accurate stats, but maybe depth 5000 is enough? 
-        // Let's do a full clone for accuracy, usually fine for average repos.
+        // Clone with depth 1000 to get enough history for churn analysis
         $command = "git clone {$authUrl} {$targetPath}";
 
         Log::info("[GitForensics] Cloning to {$targetPath}...");
         
-        $result = Process::timeout(300)->run($command);
+        // Pass GIT_TERMINAL_PROMPT=0 to prevent hanging on auth prompts
+        $result = Process::env(['GIT_TERMINAL_PROMPT' => '0'])
+            ->timeout(300)
+            ->run($command);
 
         if ($result->failed()) {
             throw new \Exception("Git Clone Failed: " . $result->errorOutput());

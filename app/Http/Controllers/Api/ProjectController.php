@@ -45,6 +45,12 @@ class ProjectController extends Controller
             'batch_id' => 'nullable|string|exists:vault_assets,batch_id', // TITAN V8: Allow forcing specific batch update
         ]);
 
+        Log::info('TITAN: Incoming Project Request Validation Success', [
+            'has_token' => !empty($validated['github_token']),
+            'token_length' => isset($validated['github_token']) ? strlen($validated['github_token']) : 0,
+            'is_sync' => !empty($validated['website_url']) && !empty($validated['github_repo_url'])
+        ]);
+
         // At least one URL is required
         if (empty($validated['website_url']) && empty($validated['github_repo_url'])) {
             return response()->json([

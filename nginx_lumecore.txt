@@ -1,0 +1,93 @@
+# BLOCK 1: Handles your domains
+server {
+    server_name lumecore.tech staging.lumecore.tech;
+    root /var/www/lumecore/public;
+
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options "nosniff";
+
+    index index.php;
+    charset utf-8;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    error_page 404 /index.php;
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.4-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+
+    location /app/ {
+        proxy_pass             http://127.0.0.1:8080;
+        proxy_set_header Host  $host;
+        proxy_read_timeout     60;
+        proxy_connect_timeout  60;
+        proxy_redirect         off;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    location /apps/ {
+        proxy_pass             http://127.0.0.1:8080;
+        proxy_set_header Host  $host;
+        proxy_read_timeout     60;
+        proxy_connect_timeout  60;
+        proxy_redirect         off;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/lumecore.tech/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/lumecore.tech/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+
+}
+
+# BLOCK 2: Redirects the IP to your domain
+server {
+    listen 80;
+    server_name 172.188.96.221;
+    return 301 http://lumecore.tech$request_uri;
+}
+
+server {
+    if ($host = staging.lumecore.tech) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    if ($host = lumecore.tech) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80;
+    server_name lumecore.tech staging.lumecore.tech;
+    return 404; # managed by Certbot
+
+
+
+
+}

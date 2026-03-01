@@ -60,11 +60,8 @@ class PerformProjectScan implements ShouldQueue
         Log::info("LUME TITAN: Starting forensic scan for project {$this->project->id}", ['vault_asset_id' => $this->vaultAssetId]);
 
         $vaultAsset = $this->vaultAssetId ? VaultAsset::find($this->vaultAssetId) : null;
+        $progressAsset = $vaultAsset; // TITAN FIX: Always use the asset ID passed to constructor for UI progress
 
-        // TITAN V2: Context Isolation Logic
-        // The ProjectController now generates the Batch ID and creates/updates the specific Sync Asset BEFORE dispatching.
-        // So $vaultAsset should ALREADY be the correct, isolated asset.
-        
         if ($this->syncBatchId && $vaultAsset) {
             // VERIFICATION: Ensure the asset we received actually belongs to this batch
             if ($vaultAsset->batch_id === $this->syncBatchId) {
@@ -76,6 +73,8 @@ class PerformProjectScan implements ShouldQueue
                 Log::warning("PerformProjectScan: Received Non-Batched Asset in Sync Job. Cloning...", ['id' => $vaultAsset->id]);
                 
                 $originalAsset = $vaultAsset;
+                $progressAsset = $originalAsset; // Use this for UI
+                
                 $vaultAsset = VaultAsset::create([
                     'user_id' => $originalAsset->user_id,
                     'file_name' => $originalAsset->file_name,
@@ -100,7 +99,8 @@ class PerformProjectScan implements ShouldQueue
             $this->project->update(['status' => 'pending_verification']);
             if ($vaultAsset) {
                 $vaultAsset->update(['status' => 'processing']);
-                AuditProgressUpdated::dispatch($vaultAsset, 'Initializing Sovereign Infrastructure Analyst...', 5);
+                Log::info("TITAN: Dispatching Initial Progress Update (Web Recon)", ['asset_id' => $vaultAsset->id]);
+                AuditProgressUpdated::dispatch($progressAsset, 'Web Recon: Initializing Sovereign Infrastructure Analyst...', 5);
             }
 
             // 2. DESIGN AUDIT (If visual proofs exist)
@@ -108,14 +108,14 @@ class PerformProjectScan implements ShouldQueue
                 ->where('metadata->is_proof', true)->get();
 
             if ($proofs->isNotEmpty()) {
-                AuditProgressUpdated::dispatch($vaultAsset, 'Visual Harvester: Analyzing Design Proofs...', 15);
+                AuditProgressUpdated::dispatch($progressAsset, 'Visual Harvester: Analyzing Design Proofs...', 15);
                 $this->handleDesignAudit($proofs, $vaultAsset, $aiAuditor);
             }
 
             // 3. PHASE 1: DNA RECONNAISSANCE (Codebase)
             $dnaEvidence = [];
             try {
-                if ($vaultAsset) AuditProgressUpdated::dispatch($vaultAsset, 'Harvester: Extracting DNA & Manifests...', 25);
+                if ($vaultAsset) AuditProgressUpdated::dispatch($progressAsset, 'Harvester: Extracting DNA & Manifests...', 25);
                 $dnaEvidence = $scanner->scanProject($this->project, $this->githubToken);
             } catch (\Exception $e) {
                 Log::warning("DNA Harvest Failure: " . $e->getMessage());
@@ -128,10 +128,10 @@ class PerformProjectScan implements ShouldQueue
             $topology = [];
             
             try {
-                if ($vaultAsset) AuditProgressUpdated::dispatch($vaultAsset, 'Harvester: Capturing Live DOM & Network Signals...', 45);
+                if ($vaultAsset) AuditProgressUpdated::dispatch($progressAsset, 'Web Recon: Capturing Live DOM & Network Signals...', 45);
                 
                 // TITAN V6.2: HANDS UPGRADE (Python Surface Scanner)
-                if ($vaultAsset) AuditProgressUpdated::dispatch($vaultAsset, 'Harvester: Engaging Titan Surface Scanner (Deep Probe)...', 45);
+                if ($vaultAsset) AuditProgressUpdated::dispatch($progressAsset, 'Web Recon: Engaging Titan Surface Scanner (Deep Probe)...', 45);
 
                 $pythonScript = base_path('app/Services/Python/TitanSurface.py');
                 
@@ -142,33 +142,42 @@ class PerformProjectScan implements ShouldQueue
                 ]);
 
                 // Titan v6.2: Extended Timeout (15 mins) for Deep Recursive Crawl
+
                 $process = \Illuminate\Support\Facades\Process::timeout(900)->run([ 
                     'python3', 
                     $pythonScript, 
                     $this->project->website_url 
                 ]);
 
-                if ($process->successful()) {
-                    $output = $process->output();
-                    $scanData = json_decode($output, true); 
-                } else {
-                    $scanData = []; // Fallback
-                }
-
-                Log::info("TITAN V6.2: Python Process Completed", [
-                    'exit_code' => $process->exitCode(),
-                    'output_length' => strlen($process->output()),
-                    'error_output' => $process->errorOutput() // Capture Python stderr logs
-                ]);
+                $rawOutput = $process->output();
+                $scanData = [];
 
                 if ($process->successful()) {
-                    $scanData = json_decode($process->output(), true);
+                    // TITAN FIX: Filter out [INFO] logs from Python stdout before decoding JSON
+                    $jsonPart = $rawOutput;
+                    if (str_contains($rawOutput, '{')) {
+                        $jsonPart = substr($rawOutput, strpos($rawOutput, '{'));
+                        $jsonPart = substr($jsonPart, 0, strrpos($jsonPart, '}') + 1);
+                    }
+                    
+                    $scanData = json_decode($jsonPart, true);
                     
                     if (json_last_error() !== JSON_ERROR_NONE) {
-                        Log::error("TITAN V6.2: JSON Decode Error", ['error' => json_last_error_msg(), 'raw_output' => substr($process->output(), 0, 1000)]);
+                        Log::error("TITAN V6.2: JSON Decode Error", [
+                            'error' => json_last_error_msg(), 
+                            'raw_length' => strlen($rawOutput),
+                            'json_part_length' => strlen($jsonPart),
+                            'preview' => substr($jsonPart, 0, 200)
+                        ]);
                     } else {
                         Log::info("TITAN V6.2: Tech Detected (Raw Python)", ['tech' => $scanData['tech_detected'] ?? []]);
                     }
+                } else {
+                    Log::error("TITAN V6.2: Python Process Failed", [
+                        'exit_code' => $process->exitCode(),
+                        'error_output' => $process->errorOutput()
+                    ]);
+                }
                     
                     // Construct Evidence String for AI
                     $evidenceString = "TITAN SURFACE SCAN REPORT:\n";
@@ -238,19 +247,15 @@ class PerformProjectScan implements ShouldQueue
                         'tech_count' => count($scanData['tech_detected'] ?? []),
                         'nodes_count' => count($nodes)
                     ]);
-
-                } else {
-                    throw new \Exception("Titan Surface Scanner Failed: " . $process->errorOutput());
-                }
                 
             } catch (\Exception $e) {
                 Log::error("Harvester Failure: " . $e->getMessage());
                 $evidenceString = "CRITICAL_HARVEST_FAILURE: Unresponsive target infrastructure. Context: " . $e->getMessage();
-                if ($vaultAsset) AuditProgressUpdated::dispatch($vaultAsset, 'Target unresponsive. Engaging Forensic Pathologist...', 55);
+                if ($vaultAsset) AuditProgressUpdated::dispatch($progressAsset, 'Target unresponsive. Engaging Forensic Pathologist...', 55);
             }
 
             // 5. PHASE 3: SOVEREIGN AUDIT (The Brain)
-            if ($vaultAsset) AuditProgressUpdated::dispatch($vaultAsset, 'Auditor: Synthesizing Forensic Vectors...', 75);
+            if ($vaultAsset) AuditProgressUpdated::dispatch($progressAsset, 'Auditor: Synthesizing Forensic Vectors...', 75);
 
             $projectData = [
                 'website_url' => $this->project->website_url,
@@ -282,7 +287,9 @@ class PerformProjectScan implements ShouldQueue
             }
 
             // Trigger AI with the Titan v5.0 Rules
+            Log::info("TITAN: Dispatching to AI Auditor (Web Recon)", ['asset_id' => $vaultAsset->id ?? 'N/A']);
             $aiResult = $aiAuditor->analyzeProject($projectData, $evidenceString);
+            Log::info("TITAN: AI Analysis Returned (Web Recon)", ['score' => $aiResult['score'] ?? 'N/A']);
 
             // POST-PROCESSING: TITAN V6.0 AI SCHEMA ADAPTATION
             // ProjectAuditor now uses ForensicCalculator to compute the final score
@@ -349,7 +356,7 @@ class PerformProjectScan implements ShouldQueue
             gc_collect_cycles();
 
             // 6. PHASE 4: DETERMINISTIC SCORING & SETTLEMENT
-            if ($vaultAsset) AuditProgressUpdated::dispatch($vaultAsset, 'Ledger: Securing Forensic Hash to Ledger...', 90);
+            if ($vaultAsset) AuditProgressUpdated::dispatch($progressAsset, 'Ledger: Securing Forensic Hash to Ledger...', 90);
 
             // 5. SANITIZER: Force-Fix Language Labels & Missing Breakdown
             if (!empty($aiResult['languages'])) {

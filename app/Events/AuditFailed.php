@@ -25,14 +25,20 @@ class AuditFailed implements ShouldBroadcast
 
     /**
      * Get the channels the event should broadcast on.
-     *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
      */
     public function broadcastOn(): array
     {
         return [
-            new Channel('asset.' . $this->asset->id),
+            new PrivateChannel('App.Models.User.' . $this->asset->user_id),
         ];
+    }
+
+    /**
+     * The event's broadcast name.
+     */
+    public function broadcastAs(): string
+    {
+        return 'AuditFailed';
     }
 
     /**

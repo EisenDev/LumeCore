@@ -67,6 +67,7 @@ class PerformGithubRepositoryScan implements ShouldQueue
         Log::info("LUME TITAN: Starting GITHUB REPO SCAN for project {$this->project->id}", ['vault_asset_id' => $this->vaultAssetId]);
 
         $vaultAsset = $this->vaultAssetId ? VaultAsset::find($this->vaultAssetId) : null;
+        $progressAsset = $vaultAsset; // TITAN FIX: Always use the asset ID passed to constructor for UI progress
 
         // TITAN V2: Context Isolation Logic
         // If syncBatchId is present, we DO NOT use the original asset. We create a new "Context-Aware" asset.
@@ -87,6 +88,7 @@ class PerformGithubRepositoryScan implements ShouldQueue
                  Log::warning("PerformGithubRepositoryScan: Received Non-Batched Asset in Sync Job. Cloning...", ['id' => $vaultAsset->id]);
                  
                  $originalAsset = $vaultAsset;
+                 $progressAsset = $originalAsset; // Use this for UI
                  $vaultAsset = VaultAsset::create([
                     'user_id' => $originalAsset->user_id,
                     'file_name' => $originalAsset->file_name, // Keep same name for UI consistency
@@ -121,7 +123,13 @@ class PerformGithubRepositoryScan implements ShouldQueue
                 // EXPLICITLY BROADCAST STATUS to ensure Frontend gets the new audit_type immediately
                 AssetStatusUpdated::dispatch($vaultAsset);
                 
-                AuditProgressUpdated::dispatch($vaultAsset, 'Initializing Source Code Analyst...', 5);
+                Log::info("TITAN BROADCAST DEBUG: About to dispatch AuditProgressUpdated", [
+                    'progress_asset_id' => $progressAsset?->id,
+                    'user_id' => $progressAsset?->user_id,
+                    'step' => 'Initializing Source Code Analyst...'
+                ]);
+                AuditProgressUpdated::dispatch($progressAsset, 'Initializing Source Code Analyst...', 5);
+                Log::info("TITAN BROADCAST DEBUG: Successfully dispatched AuditProgressUpdated");
             }
 
             // Resolve Token
@@ -163,23 +171,23 @@ class PerformGithubRepositoryScan implements ShouldQueue
 
             try {
                 // A. CLONE
-                if ($vaultAsset) AuditProgressUpdated::dispatch($vaultAsset, 'Git: Cloning Repository (This may take a moment)...', 10);
+                if ($vaultAsset) AuditProgressUpdated::dispatch($progressAsset, 'Git: Cloning Repository (This may take a moment)...', 10);
                 
                 $localRepoPath = $forensics->clone($repoUrl, $resolvedToken);
                 
                 // B. FORENSIC ANALYSIS
-                if ($vaultAsset) AuditProgressUpdated::dispatch($vaultAsset, 'Forensics: Analyzing Churn & Complexity...', 25);
+                if ($vaultAsset) AuditProgressUpdated::dispatch($progressAsset, 'Forensics: Analyzing Churn & Complexity...', 25);
                 $forensicData['toxicity'] = $forensics->getChurnMetrics($localRepoPath);
                 
-                if ($vaultAsset) AuditProgressUpdated::dispatch($vaultAsset, 'Forensics: Calculating Bus Factor...', 35);
+                if ($vaultAsset) AuditProgressUpdated::dispatch($progressAsset, 'Forensics: Calculating Bus Factor...', 35);
                 $forensicData['bus_factor'] = $forensics->getBusFactorStats($localRepoPath);
 
-                if ($vaultAsset) AuditProgressUpdated::dispatch($vaultAsset, 'Forensics: Measuring Development Velocity...', 40);
+                if ($vaultAsset) AuditProgressUpdated::dispatch($progressAsset, 'Forensics: Measuring Development Velocity...', 40);
                 $forensicData['pulse'] = $forensics->getPulseData($localRepoPath);
                 Log::info("TITAN DEBUG: Forensics Complete", ['data_keys' => array_keys($forensicData)]);
 
                 // Sovereign Fingerprint (Duplicate Detection)
-                if ($vaultAsset) AuditProgressUpdated::dispatch($vaultAsset, 'Sovereign: Generating Digital Fingerprint...', 45);
+                if ($vaultAsset) AuditProgressUpdated::dispatch($progressAsset, 'Sovereign: Generating Digital Fingerprint...', 45);
                 $fingerprintHash = $forensics->getFingerprint($localRepoPath);
 
                 // TITAN V5.5: Capture Raw Commit Hash for Assurance Protocol
@@ -188,7 +196,7 @@ class PerformGithubRepositoryScan implements ShouldQueue
                 $headCommitSha = trim($process->getOutput()) ?: 'unknown';
 
                 // C. FLATTEN CONTEXT (From Local)
-                 if ($vaultAsset) AuditProgressUpdated::dispatch($vaultAsset, 'Harvester: Reading Codebase (Local Scan)...', 50);
+                 if ($vaultAsset) AuditProgressUpdated::dispatch($progressAsset, 'Harvester: Reading Codebase (Local Scan)...', 50);
                  Log::info("TITAN DEBUG: Starting Local Flattening...", ['path' => $localRepoPath]);
 
                 $flattenedContext = $flattener->flattenLocalRepo(
@@ -223,7 +231,7 @@ class PerformGithubRepositoryScan implements ShouldQueue
 
 
             // 4. AI ANALYSIS (The Brain)
-            if ($vaultAsset) AuditProgressUpdated::dispatch($vaultAsset, 'Auditor: Analyzing Architectural Integrity...', 85);
+            if ($vaultAsset) AuditProgressUpdated::dispatch($progressAsset, 'Auditor: Analyzing Architectural Integrity...', 85);
 
             $metadata = [
                 'name' => $this->project->name ?? 'Repository',
@@ -279,7 +287,7 @@ class PerformGithubRepositoryScan implements ShouldQueue
             // $aiResult['score'] is already correct.
 
             // 6. PERSISTENCE
-            if ($vaultAsset) AuditProgressUpdated::dispatch($vaultAsset, 'Ledger: Securing Code Forensic Report...', 95);
+            if ($vaultAsset) AuditProgressUpdated::dispatch($progressAsset, 'Ledger: Securing Code Forensic Report...', 95);
 
             $score = intval($aiResult['score'] ?? 0);
             
@@ -389,7 +397,7 @@ class PerformGithubRepositoryScan implements ShouldQueue
                 }
             });
 
-            if ($vaultAsset) AuditProgressUpdated::dispatch($vaultAsset, 'Sovereign Code Audit Complete.', 100);
+            if ($vaultAsset) AuditProgressUpdated::dispatch($progressAsset, 'Sovereign Code Audit Complete.', 100);
 
             if ($vaultAsset) {
                 $vaultAsset->touch();

@@ -54,7 +54,7 @@ class AuditProgressUpdated implements ShouldBroadcastNow
             'step' => $this->step,
             'progress' => $this->progress,
             'status' => $this->status,
-            'details' => $this->details,
+            // 'details' => $this->details, // TITAN FIX: Removed to prevent payload too large errors
         ];
     }
 }
