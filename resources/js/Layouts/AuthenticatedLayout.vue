@@ -130,7 +130,7 @@ const toggleSidebar = () => {
             </header>
 
             <!-- Page Content Scroll Area -->
-            <main class="flex-1 overflow-y-auto relative">
+            <main class="flex-1 overflow-y-auto relative custom-scrollbar">
                 <!-- Grainy Overlay -->
                 <div class="pointer-events-none fixed inset-0 z-50 opacity-[0.03] mix-blend-overlay" style="background-image: url('https://grainy-gradients.vercel.app/noise.svg')"></div>
                 

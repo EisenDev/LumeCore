@@ -337,24 +337,35 @@ watch(() => [showWebsiteScanningModal.value, showRepositoryScanningModal.value, 
         }
         if (progressSimulator) clearInterval(progressSimulator);
         
-        let pollCounter = 0;
+        let ticks = 0;
         progressSimulator = setInterval(() => {
-             pollCounter++;
+             ticks++;
              
-             // Smooth Progress Simulation
+             // Smooth Progress Simulation (0-100% over 5 minutes = 300 seconds)
+             // +1% roughly every 3 ticks
              if (auditProgress.value) {
-                 if (auditProgress.value.progress < 85) {
-                     auditProgress.value.progress += Math.floor(Math.random() * 4) + 1;
-                 } else if (auditProgress.value.progress < 99) {
-                     auditProgress.value.progress += 1;
+                 let targetProgress = Math.floor(ticks / 3);
+                 if (targetProgress > 100) targetProgress = 100;
+
+                 // Allow it to jump if actual progress (from earlier) is higher, 
+                 // but normally we just control it here
+                 if (auditProgress.value.progress < targetProgress) {
+                     auditProgress.value.progress = targetProgress;
+                 }
+                 
+                 if (auditProgress.value.progress < 100) {
+                     if (auditProgress.value.progress < 20) auditProgress.value.step = 'Acquiring Target...';
+                     else if (auditProgress.value.progress < 40) auditProgress.value.step = 'Analyzing DOM Structure...';
+                     else if (auditProgress.value.progress < 60) auditProgress.value.step = 'Mapping Internal Endpoints...';
+                     else if (auditProgress.value.progress < 80) auditProgress.value.step = 'Extracting Tech Stack...';
+                     else auditProgress.value.step = 'Generating Forensic Report...';
                  } else {
-                     auditProgress.value.progress = 99;
-                     auditProgress.value.step = 'Finalizing Report...';
+                     auditProgress.value.step = 'Finalizing... Waiting for Server Verification';
                  }
              }
 
-             // Poll API every 4 ticks (~4 seconds) to catch actual completion without broadcast
-             if (selectedAsset.value && pollCounter % 4 === 0) {
+             // Poll API every 5 ticks (~5 seconds) to catch actual completion without broadcast
+             if (selectedAsset.value && ticks % 5 === 0) {
                  axios.get(`/api/vault/assets/${selectedAsset.value.id}`).then(res => {
                      const asset = res.data?.asset;
                      if (asset && ['verified', 'flagged'].includes(asset.status)) {
@@ -482,10 +493,11 @@ function openAuditModal(asset: VaultAsset): void {
 
     // SMART ROUTING: Switch to specific scanning monitors if active or sync
     // Fixes the "Wrong Modal" issue for Sync Scans
-    const isSync = asset.metadata?.is_sync_scan || asset.metadata?.audit_type === 'sync';
-    const isDocument = ['document', 'pdf', 'contract'].includes(asset.metadata?.audit_type || '');
-    const isRepository = ['repository', 'repository_scan', 'github'].includes(asset.metadata?.audit_type || '');
-    const isWebsite = ['project', 'website', 'website_scan', 'design'].includes(asset.metadata?.audit_type || '');
+    const auditStr = String(asset.metadata?.audit_type || '').toLowerCase();
+    const isSync = asset.metadata?.is_sync_scan || auditStr === 'sync' || auditStr === 'sync_scan';
+    const isDocument = ['document', 'pdf', 'contract'].includes(auditStr);
+    const isRepository = ['repository', 'repository_scan', 'github'].includes(auditStr);
+    const isWebsite = ['project', 'website', 'website_scan', 'design'].includes(auditStr);
     const isProcessing = ['processing', 'scanning', 'pending'].includes(asset.status || '');
     
     if ((isSync || isDocument || isRepository || isWebsite) && isProcessing) {
@@ -1655,8 +1667,8 @@ function handleRowClick(activity: any) {
     <!-- 1. Sync & Project Scanning (Titan Sync Dashboard) -->
     <!-- Usage: When 'showSyncScanningModal' is true AND likely a Sync Scan -->
     <SyncScanning
-        v-if="showSyncScanningModal || ( ( ['sync', 'sync_scan'].includes(selectedAsset?.metadata?.audit_type || '') || (selectedAsset?.metadata?.is_sync_scan) ) && ['processing', 'pending'].includes(selectedAsset?.status || '') )"
-        :show="showSyncScanningModal && ((selectedAsset?.metadata?.audit_type !== 'document') || showAuditModal)"
+        v-if="showSyncScanningModal"
+        :show="showSyncScanningModal"
         :web-url="selectedAsset?.website_url || selectedAsset?.original_url || ''"
         :repo-name="selectedAsset?.repository_url || 'Linked Repository'"
         :progress="auditProgress?.progress || 0"
@@ -1669,8 +1681,8 @@ function handleRowClick(activity: any) {
     <!-- 2. Website / Project Scan (Individual) -->
     <!-- Usage: STRICTLY for website audits that are NOT syncs -->
     <WebsiteScanning 
-        v-if="['project', 'website', 'website_scan'].includes(selectedAsset?.metadata?.audit_type || '') && !selectedAsset?.metadata?.is_sync_scan && ( ['processing', 'pending'].includes(selectedAsset?.status || '') || showWebsiteScanningModal )"
-        :show="showAuditModal || showSyncScanningModal || showWebsiteScanningModal"
+        v-if="showWebsiteScanningModal"
+        :show="showWebsiteScanningModal"
         :url="selectedAsset?.website_url || selectedAsset?.original_url || selectedAsset?.file_name"
         :progress="auditProgress?.progress || 0"
         :step="auditProgress?.step || 'Initializing'"
