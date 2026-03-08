@@ -886,9 +886,8 @@ function handleCloseScanningModal() {
     // 2. Open the Result Modal (if validation passed)
     if (selectedAsset.value && ['verified', 'action_required', 'flagged'].includes(selectedAsset.value.status)) {
         // TITAN V8.1: If it's a sync scan, we want the WebURLandGitRepoSync modal instead of the basic ProjectForensicModal
-        const isSync = selectedAsset.value.metadata?.is_sync_scan || 
-                      selectedAsset.value.metadata?.audit_type === 'sync_scan' ||
-                      (selectedSyncWebAsset.value && selectedSyncRepoAsset.value);
+        const auditStr = String(selectedAsset.value.metadata?.audit_type || '').toLowerCase();
+        const isSync = selectedAsset.value.metadata?.is_sync_scan || auditStr === 'sync_scan' || auditStr === 'sync';
 
         if (isSync) {
             // TITAN V8.5: Prevent auto-reload. Fetch data in background instead.
@@ -1142,7 +1141,7 @@ function handleRowClick(activity: any) {
             
             // Check if this is a live scan
             if (['processing', 'pending'].includes(selectedAsset.value?.status || '')) {
-                showSyncScanningModal.value = true;
+                showWebsiteScanningModal.value = true;
                 showAuditModal.value = false; // Force close generic modal
             } else {
                 showAuditModal.value = true; 
@@ -1151,7 +1150,14 @@ function handleRowClick(activity: any) {
     } else if (activity.type === 'repository') {
         if (activity.primary_asset) {
              selectedRepoAsset.value = createSnapshotAsset(activity.primary_asset, activity, 'repository');
-            showRepoModal.value = true;
+             selectedAsset.value = selectedRepoAsset.value; // set global asset for the scanning component
+             
+             if (['processing', 'pending'].includes(selectedRepoAsset.value?.status || '')) {
+                 showRepositoryScanningModal.value = true;
+                 showRepoModal.value = false;
+             } else {
+                 showRepoModal.value = true;
+             }
         }
     } else if (activity.type === 'sync') {
         const primaryId = activity.primary_asset?.id || activity.primary_asset_id;
@@ -1598,7 +1604,7 @@ function handleRowClick(activity: any) {
 
                                         <!-- Scanned At -->
                                         <td class="whitespace-nowrap px-6 py-5 text-right text-sm text-gray-500 dark:text-gray-400">
-                                            {{ formatDate(activity.scanned_at) }}
+                                            {{ formatDate(activity.updated_at || activity.scanned_at || activity.created_at) }}
                                         </td>
 
                                         <!-- Actions -->
