@@ -338,13 +338,21 @@ watch(() => [showWebsiteScanningModal.value, showRepositoryScanningModal.value, 
         if (progressSimulator) clearInterval(progressSimulator);
         
         let ticks = 0;
+        
+        // Determine total duration based on which modal is open
+        // Sync Scans take ~13 mins (780 seconds), others take ~5 mins (300 seconds)
+        const isSyncScan = showSyncScanningModal.value;
+        const totalDurationSecs = isSyncScan ? 780 : 300;
+        // Ticks occur every 1 second. We want to reach 100% in `totalDurationSecs`.
+        // So progress per tick is 100 / totalDurationSecs.
+        const tickMultiplier = 100 / totalDurationSecs;
+
         progressSimulator = setInterval(() => {
              ticks++;
              
-             // Smooth Progress Simulation (0-100% over 5 minutes = 300 seconds)
-             // +1% roughly every 3 ticks
+             // Smooth Progress Simulation
              if (auditProgress.value) {
-                 let targetProgress = Math.floor(ticks / 3);
+                 let targetProgress = Math.floor(ticks * tickMultiplier);
                  if (targetProgress > 100) targetProgress = 100;
 
                  // Allow it to jump if actual progress (from earlier) is higher, 
@@ -354,11 +362,23 @@ watch(() => [showWebsiteScanningModal.value, showRepositoryScanningModal.value, 
                  }
                  
                  if (auditProgress.value.progress < 100) {
-                     if (auditProgress.value.progress < 20) auditProgress.value.step = 'Acquiring Target...';
-                     else if (auditProgress.value.progress < 40) auditProgress.value.step = 'Analyzing DOM Structure...';
-                     else if (auditProgress.value.progress < 60) auditProgress.value.step = 'Mapping Internal Endpoints...';
-                     else if (auditProgress.value.progress < 80) auditProgress.value.step = 'Extracting Tech Stack...';
-                     else auditProgress.value.step = 'Generating Forensic Report...';
+                     if (isSyncScan) {
+                         if (auditProgress.value.progress < 40) auditProgress.value.step = 'Ingesting Source Repository...';
+                         else if (auditProgress.value.progress < 80) auditProgress.value.step = 'Crawling Website Endpoints...';
+                         else auditProgress.value.step = 'Synchronizing Domain Vectors...';
+                     } else if (showRepositoryScanningModal.value) {
+                         if (auditProgress.value.progress < 20) auditProgress.value.step = 'Acquiring Repository...';
+                         else if (auditProgress.value.progress < 40) auditProgress.value.step = 'Analyzing Branch Hierarchy...';
+                         else if (auditProgress.value.progress < 60) auditProgress.value.step = 'Mapping Dependency Tree...';
+                         else if (auditProgress.value.progress < 80) auditProgress.value.step = 'Extracting Tech Stack...';
+                         else auditProgress.value.step = 'Generating Forensic Report...';
+                     } else {
+                         if (auditProgress.value.progress < 20) auditProgress.value.step = 'Acquiring Target...';
+                         else if (auditProgress.value.progress < 40) auditProgress.value.step = 'Analyzing DOM Structure...';
+                         else if (auditProgress.value.progress < 60) auditProgress.value.step = 'Mapping Internal Endpoints...';
+                         else if (auditProgress.value.progress < 80) auditProgress.value.step = 'Extracting Tech Stack...';
+                         else auditProgress.value.step = 'Generating Forensic Report...';
+                     }
                  } else {
                      auditProgress.value.step = 'Finalizing... Waiting for Server Verification';
                  }
