@@ -324,6 +324,71 @@ const refreshDashboardData = async () => {
 };
 
 /**
+ * Simulated Progress and Polling Fallback (Alternative to Broadcast)
+ * Ensures a smooth 0-100% UI animation without waiting for choppy websockets.
+ */
+let progressSimulator: any = null;
+watch(() => [showWebsiteScanningModal.value, showRepositoryScanningModal.value, showSyncScanningModal.value, showDocumentScanningModal.value, showSecurityScanningModal.value], (vals) => {
+    const isAnyScanning = vals.some(v => v);
+    if (isAnyScanning && selectedAsset.value && ['processing', 'pending', 'scanning'].includes(selectedAsset.value.status || '')) {
+        // Init Mock Progress
+        if (!auditProgress.value || auditProgress.value.progress >= 100 || auditProgress.value.progress === 0) {
+             auditProgress.value = { step: 'Initializing Titan Protocols...', progress: 1 };
+        }
+        if (progressSimulator) clearInterval(progressSimulator);
+        
+        let pollCounter = 0;
+        progressSimulator = setInterval(() => {
+             pollCounter++;
+             
+             // Smooth Progress Simulation
+             if (auditProgress.value) {
+                 if (auditProgress.value.progress < 85) {
+                     auditProgress.value.progress += Math.floor(Math.random() * 4) + 1;
+                 } else if (auditProgress.value.progress < 99) {
+                     auditProgress.value.progress += 1;
+                 } else {
+                     auditProgress.value.progress = 99;
+                     auditProgress.value.step = 'Finalizing Report...';
+                 }
+             }
+
+             // Poll API every 4 ticks (~4 seconds) to catch actual completion without broadcast
+             if (selectedAsset.value && pollCounter % 4 === 0) {
+                 axios.get(`/api/vault/assets/${selectedAsset.value.id}`).then(res => {
+                     const asset = res.data?.asset;
+                     if (asset && ['verified', 'flagged'].includes(asset.status)) {
+                         // It's complete! Snap to 100%
+                         if (auditProgress.value) {
+                             auditProgress.value.progress = 100;
+                             auditProgress.value.step = 'Recon Complete';
+                         }
+                         
+                         // Update state 
+                         selectedAsset.value = asset;
+                         // Update in list
+                         const index = recentAssets.value.findIndex(a => a.id === asset.id);
+                         if (index !== -1) recentAssets.value[index] = asset;
+                         
+                         clearInterval(progressSimulator);
+                         
+                         // Let user see 100% for a brief moment before background refresh
+                         setTimeout(() => { refreshDashboardData(); }, 1500);
+                     } else if (asset && asset.status === 'failed') {
+                         if (auditProgress.value) {
+                             auditProgress.value.step = 'Scan Failed';
+                         }
+                         clearInterval(progressSimulator);
+                     }
+                 }).catch(() => {});
+             }
+        }, 1000);
+    } else {
+        if (progressSimulator) clearInterval(progressSimulator);
+    }
+}, { deep: true });
+
+/**
  * Handle successful upload of a single asset
  */
 const handleUploadSuccess = (asset: VaultAsset) => {
