@@ -7,14 +7,14 @@ use Illuminate\Support\Facades\Log;
 
 class GeminiService
 {
-    protected string $apiKey;
-    protected string $model;
+    protected ?string $apiKey;
+    protected ?string $model;
     protected string $baseUrl;
 
     public function __construct()
     {
-        $this->apiKey = env('GEMINI_API_KEY');
-        $this->model = env('GEMINI_MODEL', config('services.gemini.model', 'gemini-2.0-flash'));
+        $this->apiKey = config('services.gemini.key', env('GEMINI_API_KEY', ''));
+        $this->model = config('services.gemini.model', env('GEMINI_MODEL', 'gemini-2.0-flash'));
         $this->baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/';
     }
 
