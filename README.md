@@ -1,74 +1,109 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# LumeCore 🛡️ 🚀
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**AI-Powered Mergers & Acquisitions (M&A) Forensic & Security Ecosystem**
 
-## About Laravel
+LumeCore (LUME) is a high-performance auditing and forensic engine designed for the modern M&A landscape. Built on Laravel 12 and powered by Google Gemini 2.0, it provides deep insights into codebases, infrastructure, and asset health, enabling transparent and secure technology transfers.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🌟 Key Pillars
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 1. 🔍 Infrastructure & Codebase Forensics (Titan Engine)
+The **Titan Engine** performs deep-dive audits into any web project or repository:
+- **Tech Footprint Sniffing**: Automatically identifies frameworks, databases, and third-party services using both repo analysis and live browser forensics (via Puppeteer).
+- **DNS & SSL Audit**: Inspects nameservers, SSL certificate health, and security headers.
+- **Git Churn & Toxicity**: Analyzes commit history to identify "toxic" files (high churn + large size) and technical debt.
+- **Bus Factor Analysis**: Determines author distribution and knowledge silos to assess organizational risk.
+- **Sovereign Fingerprinting**: Generates a unique SHA-256 fingerprint of the codebase's state to ensure integrity during transfers.
 
-## Learning Laravel
+### 2. 🤖 AI Architect (Gemini Integration)
+Integrated with **Google Gemini 2.0 Flash**, LumeCore provides:
+- **Smart Config Analysis**: Automatically identifies required environment variables and secrets by analyzing `composer.json`, `package.json`, and PHP config files.
+- **Deep Insight Chat**: An AI-powered chat interface that understands your project's context and helps navigate complex audits.
+- **Automated Reporting**: Generates comprehensive audit findings and forensic summaries.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 3. ☁️ CloudVault & Asset Management
+- **Secure Auditing**: Upload and scan documents and assets in a secure, isolated environment.
+- **Asset Health Logs**: Real-time tracking of asset status and audit history.
+- **Embedding-based Search**: Uses `pgvector` to store and search asset embeddings for high-relevance retrieval.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 4. 🛒 M&A Marketplace & Ledger
+- **Asset Monetization**: List verified project assets for sale.
+- **Escrow & Transactions**: Integrated wallet and transaction system for secure acquisitions.
+- **Ownership Verification**: Automated tools to verify website and repository ownership before listing.
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 🛠️ Tech Stack
 
-### Premium Partners
+- **Backend**: [Laravel 12](https://laravel.com/) (PHP 8.2+)
+- **Frontend**: [Vue 3](https://vuejs.org/) + [Inertia.js](https://inertiajs.com/) + [Tailwind CSS](https://tailwindcss.com/)
+- **Admin Panel**: [Filament v3](https://filamentphp.com/)
+- **AI Engine**: [Google Gemini 2.0 Flash](https://deepmind.google/technologies/gemini/)
+- **Real-time**: [Laravel Reverb](https://reverb.laravel.com/) (WebSockets)
+- **Database**: PostgreSQL with [pgvector](https://github.com/pgvector/pgvector)
+- **Browser Automation**: [Spatie Browsershot](https://github.com/spatie/browsershot) / Puppeteer
+- **Search**: Meilisearch
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## 🚀 Getting Started
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Prerequisites
+- PHP 8.2+
+- Node.js & NPM
+- PostgreSQL with `pgvector`
+- Google Chrome (for Browsershot)
+- Python 3.10+ (for certain security scanning tools)
 
-## Code of Conduct
+### Installation
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## Security Scanning Engine
-
-The Surface-Level Security Scanner requires Python 3.10+ and specific dependencies to execute active vulnerability tests.
-
-### Python Setup
-1. Ensure Python 3.10+ is installed on the server.
-2. Install the required packages:
+1. **Clone the repository**:
    ```bash
-   pip install -r app/Services/Python/requirements.txt
-   ```
-3. Configure the Python path in `.env` (if different from `python3`):
-   ```
-   PYTHON_PATH=/usr/bin/python3
+   git clone https://github.com/EisenDev/LumeCore.git
+   cd LumeCore
    ```
 
-## License
+2. **Install dependencies**:
+   ```bash
+   composer install
+   npm install
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+3. **Configure Environment**:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+   *Note: Ensure you set `GEMINI_API_KEY`, `DB_CONNECTION=pgsql`, and other service credentials.*
+
+4. **Database Setup**:
+   ```bash
+   php artisan migrate
+   ```
+
+5. **Build Assets**:
+   ```bash
+   npm run build
+   ```
+
+6. **Run the Application**:
+   ```bash
+   php artisan serve
+   ```
+
+---
+
+## 🧪 Security Scanning Engine
+The surface-level security scanner requires specific Python dependencies:
+```bash
+pip install -r app/Services/Python/requirements.txt
+```
+
+---
+
+## 📄 License
+The LumeCore framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+---
+*Developed with 💡 by EisenDev*
