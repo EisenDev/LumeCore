@@ -84,6 +84,12 @@ Record major workspace modifications here:
 | 2026-06-30 | `Reports.vue`, `ReportsController.php` | Created ClickUp ticket [DEBT-009](https://app.clickup.com/t/86d3gvxjz): Replace all hardcoded/mock data in Reports page with real DB-driven data via Inertia props from `scan_activities` and `vault_assets` | Antigravity|
 | 2026-06-30 | `Reports.vue`, `ReportsController.php`, `ReportsTest.php` | Implemented dynamic backend mapping, SVG doughnut chart calculations, dropdown filters, and automated tests for [DEBT-009](https://app.clickup.com/t/86d3gw6a1) | Antigravity|
 | 2026-06-30 | `AuthenticatedLayout.vue`, `HandleInertiaRequests.php`, `NotificationController.php`, `NotificationsTest.php` | Implemented notifications database table, shared props, mark-as-read endpoints, and interactive layout bell dropdown menu for [BUG-001](https://app.clickup.com/t/86d3gwcu5) | Antigravity|
+| 2026-06-30 | `create_integrations_table.php`, `create_integration_logs_table.php` | Created `integrations` and `integration_logs` database migrations for [DEBT-010](https://app.clickup.com/t/86d3gx75d) | Antigravity|
+| 2026-06-30 | `Integration.php`, `IntegrationLog.php` | Created Eloquent models with AES-256 encrypted credentials cast, scopeConnected, statusColor, lastSyncForHumans helpers for [DEBT-010](https://app.clickup.com/t/86d3gx75d) | Antigravity|
+| 2026-06-30 | `IntegrationsController.php` | Rewrote controller to fetch real DB data, compute stats (connected, health %, events synced), build activity log, and added toggle endpoint for connect/disconnect for [DEBT-010](https://app.clickup.com/t/86d3gx75d) | Antigravity|
+| 2026-06-30 | `Integrations.vue` | Removed all hardcoded arrays, added TypeScript defineProps interface, wired stats/health/activity log to Inertia props, wired connect/disconnect buttons to toggle endpoint for [DEBT-010](https://app.clickup.com/t/86d3gx75d) | Antigravity|
+| 2026-06-30 | `web.php` | Added `POST /integrations/{platform}/toggle` route for [DEBT-010](https://app.clickup.com/t/86d3gx75d) | Antigravity|
+| 2026-06-30 | `IntegrationsTest.php` | Added 12 feature tests covering auth gates, DB-driven props, connect/disconnect CRUD, credential security, and stats computation for [DEBT-010](https://app.clickup.com/t/86d3gx75d) | Antigravity|
 
 
 
