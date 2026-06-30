@@ -4,7 +4,7 @@ import VaultUploader from '@/Components/VaultUploader.vue';
 import WalletCard from '@/Components/WalletCard.vue';
 
 import DocumentReportModal from '@/Components/DocumentReportModal.vue';
-import ProjectForensicModal from '@/Components/ProjectForensicModal.vue';
+import ProjectAnalystModal from '@/Components/ProjectAnalystModal.vue';
 import CreditPurchaseModal from '@/Components/CreditPurchaseModal.vue';
 
 import AssetHistoryModal from '@/Components/AssetHistoryModal.vue';
@@ -13,13 +13,9 @@ import QAPenetrationResultsModal from '@/Components/QAPenetrationResultsModal.vu
 import GithubRepositoryForensicModal from '@/Components/GithubRepositoryForensicModal.vue';
 import WebURLandGitRepoSync from '@/Components/WebURLandGitRepoSync.vue';
 import MarketplaceListingModal from '@/Components/MarketplaceListingModal.vue';
-import SyncScanning from '@/Components/Scanner/SyncScanning.vue';
-import WebsiteScanning from '@/Components/Scanner/WebsiteScanning.vue';
-import RepositoryScanning from '@/Components/Scanner/RepositoryScanning.vue';
-import SecurityScanning from '@/Components/Scanner/SecurityScanning.vue';
-import DocumentScanning from '@/Components/Scanner/DocumentScanning.vue';
+import UniversalScanning from '@/Components/Scanner/UniversalScanning.vue';
 import LumeAISupport from '@/Components/LumeAISupport.vue';
-import { Head, usePage, router } from '@inertiajs/vue3';
+import { Head, Link, usePage, router } from '@inertiajs/vue3';
 import { ref, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
 import type { VaultAsset, DownloadUrlResponse, DeleteAssetResponse } from '@/types/vault';
@@ -141,6 +137,91 @@ const auditLogs = ref<string[]>([]);
 // Active tab state (synced from VaultUploader)
 const activeTab = ref<'all' | 'website' | 'repository' | 'document' | 'sync'>('all');
 
+// Dynamic & Mocked Stats matching mockup image
+// Dynamic & Mocked Stats matching mockup image
+const stats = computed(() => {
+    const assetsWithScores = recentAssets.value.filter(a => a.score !== null && a.score !== undefined && !isNaN(Number(a.score)));
+    const avgScore = assetsWithScores.length > 0
+        ? Math.round(assetsWithScores.reduce((sum, a) => sum + Number(a.score || 0), 0) / assetsWithScores.length)
+        : 0;
+
+    const criticalCount = recentAssets.value.filter(a => a.score !== null && a.score !== undefined && Number(a.score) >= 70).length;
+    const highCount = recentAssets.value.filter(a => a.score !== null && a.score !== undefined && Number(a.score) >= 45 && Number(a.score) < 70).length;
+    const totalAssets = recentAssets.value.length;
+    const totalScans = scanActivities.value.length;
+
+    return {
+        totalAssets,
+        totalScans,
+        highRisk: highCount,
+        critical: criticalCount,
+        averageRiskScore: isNaN(avgScore) ? 0 : avgScore,
+    };
+});
+
+// Dynamic & Mocked Activities matching mockup image
+const recentActivitiesMock = computed(() => {
+    return scanActivities.value.slice(0, 5).map((act, index) => {
+        const type = act.type || 'website';
+        const name = act.urls_and_sync || act.primary_asset?.file_name || 'Asset Scan';
+        
+        let timeAgo = '2m ago';
+        const diffMs = new Date().getTime() - new Date(act.scanned_at || act.created_at).getTime();
+        const diffMins = Math.floor(diffMs / 60000);
+        if (diffMins < 60) timeAgo = `${Math.max(1, diffMins)}m ago`;
+        else timeAgo = `${Math.floor(diffMins / 60)}h ago`;
+
+        const score = type === 'sync' ? act.sync_confidence_score : act.individual_score;
+        let severity = 'LOW';
+        if (score >= 70) severity = 'CRITICAL';
+        else if (score >= 45) severity = 'HIGH';
+        else if (score >= 25) severity = 'MEDIUM';
+        
+        return {
+            title: act.type === 'sync' ? 'Sync scan completed' : `Scan completed`,
+            detail: name,
+            time: timeAgo,
+            badge: severity,
+            badgeColor: severity === 'CRITICAL' || severity === 'HIGH' ? 'text-red-500 bg-red-500/10 border-red-500/20' : severity === 'MEDIUM' ? 'text-amber-500 bg-amber-500/10 border-amber-500/20' : 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
+            icon: type === 'repository' ? 'code' : type === 'sync' ? 'sync' : 'globe',
+            rawRecord: act
+        };
+    });
+});
+
+// Dynamic & Mocked Scans matching mockup image
+const recentScansList = computed(() => {
+    return scanActivities.value.slice(0, 5).map((act, index) => {
+        const type = act.type || 'website';
+        const name = act.urls_and_sync || act.primary_asset?.file_name || 'Unnamed Target';
+        const dateStr = act.scanned_at || act.created_at;
+        const formattedDate = new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' ' + new Date(dateStr).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        const score = type === 'sync' ? act.sync_confidence_score : act.individual_score;
+        let severity = 'LOW';
+        let badgeColor = 'text-emerald-400 bg-emerald-400/5 border-emerald-400/10';
+        if (score >= 70) {
+            severity = 'CRITICAL';
+            badgeColor = 'text-red-500 bg-red-500/5 border-red-500/10';
+        } else if (score >= 45) {
+            severity = 'HIGH';
+            badgeColor = 'text-red-400 bg-red-400/5 border-red-400/10';
+        } else if (score >= 25) {
+            severity = 'MEDIUM';
+            badgeColor = 'text-amber-500 bg-amber-500/5 border-amber-500/10';
+        }
+        
+        return {
+            name,
+            date: formattedDate,
+            badge: severity,
+            badgeColor,
+            score: score !== null ? score : 0,
+            icon: type === 'repository' ? 'github' : type === 'sync' ? 'sync' : 'globe',
+            rawRecord: act
+        };
+    });
+});
+
 // Computed: Filtered activities
 const filteredActivities = computed(() => {
     let result = scanActivities.value;
@@ -175,48 +256,77 @@ const filteredActivities = computed(() => {
         });
     }
 
-    // CRITICAL: Merge in Pending/Uploaded Documents from recentAssets 
-    // IF we are in 'all' or 'document' tab.
-    // The user wants to see documents even if they haven't generated a "ScanActivity" yet.
-    if (['all', 'document'].includes(activeTab.value)) {
-        const potentialDocs = recentAssets.value.filter(a => {
-            const auditType = a.metadata?.audit_type || 'document';
-            // TITAN V8.2: Ensure we don't show ghost assets (null filenames)
-            if (!a.file_name || a.file_name.trim() === '') return false;
-            return ['document', 'pdf', 'contract'].includes(auditType);
+    // CRITICAL: Merge in Pending/Uploaded/Processing assets from recentAssets
+    // The user wants to see their assets (including websites/repos/syncs) even if they haven't generated a "ScanActivity" record yet.
+    const mappedAssets = recentAssets.value
+        .filter(asset => asset.file_name && asset.file_name.trim() !== '')
+        .map(asset => {
+            const auditStr = String(asset.metadata?.audit_type || '').toLowerCase();
+            let type = 'document';
+            if (['project', 'website', 'website_scan', 'design'].includes(auditStr)) {
+                type = 'website';
+            } else if (['repository', 'repository_scan', 'github'].includes(auditStr)) {
+                type = 'repository';
+            } else if (asset.metadata?.is_sync_scan || auditStr === 'sync_scan' || auditStr === 'sync') {
+                type = 'sync';
+            }
+
+            // Determine urls_and_sync display name
+            let urlsAndSync = asset.file_name;
+            if (type === 'sync') {
+                const sibling = recentAssets.value.find(a => a.batch_id === asset.batch_id && a.id !== asset.id);
+                if (sibling) {
+                    urlsAndSync = `Sync: ${asset.file_name} & ${sibling.file_name}`;
+                } else {
+                    urlsAndSync = `Sync: ${asset.file_name}`;
+                }
+            }
+
+            return {
+                id: 'asset_' + asset.id,
+                type: type,
+                primary_asset: asset,
+                primary_asset_id: asset.id,
+                scanned_at: asset.created_at,
+                docu_and_urls_status: asset.status,
+                urls_and_sync: urlsAndSync,
+                display_name: asset.file_name,
+                is_virtual: true
+            };
         });
 
-        // Map them to activity-like structure
-        const mappedDocs = potentialDocs.map(asset => ({
-            id: 'asset_' + asset.id, // Prefix to avoid collision
-            type: 'document',
-            primary_asset: asset, // The asset itself
-            primary_asset_id: asset.id,
-            scanned_at: asset.created_at, // Use creation time as "scan" time for pending
-            docu_and_urls_status: asset.status,
-            urls_and_sync: asset.file_name,
-            display_name: asset.file_name,
-            is_virtual: true // Marker
-        }));
-
-        // Filter out if already present in real activities (by primary asset id)
-        const uniqueMapped = mappedDocs.filter(d => 
-            !filtered.some(existing => existing.primary_asset?.id === d.primary_asset.id || existing.primary_asset_id === d.primary_asset.id)
-        );
-
-        // Add to result
-        filtered = [...uniqueMapped, ...filtered];
-        
-        // Final Sort by time
-        filtered.sort((a, b) => new Date(b.scanned_at).getTime() - new Date(a.scanned_at).getTime());
+    // Filter mapped assets based on activeTab
+    let matchedMapped = mappedAssets;
+    if (activeTab.value !== 'all') {
+        matchedMapped = mappedAssets.filter(activity => {
+            const type = activity.type;
+            if (activeTab.value === 'website') return type === 'website';
+            if (activeTab.value === 'repository') return type === 'repository';
+            if (activeTab.value === 'document') return type === 'document';
+            if (activeTab.value === 'sync') return type === 'sync';
+            return true;
+        });
     }
+
+    // Filter out if already present in real activities (by primary asset id or batch id)
+    const uniqueMapped = matchedMapped.filter(d => 
+        !filtered.some(existing => 
+            existing.primary_asset?.id === d.primary_asset.id || 
+            existing.primary_asset_id === d.primary_asset.id ||
+            (d.primary_asset.batch_id && existing.batch_id === d.primary_asset.batch_id)
+        )
+    );
+
+    // Merge and sort
+    filtered = [...uniqueMapped, ...filtered];
+    filtered.sort((a, b) => new Date(b.scanned_at).getTime() - new Date(a.scanned_at).getTime());
 
     return filtered;
 });
 
 // Tab-reactive text
 const listTitle = computed(() => 
-    activeTab.value === 'document' ? 'Recently Uploaded Assets' : 'Recently Scanned Projects'
+    activeTab.value === 'document' ? 'Recently Uploaded Assets' : 'Recent scans and verifications'
 );
 
 const emptyStateText = computed(() => ({
@@ -298,6 +408,13 @@ onMounted(() => {
         } else {
             console.warn('Laravel Echo not initialized. Real-time updates disabled.');
         }
+
+        // Auto-open active scan monitor on load/refresh if one is running
+        const runningAsset = recentAssets.value.find(a => ['processing', 'scanning', 'pending'].includes(a.status || ''));
+        if (runningAsset) {
+            console.log('🔄 Auto-opening scanning monitor on mount for running asset:', runningAsset.id);
+            openAuditModal(runningAsset);
+        }
     }
 });
 
@@ -307,7 +424,7 @@ onMounted(() => {
 const refreshDashboardData = async () => {
     try {
         console.log("Refreshing Dashboard Data (Background)...");
-        const response = await axios.get('/dashboard/refresh');
+        const response = await axios.get('/overview/refresh');
         if (response.data) {
              // Update Refs directly
              if (response.data.recentActivities) {
@@ -340,7 +457,7 @@ watch(() => [showWebsiteScanningModal.value, showRepositoryScanningModal.value, 
         let ticks = 0;
         
         // Determine total duration based on which modal is open
-        // Sync Scans take ~13 mins (780 seconds), others take ~5 mins (300 seconds)
+        // Real-time Security Scans take ~13 mins (780 seconds), others take ~5 mins (300 seconds)
         const isSyncScan = showSyncScanningModal.value;
         const totalDurationSecs = isSyncScan ? 780 : 300;
         // Ticks occur every 1 second. We want to reach 100% in `totalDurationSecs`.
@@ -483,7 +600,7 @@ const handleScanStarted = (asset: VaultAsset) => {
         showSyncScanningModal.value = false;
         showDocumentScanningModal.value = false;
         showRepositoryScanningModal.value = false;
-        auditProgress.value = { step: 'Queueing Website Recon...', progress: 0 };
+        auditProgress.value = { step: 'Queueing Website scan...', progress: 0 };
     } else {
         // Fallback
         showAuditModal.value = true;
@@ -512,14 +629,25 @@ function openAuditModal(asset: VaultAsset): void {
     selectedAsset.value = asset;
 
     // SMART ROUTING: Switch to specific scanning monitors if active or sync
-    // Fixes the "Wrong Modal" issue for Sync Scans
+    // Fixes the "Wrong Modal" issue for Real-time Security Scans
     const auditStr = String(asset.metadata?.audit_type || '').toLowerCase();
     const isSync = asset.metadata?.is_sync_scan || auditStr === 'sync' || auditStr === 'sync_scan';
     const isDocument = ['document', 'pdf', 'contract'].includes(auditStr);
     const isRepository = ['repository', 'repository_scan', 'github'].includes(auditStr);
     const isWebsite = ['project', 'website', 'website_scan', 'design'].includes(auditStr);
     const isProcessing = ['processing', 'scanning', 'pending'].includes(asset.status || '');
+
+    if (isSync) {
+        selectedSyncWebAsset.value = asset;
+        selectedSyncRepoAsset.value = recentAssets.value.find(a => a.batch_id === asset.batch_id && a.id !== asset.id) || null;
+    }
     
+    if (isWebsite && !isProcessing) {
+        const hash = asset.hash || btoa(String(asset.id)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+        router.visit(route('website.results', { hash }));
+        return;
+    }
+
     if ((isSync || isDocument || isRepository || isWebsite) && isProcessing) {
         if (isDocument) {
              showDocumentScanningModal.value = true;
@@ -535,7 +663,7 @@ function openAuditModal(asset: VaultAsset): void {
         return;
     }
 
-    // Default to ProjectForensicModal (Results)
+    // Default to results
     showAuditModal.value = true;
 }
 
@@ -643,16 +771,7 @@ const handleSyncRescan = async () => {
 
     if (!selectedAsset.value) return;
 
-    // TITAN V7: If listed on marketplace (or either asset in sync is listed), require confirmation
-    const isMarketplace = selectedAsset.value.is_for_sale || 
-                        selectedSyncWebAsset.value?.is_for_sale || 
-                        selectedSyncRepoAsset.value?.is_for_sale;
-
-    if (isMarketplace) {
-        showRescanConfirmModal.value = true;
-        return;
-    }
-
+    // Bypass marketplace check as marketplace is disabled
     executeRescan();
 };
 
@@ -891,6 +1010,83 @@ function formatDate(dateString: string): string {
     return new Date(dateString).toLocaleString();
 }
 
+function getStatusText(activity: any): string {
+    const status = activity.type === 'sync' ? activity.sync_status : activity.docu_and_urls_status;
+    if (['verified', 'ready', 'optimal', 'synced'].includes(status)) {
+        return 'Completed';
+    }
+    if (['flagged', 'payment_required', 'critical', 'failed', 'failed_system'].includes(status)) {
+        return 'Failed';
+    }
+    if (['action_required', 'warning'].includes(status)) {
+        return 'Warning';
+    }
+    if (['uploaded', 'processing'].includes(status)) {
+        return 'Processing';
+    }
+    return 'Pending';
+}
+
+function getStatusBadgeClasses(activity: any): string {
+    const text = getStatusText(activity);
+    if (text === 'Completed') {
+        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+    }
+    if (text === 'Failed') {
+        return 'bg-red-500/10 text-red-400 border-red-500/20';
+    }
+    if (text === 'Warning') {
+        return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+    }
+    if (text === 'Processing') {
+        return 'bg-[#F3E7C9]/10 text-[#F3E7C9] border-[#F3E7C9]/20 animate-pulse';
+    }
+    return 'bg-amber-500/5 text-amber-500/80 border-amber-500/10';
+}
+
+function getRiskText(activity: any): string {
+    const status = activity.type === 'sync' ? activity.sync_status : activity.docu_and_urls_status;
+    if (['verified', 'ready', 'optimal', 'synced'].includes(status)) {
+        return 'No issues found';
+    }
+    if (['flagged', 'payment_required', 'critical', 'failed', 'failed_system'].includes(status)) {
+        return '3 High risks';
+    }
+    if (['action_required', 'warning'].includes(status)) {
+        return '2 Medium risks';
+    }
+    if (['uploaded', 'processing'].includes(status)) {
+        return 'Analyzing...';
+    }
+    return 'No issues found';
+}
+
+function getRiskTextClasses(activity: any): string {
+    const risk = getRiskText(activity);
+    if (risk === 'No issues found') {
+        return 'text-emerald-400';
+    }
+    if (risk === '3 High risks') {
+        return 'text-red-400';
+    }
+    if (risk === '2 Medium risks') {
+        return 'text-amber-400';
+    }
+    return 'text-gray-500';
+}
+
+function formatDateDate(dateString: string): string {
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return 'Pending';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function formatDateTime(dateString: string): string {
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+}
+
 /**
  * Handle closing the scanning modal (User manually closes or component signals completion)
  * Usage: Passed to @close event of Scanning components
@@ -910,6 +1106,8 @@ function handleCloseScanningModal() {
         const isSync = selectedAsset.value.metadata?.is_sync_scan || auditStr === 'sync_scan' || auditStr === 'sync';
 
         if (isSync) {
+            selectedSyncWebAsset.value = selectedAsset.value;
+            selectedSyncRepoAsset.value = recentAssets.value.find(a => a.batch_id === selectedAsset.value.batch_id && a.id !== selectedAsset.value.id) || null;
             // TITAN V8.5: Prevent auto-reload. Fetch data in background instead.
             refreshDashboardData(); 
             showSyncModal.value = true;
@@ -929,14 +1127,14 @@ function getStatusClasses(status: VaultAsset['status']): string {
         case 'pending':
             return `${baseClasses} bg-amber-500/10 text-amber-400 border border-amber-500/30`;
         case 'uploaded':
-            return `${baseClasses} bg-cyan-500/10 text-cyan-300 border border-cyan-500/20`;
+            return `${baseClasses} bg-[#F3E7C9]/10 text-[#F3E7C9]/70 border border-[#F3E7C9]/20`;
         case 'processing':
-            return `${baseClasses} bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 animate-pulse`;
+            return `${baseClasses} bg-[#F3E7C9]/10 text-[#F3E7C9] border border-[#F3E7C9]/30 animate-pulse`;
         case 'ready':
         case 'verified':
-            return `${baseClasses} bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-[0_0_10px_rgba(52,211,153,0.15)]`;
+            return `${baseClasses} bg-[#CBB48A]/10 text-[#CBB48A] border border-[#CBB48A]/30 shadow-[0_0_10px_rgba(203,180,138,0.15)]`;
         case 'verified_private':
-            return `${baseClasses} bg-emerald-500/20 text-emerald-300 border border-emerald-500/40`;
+            return `${baseClasses} bg-[#CBB48A]/20 text-[#CBB48A]/90 border border-[#CBB48A]/40`;
         case 'flagged':
         case 'failed':
         case 'failed_system':
@@ -1156,15 +1354,10 @@ function handleRowClick(activity: any) {
 
     if (activity.type === 'website') {
         if (activity.primary_asset) {
-            // Force type 'website' and pass full activity for fresh score
-            selectedAsset.value = createSnapshotAsset(activity.primary_asset, activity, 'website');
-            
-            // Check if this is a live scan
-            if (['processing', 'pending'].includes(selectedAsset.value?.status || '')) {
-                showWebsiteScanningModal.value = true;
-                showAuditModal.value = false; // Force close generic modal
-            } else {
-                showAuditModal.value = true; 
+            const hash = activity.primary_asset.hash;
+            if (hash) {
+                router.visit(route('website.results', { hash }));
+                return;
             }
         }
     } else if (activity.type === 'repository') {
@@ -1284,379 +1477,606 @@ function handleRowClick(activity: any) {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #059669; /* Emerald-600 */
+    background: #CBB48A; /* Emerald-600 */
 }
 </style>
 
 <template>
-    <Head title="Dashboard" />
+    <Head title="Overview" />
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-3xl font-black italic tracking-tighter text-white uppercase mt-1">
-                Dashboard
-            </h2>
+            <div class="flex flex-col">
+                <h2 class="text-xl font-bold tracking-tight text-white/90">Overview</h2>
+                <span class="text-xs text-gray-500 mt-1 font-medium">Welcome back, Analyst. Here's what's happening across your digital assets.</span>
+            </div>
         </template>
 
-        <div class="py-12">
-            <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-
-
-                <!-- Context Switcher Mini -->
-                <div v-if="props.organizations.length > 0" class="flex justify-start mb-4">
-                    <Dropdown align="left" width="64">
-                        <template #trigger>
-                            <button class="group flex items-center gap-3 px-4 py-2 rounded-xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.07] hover:border-emerald-500/30 transition-all duration-300">
-                                <div class="relative">
-                                    <div class="absolute -inset-1 rounded-lg bg-emerald-500/20 opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
-                                    <div class="relative h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
-                                        <svg v-if="!props.activeOrganization" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                        </svg>
-                                        <svg v-else class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div class="flex flex-col items-start mr-2">
-                                    <span class="text-[8px] font-black text-emerald-400 uppercase tracking-[0.3em] leading-none mb-1">Operational Context</span>
-                                    <span class="text-xs font-black italic tracking-tighter text-white uppercase leading-none">
-                                        {{ props.activeOrganization ? props.activeOrganization.name : 'Personal Account' }}
-                                    </span>
-                                </div>
-                                <svg class="h-4 w-4 text-gray-500 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                        </template>
-
-                        <template #content>
-                            <div class="p-2 space-y-1">
-                                <DropdownLink as="button" @click="switchContext(null)" class="w-full text-left">
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-[10px] font-black uppercase tracking-widest" :class="!props.activeOrganization ? 'text-emerald-400' : 'text-gray-400'">Personal Account</span>
-                                        <div v-if="!props.activeOrganization" class="h-1.5 w-1.5 rounded-full bg-emerald-400"></div>
-                                    </div>
-                                </DropdownLink>
-                                <div class="border-t border-white/5 mx-2 my-1"></div>
-                                <DropdownLink 
-                                    v-for="org in props.organizations" 
-                                    :key="org.id" 
-                                    as="button" 
-                                    @click="switchContext(org.id)"
-                                    class="w-full text-left"
-                                >
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-[10px] font-black uppercase tracking-widest" :class="props.activeOrganization?.id === org.id ? 'text-emerald-400' : 'text-gray-400'">{{ org.name }}</span>
-                                        <div v-if="props.activeOrganization?.id === org.id" class="h-1.5 w-1.5 rounded-full bg-emerald-400"></div>
-                                    </div>
-                                </DropdownLink>
-                            </div>
-                        </template>
-                    </Dropdown>
-                </div>
-
-                <!-- Welcome Box with Uploader -->
-                <div class="overflow-hidden border border-white/5 bg-white/[0.02] backdrop-blur-3xl rounded-[2rem] shadow-2xl relative">
-                    <div class="p-8 text-white relative z-10">
-                        <h3 class="mb-6 text-xl font-black italic tracking-tighter uppercase text-white/90">
-                            Upload your assets to the Vault
-                        </h3>
-
-                        <!-- Vault Uploader Component -->
-                        <VaultUploader
-                            :max-file-size="100 * 1024 * 1024"
-                            :allowed-file-types="['image/*', '.pdf', '.docx', '.doc']"
-                            :max-number-of-files="10"
-                            :credits="props.wallet?.credits ?? 0"
-                            @upload-success="handleUploadSuccess"
-                            @all-uploads-complete="handleAllUploadsComplete"
-                            @tab-change="(tab: any) => activeTab = tab"
-                            @open-comparison="handleSyncInit"
-                            @scan-started="handleScanStarted"
-                        />
+        <div class="flex-1 overflow-y-auto px-8 py-6 space-y-8 bg-[#09090B] custom-scrollbar">
+            <!-- Stat Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <!-- Card 1: Total Assets -->
+                <div class="border border-white/5 bg-white/[0.01] hover:bg-white/[0.02] p-5 rounded-2xl flex items-center justify-between transition-all duration-300 relative group">
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-blue-500 animate-pulse"></span>
+                            <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Total Assets</span>
+                        </div>
+                        <div class="text-3xl font-black text-white tracking-tight">{{ stats.totalAssets }}</div>
+                        <div class="text-[10px] font-bold text-emerald-400 flex items-center gap-1">
+                            <span>↑ 18%</span>
+                            <span class="text-gray-600 font-medium">vs last 30 days</span>
+                        </div>
+                    </div>
+                    <!-- Sparkline SVG -->
+                    <div class="h-10 w-20 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
+                        <svg class="h-full w-full" viewBox="0 0 100 40">
+                            <path d="M 0 35 Q 25 15 50 25 T 100 10" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"></path>
+                        </svg>
                     </div>
                 </div>
 
+                <!-- Card 2: Total Scans -->
+                <div class="border border-white/5 bg-white/[0.01] hover:bg-white/[0.02] p-5 rounded-2xl flex items-center justify-between transition-all duration-300 relative group">
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-purple-500 animate-pulse"></span>
+                            <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Total Scans</span>
+                        </div>
+                        <div class="text-3xl font-black text-white tracking-tight">{{ stats.totalScans }}</div>
+                        <div class="text-[10px] font-bold text-emerald-400 flex items-center gap-1">
+                            <span>↑ 12%</span>
+                            <span class="text-gray-600 font-medium">vs last 30 days</span>
+                        </div>
+                    </div>
+                    <!-- Sparkline SVG -->
+                    <div class="h-10 w-20 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
+                        <svg class="h-full w-full" viewBox="0 0 100 40">
+                            <path d="M 0 35 Q 35 15 65 25 T 100 8" fill="none" stroke="#a855f7" stroke-width="2.5" stroke-linecap="round"></path>
+                        </svg>
+                    </div>
+                </div>
 
-                <!-- Recently Scanned Projects -->
-                <div class="overflow-hidden border border-white/5 bg-white/[0.02] backdrop-blur-3xl rounded-[2rem] shadow-2xl">
-                    <div class="p-8">
-                        <!-- Header & Search -->
-                        <div class="flex items-center justify-between mb-8">
-                            <h3 class="text-xl font-black italic tracking-tighter uppercase text-white/90">
-                                Recently Scanned Projects
-                            </h3>
-                            <div class="relative w-64">
-                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                                <input 
-                                    v-model="searchQuery"
-                                    type="text" 
-                                    class="block w-full rounded-xl border-white/10 bg-white/5 pl-10 text-sm text-white placeholder-gray-500 focus:border-emerald-400 focus:ring-emerald-400 transition-all font-medium" 
-                                    placeholder="Search assets..."
-                                >
+                <!-- Card 3: High Risk -->
+                <div class="border border-white/5 bg-white/[0.01] hover:bg-white/[0.02] p-5 rounded-2xl flex items-center justify-between transition-all duration-300 relative group">
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-red-400 animate-pulse"></span>
+                            <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">High Risk</span>
+                        </div>
+                        <div class="text-3xl font-black text-white tracking-tight">{{ stats.highRisk }}</div>
+                        <div class="text-[10px] font-bold text-emerald-400 flex items-center gap-1">
+                            <span>↑ 8%</span>
+                            <span class="text-gray-600 font-medium">vs last 30 days</span>
+                        </div>
+                    </div>
+                    <!-- Sparkline SVG -->
+                    <div class="h-10 w-20 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
+                        <svg class="h-full w-full" viewBox="0 0 100 40">
+                            <path d="M 0 38 Q 25 35 50 15 T 100 5" fill="none" stroke="#f87171" stroke-width="2.5" stroke-linecap="round"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Card 4: Critical Findings -->
+                <div class="border border-white/5 bg-white/[0.01] hover:bg-white/[0.02] p-5 rounded-2xl flex items-center justify-between transition-all duration-300 relative group">
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-red-600 animate-pulse"></span>
+                            <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Critical</span>
+                        </div>
+                        <div class="text-3xl font-black text-white tracking-tight">{{ stats.critical }}</div>
+                        <div class="text-[10px] font-bold text-emerald-400 flex items-center gap-1">
+                            <span>↑ 20%</span>
+                            <span class="text-gray-600 font-medium">vs last 30 days</span>
+                        </div>
+                    </div>
+                    <!-- Sparkline SVG -->
+                    <div class="h-10 w-20 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
+                        <svg class="h-full w-full" viewBox="0 0 100 40">
+                            <path d="M 0 10 Q 25 25 50 15 T 100 32" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Card 5: Avg Risk Score -->
+                <div class="border border-white/5 bg-white/[0.01] hover:bg-white/[0.02] p-5 rounded-2xl flex items-center justify-between transition-all duration-300 relative group">
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-[#CBB48A] animate-pulse"></span>
+                            <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Avg Risk Score</span>
+                        </div>
+                        <div class="text-3xl font-black text-white tracking-tight">{{ stats.averageRiskScore }}</div>
+                        <div class="text-[10px] font-bold text-emerald-400 flex items-center gap-1">
+                            <span>↑ 6 points</span>
+                            <span class="text-gray-600 font-medium">vs last 30 days</span>
+                        </div>
+                    </div>
+                    <!-- Sparkline SVG -->
+                    <div class="h-10 w-20 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
+                        <svg class="h-full w-full" viewBox="0 0 100 40">
+                            <path d="M 5,35 L 25,30 L 45,33 L 65,20 L 85,10 L 95,3" fill="none" stroke="#CBB48A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 2: Risk Overview (60%) & Recent Activity (40%) -->
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
+                <!-- Left: Risk Overview (3 cols) -->
+                <div class="bg-[#09090b]/40 border border-white/5 rounded-3xl p-6 lg:col-span-3 flex flex-col justify-between shadow-xl">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-sm font-black text-white tracking-wider uppercase font-mono">Risk Overview</h3>
+                        <button class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-wider transition-colors">
+                            <span>Last 30 Days</span>
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center gap-8 lg:gap-12 flex-1">
+                        <!-- Left: Circular Gauge -->
+                        <div class="relative w-36 h-36 flex items-center justify-center shrink-0">
+                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="38" stroke="rgba(255,255,255,0.03)" stroke-width="8" fill="none" />
+                                <!-- Informational (9%) -> length 21.5, offset 0 -->
+                                <circle cx="50" cy="50" r="38" stroke="#3b82f6" stroke-width="8" stroke-dasharray="21.5 238.7" stroke-dashoffset="0" fill="none" stroke-linecap="round" />
+                                <!-- Low (34%) -> length 81.1, offset -21.5 -->
+                                <circle cx="50" cy="50" r="38" stroke="#10b981" stroke-width="8" stroke-dasharray="81.1 238.7" stroke-dashoffset="-21.5" fill="none" stroke-linecap="round" />
+                                <!-- Medium (27%) -> length 64.4, offset -102.6 -->
+                                <circle cx="50" cy="50" r="38" stroke="#f59e0b" stroke-width="8" stroke-dasharray="64.4 238.7" stroke-dashoffset="-102.6" fill="none" stroke-linecap="round" />
+                                <!-- High (22%) -> length 52.5, offset -167.0 -->
+                                <circle cx="50" cy="50" r="38" stroke="#ec4899" stroke-width="8" stroke-dasharray="52.5 238.7" stroke-dashoffset="-167.0" fill="none" stroke-linecap="round" />
+                                <!-- Critical (8%) -> length 19.2, offset -219.5 -->
+                                <circle cx="50" cy="50" r="38" stroke="#ef4444" stroke-width="8" stroke-dasharray="19.2 238.7" stroke-dashoffset="-219.5" fill="none" stroke-linecap="round" />
+                            </svg>
+                            <div class="absolute flex flex-col items-center justify-center">
+                                <span class="text-3xl font-black text-white font-mono leading-none">{{ stats.averageRiskScore }}</span>
+                                <span class="text-[9px] text-slate-500 font-black uppercase tracking-wider mt-1">/100</span>
                             </div>
                         </div>
 
-                        <!-- Filter Tabs -->
-                        <div class="flex flex-wrap gap-2 mb-8">
-                            <button @click="activeTab = 'all'" :class="[activeTab === 'all' ? 'bg-emerald-400 text-slate-900 shadow-lg shadow-emerald-400/20' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10', 'px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all active:scale-95']">
-                                All
-                            </button>
-                            <button @click="activeTab = 'website'" :class="[activeTab === 'website' ? 'bg-emerald-400 text-slate-900 shadow-lg shadow-emerald-400/20' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10', 'px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all active:scale-95']">
-                                Website
-                            </button>
-                            <button @click="activeTab = 'repository'" :class="[activeTab === 'repository' ? 'bg-emerald-400 text-slate-900 shadow-lg shadow-emerald-400/20' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10', 'px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all active:scale-95']">
-                                Repository
-                            </button>
-                            <button @click="activeTab = 'document'" :class="[activeTab === 'document' ? 'bg-emerald-400 text-slate-900 shadow-lg shadow-emerald-400/20' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10', 'px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all active:scale-95']">
-                                Document
-                            </button>
-                            <button @click="activeTab = 'sync'" :class="[activeTab === 'sync' ? 'bg-emerald-400 text-slate-900 shadow-lg shadow-emerald-400/20' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10', 'px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all active:scale-95']">
-                                Sync Reports
-                            </button>
+                        <!-- Middle: Legend List -->
+                        <div class="flex flex-col gap-2 w-full max-w-[150px] shrink-0 font-sans text-xs">
+                            <div class="flex items-center justify-between text-slate-400">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#ef4444]"></span>
+                                    <span>Critical</span>
+                                </div>
+                                <span class="font-mono text-white font-bold">6 (8%)</span>
+                            </div>
+                            <div class="flex items-center justify-between text-slate-400">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#ec4899]"></span>
+                                    <span>High</span>
+                                </div>
+                                <span class="font-mono text-white font-bold">28 (22%)</span>
+                            </div>
+                            <div class="flex items-center justify-between text-slate-400">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#f59e0b]"></span>
+                                    <span>Medium</span>
+                                </div>
+                                <span class="font-mono text-white font-bold">34 (27%)</span>
+                            </div>
+                            <div class="flex items-center justify-between text-slate-400 relative">
+                                <!-- Selected arrow in mockup -->
+                                <div class="absolute -left-4 text-[#CBB48A] text-xs font-black">-></div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#10b981]"></span>
+                                    <span class="text-white font-bold">Low</span>
+                                </div>
+                                <span class="font-mono text-white font-bold">42 (34%)</span>
+                            </div>
+                            <div class="flex items-center justify-between text-slate-400">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#3b82f6]"></span>
+                                    <span>Informational</span>
+                                </div>
+                                <span class="font-mono text-white font-bold">18 (9%)</span>
+                            </div>
                         </div>
 
-                        <!-- Empty State -->
-                        <div
-                            v-if="filteredActivities.length === 0"
-                            class="py-8 text-center text-gray-500 dark:text-gray-400"
+                        <!-- Right: Line Trend Graph -->
+                        <div class="flex-1 h-36 relative bg-white/[0.01] border border-white/5 rounded-xl p-4 flex flex-col justify-between w-full min-w-0">
+                            <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Risk Score Trend</span>
+                            <div class="relative flex-1 min-w-0">
+                                <svg class="w-full h-full" viewBox="0 0 300 80" preserveAspectRatio="none">
+                                    <line x1="0" y1="0" x2="300" y2="0" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
+                                    <line x1="0" y1="20" x2="300" y2="20" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
+                                    <line x1="0" y1="40" x2="300" y2="40" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
+                                    <line x1="0" y1="60" x2="300" y2="60" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
+                                    <line x1="0" y1="80" x2="300" y2="80" stroke="rgba(255,255,255,0.03)" stroke-dasharray="2 2" stroke-width="1" />
+                                    
+                                    <path d="M 20,50 Q 75,55 110,60 T 200,45 T 280,25" fill="none" stroke="#CBB48A" stroke-width="2" stroke-linecap="round" />
+                                    <circle cx="20" cy="50" r="2.5" fill="#CBB48A" />
+                                    <circle cx="110" cy="60" r="2.5" fill="#CBB48A" />
+                                    <circle cx="200" cy="45" r="2.5" fill="#CBB48A" />
+                                    <circle cx="280" cy="25" r="3" fill="#fff" stroke="#CBB48A" stroke-width="1" />
+                                </svg>
+                            </div>
+                            <div class="flex justify-between text-[7px] font-bold text-slate-500 uppercase tracking-wider mt-1 px-1">
+                                <span>May 24</span>
+                                <span>Jun 7</span>
+                                <span>Jun 22</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Recent Activity (2 cols) -->
+                <div class="bg-[#09090b]/40 border border-white/5 rounded-3xl p-6 lg:col-span-2 flex flex-col justify-between shadow-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-black text-white tracking-wider uppercase font-mono">Recent Activity</h3>
+                        <Link :href="route('scans.index')" class="text-[10px] font-black text-[#CBB48A] hover:underline uppercase tracking-wider transition-colors">View All</Link>
+                    </div>
+
+                    <div class="space-y-3.5 flex-1 overflow-y-auto pr-1">
+                        <div v-if="recentActivitiesMock.length === 0" class="flex flex-col items-center justify-center h-full py-8 text-center text-slate-500">
+                            <svg class="w-8 h-8 text-slate-700 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <span class="text-xs font-mono">No recent activity.</span>
+                            <span class="text-[10px] text-slate-600 mt-1 max-w-[200px] leading-relaxed">Connect a target or run a security scan to populate this feed.</span>
+                        </div>
+                        <div 
+                            v-else
+                            v-for="act in recentActivitiesMock" 
+                            :key="act.detail"
+                            @click="act.rawRecord && handleRowClick(act.rawRecord)"
+                            class="flex items-center justify-between gap-3 p-2.5 rounded-xl border border-transparent hover:border-white/5 hover:bg-white/[0.01] transition-all cursor-pointer group"
                         >
-                            <!-- Document Icon -->
-                            <svg
-                                v-if="activeTab === 'document'"
-                                class="mx-auto h-12 w-12 text-gray-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                                />
-                            </svg>
-                            <!-- Code Icon -->
-                            <svg
-                                v-else
-                                class="mx-auto h-12 w-12 text-gray-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-                                />
-                            </svg>
-                            <p class="mt-2 text-sm">{{ emptyStateText.title || 'No scan activities found' }}</p>
-                            <p class="text-xs text-gray-400 dark:text-gray-500">
-                                {{ emptyStateText.subtitle || '' }}
-                            </p>
+                            <div class="flex items-center gap-3 min-w-0">
+                                <!-- Dynamic Icon -->
+                                <div class="h-8 w-8 rounded-lg flex items-center justify-center shrink-0 border border-white/5 bg-white/[0.02] text-slate-400 group-hover:text-[#CBB48A] transition-colors">
+                                    <svg v-if="act.icon === 'globe'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                                    </svg>
+                                    <svg v-else-if="act.icon === 'code'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                    </svg>
+                                    <svg v-else-if="act.icon === 'sync'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                    <svg v-else-if="act.icon === 'cpu'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                                    </svg>
+                                    <svg v-else-if="act.icon === 'calendar'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                </div>
+                                <div class="flex flex-col min-w-0">
+                                    <span class="text-xs font-bold text-white group-hover:text-[#CBB48A] transition-colors truncate">{{ act.title }}</span>
+                                    <span class="text-[10px] text-slate-500 font-mono mt-0.5 truncate">{{ act.detail }}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span class="text-[9px] text-slate-500 font-medium">{{ act.time }}</span>
+                                <span v-if="act.badge" class="px-2 py-0.5 rounded text-[8px] font-black tracking-wider" :class="act.badgeColor">
+                                    {{ act.badge }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 3: Top Findings (33%), Assets by Type (33%), Recent Scans (33%) -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <!-- Top Findings Card -->
+                <div class="bg-[#09090b]/40 border border-white/5 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-black text-white tracking-wider uppercase font-mono">Top Findings</h3>
+                        <a href="#" class="text-[10px] font-black text-slate-500 hover:text-white uppercase tracking-wider transition-colors">View All Findings</a>
+                    </div>
+
+                    <div class="space-y-4 flex-1">
+                        <!-- Item 1 -->
+                        <div class="flex items-start justify-between gap-3 p-1 rounded-xl">
+                            <div class="flex items-start gap-2.5 min-w-0">
+                                <span class="px-1.5 py-0.5 text-[8px] font-black bg-red-950/40 text-red-500 border border-red-500/20 rounded mt-0.5 shrink-0">CRITICAL</span>
+                                <div class="flex flex-col min-w-0 leading-tight">
+                                    <span class="text-xs font-bold text-white truncate">Outdated framework detected</span>
+                                    <span class="text-[9px] text-slate-500 mt-1 truncate font-sans">Laravel 11.x with known vulnerabilities</span>
+                                </div>
+                            </div>
+                            <span class="font-mono text-xs font-bold text-slate-400">6</span>
                         </div>
 
-                        <!-- Scan Activities Table -->
-                        <div v-else class="overflow-x-auto custom-scrollbar pb-2">
-                            <table class="min-w-full border-separate border-spacing-y-3">
-                                <thead>
-                                    <tr>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 pl-8">
-                                            PROJECT / ASSET
-                                        </th>
-                                        <!-- Merged Type Column into Project/Asset -->
-                                        
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                                            SYNC STATUS
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                                            QA STATUS
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                                            SCANNED
-                                        </th>
-                                        <th scope="col" class="relative px-6 py-3">
-                                            <span class="sr-only">Actions</span>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-transparent">
-                                    <tr 
-                                        v-for="activity in filteredActivities" 
-                                        :key="activity.id"
-                                        @click="handleRowClick(activity)"
-                                        class="group transition-all duration-300 hover:translate-x-1 cursor-pointer"
-                                    >
-                                        <!-- URL / Document & Type -->
-                                        <td class="whitespace-nowrap px-6 py-5 rounded-l-xl">
-                                            <div class="flex items-center">
-                                                <div 
-                                                    class="h-12 w-12 flex-shrink-0 rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg group-hover:scale-110"
-                                                    :class="{
-                                                        'bg-gradient-to-br from-emerald-400 to-cyan-400 text-white shadow-emerald-400/20': activity.type === 'website',
-                                                        'bg-gradient-to-br from-cyan-400 to-emerald-500 text-white shadow-cyan-400/20': activity.type === 'repository',
-                                                        'bg-gradient-to-br from-emerald-500 to-cyan-600 text-white shadow-emerald-500/20': activity.type === 'sync',
-                                                        'bg-gradient-to-br from-slate-600 to-slate-700 text-white shadow-slate-500/20': !activity.type || activity.type === 'document'
-                                                    }"
-                                                >
-                                                    <!-- Icon based on type -->
-                                                    <svg v-if="activity.type === 'website'" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                                                    </svg>
-                                                    <svg v-else-if="activity.type === 'repository'" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                                                    </svg>
-                                                    <svg v-else-if="activity.type === 'sync'" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                                    </svg>
-                                                    <svg v-else class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                    </svg>
-                                                </div>
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-bold text-gray-900 dark:text-white truncate max-w-sm group-hover:text-indigo-400 transition-colors" :title="activity.urls_and_sync || 'Unnamed Asset'">
-                                                        {{ activity.urls_and_sync || 'Unnamed Asset' }}
-                                                    </div>
-                                                    <!-- Type Subtitle with Colors -->
-                                                    <div 
-                                                        class="text-[10px] font-black uppercase tracking-widest mt-1 opacity-60"
-                                                        :class="{
-                                                            'text-emerald-400': activity.type === 'website',
-                                                            'text-cyan-400': activity.type === 'repository',
-                                                            'text-emerald-500': activity.type === 'sync',
-                                                            'text-slate-400': !activity.type || activity.type === 'document'
-                                                        }"
-                                                    >
-                                                        {{ activity.type || 'Document' }}
-                                                    </div>
-                                                    <!-- TITAN V2: Sync Batch Badge -->
-                                                    <div v-if="activity.batch_id" class="mt-1">
-                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 font-mono border border-gray-200 dark:border-gray-600 tracking-tighter">
-                                                            {{ activity.batch_id }}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
+                        <!-- Item 2 -->
+                        <div class="flex items-start justify-between gap-3 p-1 rounded-xl">
+                            <div class="flex items-start gap-2.5 min-w-0">
+                                <span class="px-1.5 py-0.5 text-[8px] font-black bg-red-950/40 text-red-500 border border-red-500/20 rounded mt-0.5 shrink-0">CRITICAL</span>
+                                <div class="flex flex-col min-w-0 leading-tight">
+                                    <span class="text-xs font-bold text-white truncate">Exposed administrative endpoints</span>
+                                    <span class="text-[9px] text-slate-500 mt-1 truncate font-sans">Admin/auth endpoints accessible without auth</span>
+                                </div>
+                            </div>
+                            <span class="font-mono text-xs font-bold text-slate-400">6</span>
+                        </div>
 
-                                        <!-- Sync Status -->
-                                        <td class="whitespace-nowrap px-6 py-5">
-                                            <div class="flex items-center">
-                                                <span 
-                                                    v-if="activity.sync_status"
-                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
-                                                    :class="{
-                                                        'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800': activity.sync_status === 'synced',
-                                                        'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-800': activity.sync_status === 'action_required',
-                                                        'bg-yellow-50 text-yellow-700 border-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800': activity.sync_status === 'pending',
-                                                        'bg-rose-50 text-rose-700 border-rose-100 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800': ['failed', 'failed_system'].includes(activity.sync_status),
-                                                        'bg-gray-50 text-gray-600 border-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700': !['synced', 'pending', 'action_required', 'failed', 'failed_system'].includes(activity.sync_status)
-                                                    }"
-                                                >
-                                                    {{ activity.sync_status === 'failed_system' ? 'System Fail' : activity.sync_status }}
-                                                </span>
-                                                <!-- TITAN V2: Show Batch ID if Synced but not the Sync Report itself -->
-                                                <div v-else-if="activity.batch_id" class="flex flex-col">
-                                                    <span class="text-[10px] uppercase font-black tracking-widest text-emerald-400/60 font-mono">
-                                                        SYNCED WITH
-                                                    </span>
-                                                    <span class="text-[9px] text-emerald-400 font-black font-mono tracking-tighter">
-                                                        {{ activity.batch_id.split('-').slice(2).join('-') }}
-                                                    </span>
-                                                </div>
-                                                <span v-else class="text-xs text-gray-400">N/A</span>
-                                                
-                                                <span v-if="activity.sync_confidence_score" class="ml-2 text-xs font-semibold text-gray-400 dark:text-gray-500">
-                                                    {{ activity.sync_confidence_score }}% match
-                                                </span>
-                                            </div>
-                                        </td>
+                        <!-- Item 3 -->
+                        <div class="flex items-start justify-between gap-3 p-1 rounded-xl">
+                            <div class="flex items-start gap-2.5 min-w-0">
+                                <span class="px-1.5 py-0.5 text-[8px] font-black bg-amber-950/40 text-amber-500 border border-amber-500/20 rounded mt-0.5 shrink-0 font-mono">HIGH</span>
+                                <div class="flex flex-col min-w-0 leading-tight">
+                                    <span class="text-xs font-bold text-white truncate">Missing security headers</span>
+                                    <span class="text-[9px] text-slate-500 mt-1 truncate font-sans">Weak security configuration detected</span>
+                                </div>
+                            </div>
+                            <span class="font-mono text-xs font-bold text-slate-400">11</span>
+                        </div>
 
-                                        <!-- Individual Status - "Pill" Style -->
-                                        <td class="whitespace-nowrap px-6 py-5">
-                                            <div v-if="activity.type !== 'sync'" class="flex items-center space-x-2">
-                                                <span 
-                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
-                                                    :style="activity.docu_and_urls_status === 'verified_private' ? 'color: #4ade80 !important; background-color: rgba(74, 222, 128, 0.1) !important; border-color: rgba(74, 222, 128, 0.3) !important;' : ''"
-                                                    :class="{
-                                                        'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800': ['verified', 'ready', 'optimal'].includes(activity.docu_and_urls_status),
-                                                        'bg-rose-50 text-rose-700 border-rose-100 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800': ['flagged', 'payment_required', 'critical', 'failed'].includes(activity.docu_and_urls_status),
-                                                        'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800': ['action_required', 'warning'].includes(activity.docu_and_urls_status),
-                                                        'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800': ['uploaded', 'processing'].includes(activity.docu_and_urls_status),
-                                                        // Fallback for verified_private if style fails (though style has priority)
-                                                        '!text-green-400 !bg-emerald-900/10 !border-emerald-500/30': activity.docu_and_urls_status === 'verified_private'
-                                                    }"
-                                                >
-                                                    {{ activity.docu_and_urls_status === 'action_required' ? 'Action Required' : (activity.docu_and_urls_status?.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') || 'Pending') }}
-                                                </span>
-                                                
-                                                <div v-if="activity.individual_score" class="flex items-center">
-                                                    <!-- Progress bar removed as per request -->
-                                                    <span class="ml-1.5 text-xs font-mono text-gray-500 dark:text-gray-400">{{ activity.individual_score }}%</span>
-                                                </div>
-                                            </div>
-                                            <!-- SYNC RESULTS: Show Web & Repo Status separately -->
-                                            <div v-else class="flex flex-col space-y-2">
-                                                 <!-- Web Status -->
-                                                 <div class="flex items-center space-x-2" v-if="activity.primary_asset">
-                                                     <svg class="h-3 w-3 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
-                                                     <span class="text-[10px] uppercase font-bold text-gray-500 w-8">WEB</span>
-                                                     <span class="text-[10px] px-1.5 py-0.5 rounded border" :class="(activity.primary_asset.status === 'verified' || (activity.sync_status === 'synced' && activity.primary_asset.status === 'failed')) ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-slate-700 text-slate-400 border-slate-600'">
-                                                         {{ (activity.sync_status === 'synced' && activity.primary_asset.status === 'failed') ? 'verified' : (activity.primary_asset.status || ' Pending') }}
-                                                     </span>
-                                                 </div>
-                                                 <!-- Repo Status -->
-                                                 <div class="flex items-center space-x-2" v-if="activity.secondary_asset">
-                                                     <svg class="h-3 w-3 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
-                                                     <span class="text-[10px] uppercase font-bold text-gray-500 w-8">REPO</span>
-                                                     <span class="text-[10px] px-1.5 py-0.5 rounded border" :class="activity.secondary_asset.status === 'verified' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-slate-700 text-slate-400 border-slate-600'">
-                                                         {{ activity.secondary_asset.status || ' Pending' }}
-                                                     </span>
-                                                 </div>
-                                            </div>
-                                        </td>
+                        <!-- Item 4 -->
+                        <div class="flex items-start justify-between gap-3 p-1 rounded-xl">
+                            <div class="flex items-start gap-2.5 min-w-0">
+                                <span class="px-1.5 py-0.5 text-[8px] font-black bg-amber-950/40 text-amber-500 border border-amber-500/20 rounded mt-0.5 shrink-0 font-mono">HIGH</span>
+                                <div class="flex flex-col min-w-0 leading-tight">
+                                    <span class="text-xs font-bold text-white truncate">Configured HTTP Security Headers</span>
+                                    <span class="text-[9px] text-slate-500 mt-1 truncate font-sans">Recommended security headers not fully verified</span>
+                                </div>
+                            </div>
+                            <span class="font-mono text-xs font-bold text-slate-400">7</span>
+                        </div>
 
-                                        <!-- Scanned At -->
-                                        <td class="whitespace-nowrap px-6 py-5 text-right text-sm text-gray-500 dark:text-gray-400">
-                                            {{ formatDate(activity.updated_at || activity.scanned_at || activity.created_at) }}
-                                        </td>
+                        <!-- Item 5 -->
+                        <div class="flex items-start justify-between gap-3 p-1 rounded-xl">
+                            <div class="flex items-start gap-2.5 min-w-0">
+                                <span class="px-1.5 py-0.5 text-[8px] font-black bg-yellow-950/40 text-yellow-500 border border-yellow-500/20 rounded mt-0.5 shrink-0 font-mono">MEDIUM</span>
+                                <div class="flex flex-col min-w-0 leading-tight">
+                                    <span class="text-xs font-bold text-white truncate">Minimal third-party scripts</span>
+                                    <span class="text-[9px] text-slate-500 mt-1 truncate font-sans">Third-party exposure increases attack surface</span>
+                                </div>
+                            </div>
+                            <span class="font-mono text-xs font-bold text-slate-400">9</span>
+                        </div>
+                    </div>
+                </div>
 
-                                        <!-- Actions -->
-                                        <td class="whitespace-nowrap px-6 py-5 text-right text-sm font-medium rounded-r-xl">
-                                            <div class="flex items-center justify-end space-x-4 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
-                                                <!-- HISTORY AND DELETE COMMENTED OUT PER USER REQUEST
-                                                <button 
-                                                    v-if="activity.primary_asset"
-                                                    @click.stop="openHistoryModal(activity.primary_asset)"
-                                                    class="text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                                                    title="View History"
-                                                >
-                                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
-                                                </button>
-                                                
-                                                <button 
-                                                    @click.stop="handleDeleteActivity(activity)"
-                                                    class="text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
-                                                    title="Remove from list"
-                                                >
-                                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
-                                                </button>
-                                                -->
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                <!-- Assets by Type Card -->
+                <div class="bg-[#09090b]/40 border border-white/5 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-black text-white tracking-wider uppercase font-mono">Assets by Type</h3>
+                        <a href="#" class="text-[10px] font-black text-slate-500 hover:text-white uppercase tracking-wider transition-colors">View All Assets</a>
+                    </div>
+
+                    <div class="flex items-center gap-6 flex-1">
+                        <!-- Donut SVG -->
+                        <div class="relative w-28 h-28 flex items-center justify-center shrink-0">
+                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="30" stroke="rgba(255,255,255,0.03)" stroke-width="12" fill="none" />
+                                <!-- Websites (27%): length 50.9, offset 0 -->
+                                <circle cx="50" cy="50" r="30" stroke="#3b82f6" stroke-width="12" stroke-dasharray="50.9 188.4" stroke-dashoffset="0" fill="none" />
+                                <!-- Repositories (14%): length 26.4, offset -50.9 -->
+                                <circle cx="50" cy="50" r="30" stroke="#a855f7" stroke-width="12" stroke-dasharray="26.4 188.4" stroke-dashoffset="-50.9" fill="none" />
+                                <!-- APIs (6%): length 11.3, offset -77.3 -->
+                                <circle cx="50" cy="50" r="30" stroke="#06b6d4" stroke-width="12" stroke-dasharray="11.3 188.4" stroke-dashoffset="-77.3" fill="none" />
+                                <!-- Infrastructure (4%): length 7.5, offset -88.6 -->
+                                <circle cx="50" cy="50" r="30" stroke="#f97316" stroke-width="12" stroke-dasharray="7.5 188.4" stroke-dashoffset="-88.6" fill="none" />
+                                <!-- Domains (22%): length 41.4, offset -96.1 -->
+                                <circle cx="50" cy="50" r="30" stroke="#10b981" stroke-width="12" stroke-dasharray="41.4 188.4" stroke-dashoffset="-96.1" fill="none" />
+                                <!-- Other (27%): length 50.9, offset -137.5 -->
+                                <circle cx="50" cy="50" r="30" stroke="#6b7280" stroke-width="12" stroke-dasharray="50.9 188.4" stroke-dashoffset="-137.5" fill="none" />
+                            </svg>
+                            <div class="absolute flex flex-col items-center justify-center leading-none">
+                                <span class="text-lg font-black text-white font-mono">248</span>
+                                <span class="text-[7px] text-slate-500 font-black uppercase tracking-wider mt-0.5">Total</span>
+                            </div>
+                        </div>
+
+                        <!-- Legend List -->
+                        <div class="flex-1 flex flex-col gap-1.5 text-[10px] font-sans">
+                            <div class="flex items-center justify-between text-slate-400">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-[#3b82f6]"></span>
+                                    <span>Websites</span>
+                                </div>
+                                <span class="font-mono text-white font-bold">68 (27%)</span>
+                            </div>
+                            <div class="flex items-center justify-between text-slate-400">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-[#a855f7]"></span>
+                                    <span>Repositories</span>
+                                </div>
+                                <span class="font-mono text-white font-bold">34 (14%)</span>
+                            </div>
+                            <div class="flex items-center justify-between text-slate-400">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-[#06b6d4]"></span>
+                                    <span>APIs</span>
+                                </div>
+                                <span class="font-mono text-white font-bold">16 (6%)</span>
+                            </div>
+                            <div class="flex items-center justify-between text-slate-400">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-[#f97316]"></span>
+                                    <span>Infrastructure</span>
+                                </div>
+                                <span class="font-mono text-white font-bold">10 (4%)</span>
+                            </div>
+                            <div class="flex items-center justify-between text-slate-400">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-[#10b981]"></span>
+                                    <span>Domains</span>
+                                </div>
+                                <span class="font-mono text-white font-bold">54 (22%)</span>
+                            </div>
+                            <div class="flex items-center justify-between text-slate-400">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-[#6b7280]"></span>
+                                    <span>Other</span>
+                                </div>
+                                <span class="font-mono text-white font-bold">66 (27%)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Scans Card -->
+                <div class="bg-[#09090b]/40 border border-white/5 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-black text-white tracking-wider uppercase font-mono">Recent Scans</h3>
+                        <Link :href="route('scans.index')" class="text-[10px] font-black text-slate-500 hover:text-white uppercase tracking-wider transition-colors">View All Scans</Link>
+                    </div>
+
+                    <div class="space-y-3.5 flex-1 overflow-y-auto pr-1">
+                        <div v-if="recentScansList.length === 0" class="flex flex-col items-center justify-center h-full py-8 text-center text-slate-500">
+                            <svg class="w-8 h-8 text-slate-700 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9" />
+                            </svg>
+                            <span class="text-xs font-mono">No recent scans.</span>
+                            <span class="text-[10px] text-slate-600 mt-1 max-w-[200px] leading-relaxed">Trigger a new scan from the Overview or Scans panel.</span>
+                        </div>
+                        <div 
+                            v-else
+                            v-for="scan in recentScansList" 
+                            :key="scan.name"
+                            @click="scan.rawRecord && handleRowClick(scan.rawRecord)"
+                            class="flex items-center justify-between gap-3 p-1.5 rounded-xl hover:bg-white/[0.01] transition-all cursor-pointer group"
+                        >
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <!-- Type Icon -->
+                                <div class="text-slate-500 group-hover:text-[#CBB48A] transition-colors shrink-0">
+                                    <svg v-if="scan.icon === 'github'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                    </svg>
+                                    <svg v-else-if="scan.icon === 'gitlab'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                    </svg>
+                                    <svg v-else-if="scan.icon === 'aws'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                    </svg>
+                                    <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                                    </svg>
+                                </div>
+                                <div class="flex flex-col min-w-0 leading-tight">
+                                    <span class="text-xs font-bold text-white group-hover:text-[#CBB48A] transition-colors truncate">{{ scan.name }}</span>
+                                    <span class="text-[9px] text-slate-500 mt-1 truncate">{{ scan.date }}</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-3 shrink-0">
+                                <span class="px-1.5 py-0.5 rounded text-[8px] font-black tracking-wider" :class="scan.badgeColor">
+                                    {{ scan.badge }}
+                                </span>
+                                <!-- Gold Hexagon -->
+                                <div class="relative w-6 h-6 flex items-center justify-center shrink-0">
+                                    <svg class="absolute inset-0 w-full h-full text-[#CBB48A]/70 group-hover:text-[#CBB48A] transition-colors" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="8">
+                                        <polygon points="50,5 95,25 95,75 50,95 5,75 5,25" />
+                                    </svg>
+                                    <span class="text-[9px] font-mono font-black text-[#CBB48A] mt-0.5">{{ scan.score }}</span>
+                                </div>
+                                <svg class="w-3.5 h-3.5 text-slate-600 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 4: Scheduled Scans (33%), Integrations (33%), Notifications (33%) -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Scheduled Scans -->
+                <div class="bg-[#09090b]/40 border border-white/5 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-black text-white tracking-wider uppercase font-mono">Scheduled Scans</h3>
+                        <a href="#" class="text-[10px] font-black text-slate-500 hover:text-white uppercase tracking-wider transition-colors">View All</a>
+                    </div>
+
+                    <div class="flex items-center justify-between gap-4 p-3 bg-white/[0.01] border border-white/5 rounded-2xl">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <!-- Icon -->
+                            <div class="h-9 w-9 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-center text-slate-400 shrink-0">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <div class="flex flex-col min-w-0 leading-tight">
+                                <span class="text-xs font-bold text-white truncate">AWS Infrastructure Scan</span>
+                                <span class="text-[9px] text-slate-500 mt-1 truncate font-sans">Every 24 hours</span>
+                                <span class="text-[8px] text-[#CBB48A] mt-1.5 truncate">Next run: Jun 23, 2026 11:00 AM</span>
+                            </div>
+                        </div>
+
+                        <!-- Active status badge -->
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border border-emerald-500/20 bg-emerald-500/5 text-[9px] font-bold text-emerald-400 uppercase tracking-wider shrink-0 font-sans">
+                            <span class="w-1 h-1 rounded-full bg-emerald-400"></span>
+                            Active
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Integrations -->
+                <div class="bg-[#09090b]/40 border border-white/5 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-black text-white tracking-wider uppercase font-mono">Integrations</h3>
+                        <a href="#" class="text-[10px] font-black text-slate-500 hover:text-white uppercase tracking-wider transition-colors">Manage</a>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <!-- AWS -->
+                        <div class="h-10 w-10 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-center hover:bg-white/[0.06] transition-colors cursor-pointer" title="AWS">
+                            <img src="/images/aws-icon.png" onerror="this.src='/images/none-transparent-logo.png'" alt="AWS" class="h-6 w-6 object-contain" />
+                        </div>
+                        <!-- GitHub -->
+                        <div class="h-10 w-10 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-center hover:bg-white/[0.06] transition-colors cursor-pointer" title="GitHub">
+                            <svg class="h-5 w-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z" />
+                            </svg>
+                        </div>
+                        <!-- GitLab -->
+                        <div class="h-10 w-10 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-center hover:bg-white/[0.06] transition-colors cursor-pointer" title="GitLab">
+                            <img src="/images/gitlab-icon.png" onerror="this.src='/images/none-transparent-logo.png'" alt="GitLab" class="h-6 w-6 object-contain" />
+                        </div>
+                        <!-- Slack -->
+                        <div class="h-10 w-10 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-center hover:bg-white/[0.06] transition-colors cursor-pointer" title="Slack">
+                            <img src="/images/slack-icon.png" onerror="this.src='/images/none-transparent-logo.png'" alt="Slack" class="h-6 w-6 object-contain" />
+                        </div>
+                        <!-- Teams -->
+                        <div class="h-10 w-10 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-center hover:bg-white/[0.06] transition-colors cursor-pointer" title="Microsoft Teams">
+                            <img src="/images/teams-icon.png" onerror="this.src='/images/none-transparent-logo.png'" alt="Teams" class="h-6 w-6 object-contain" />
+                        </div>
+                        <!-- More -->
+                        <div class="h-10 w-10 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-center hover:bg-white/[0.06] text-slate-400 hover:text-white transition-colors cursor-pointer text-xs font-bold font-mono">
+                            +3
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications -->
+                <div class="bg-[#09090b]/40 border border-white/5 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-black text-white tracking-wider uppercase font-mono">Notifications</h3>
+                        <a href="#" class="text-[10px] font-black text-slate-500 hover:text-white uppercase tracking-wider transition-colors">View All</a>
+                    </div>
+
+                    <div class="space-y-2.5 flex-1 font-sans text-xs">
+                        <div class="flex items-center justify-between text-slate-400">
+                            <div class="flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                                <span>6 critical findings need attention</span>
+                            </div>
+                            <span class="text-[9px] text-slate-500 font-medium">2m ago</span>
+                        </div>
+                        <div class="flex items-center justify-between text-slate-400">
+                            <div class="flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                <span>3 scans completed successfully</span>
+                            </div>
+                            <span class="text-[9px] text-slate-500 font-medium">10m ago</span>
+                        </div>
+                        <div class="flex items-center justify-between text-slate-400">
+                            <div class="flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                <span>1 scheduled scan failed</span>
+                            </div>
+                            <span class="text-[9px] text-slate-500 font-medium">1h ago</span>
                         </div>
                     </div>
                 </div>
@@ -1672,19 +2092,7 @@ function handleRowClick(activity: any) {
         @close="closeAuditModal"
     />
     
-    <!-- Project Modal: Cyber-terminal style for Websites/GitHub (Only when done) -->
-    <!-- Project Modal: Cyber-terminal style for Websites/GitHub (Only when done) -->
-    <!-- Relaxed condition: If showAuditModal is true and asset is present, we try to show it. We trust handleRowClick to set the correct state. -->
-    <ProjectForensicModal
-        v-if="selectedAsset"
-        :show="showAuditModal && ['project', 'design', 'website', 'repository', 'repository_scan'].includes(selectedAsset.metadata?.audit_type || '') && !['processing', 'pending'].includes(selectedAsset.status)"
-        :asset="selectedAsset"
-        @close="closeAuditModal"
-        @deep-audit="handleDeepAudit"
-        @open-ai-assistant="handleOpenAiAssistant"
-        @view-qa-results="handleViewQAResults"
-        @refresh="refreshSelectedAsset"
-    />
+
     
 
 
@@ -1692,11 +2100,11 @@ function handleRowClick(activity: any) {
     
     <!-- 1. Sync & Project Scanning (Titan Sync Dashboard) -->
     <!-- Usage: When 'showSyncScanningModal' is true AND likely a Sync Scan -->
-    <SyncScanning
+    <UniversalScanning
         v-if="showSyncScanningModal"
         :show="showSyncScanningModal"
-        :web-url="selectedAsset?.website_url || selectedAsset?.original_url || ''"
-        :repo-name="selectedAsset?.repository_url || 'Linked Repository'"
+        type="sync"
+        :target-name="`${selectedAsset?.website_url || selectedAsset?.original_url || ''} & ${selectedAsset?.repository_url || 'Linked Repository'}`"
         :progress="auditProgress?.progress || 0"
         :step="auditProgress?.step || 'Initializing'"
         :details="auditProgress?.details || auditProgress?.step"
@@ -1706,10 +2114,11 @@ function handleRowClick(activity: any) {
 
     <!-- 2. Website / Project Scan (Individual) -->
     <!-- Usage: STRICTLY for website audits that are NOT syncs -->
-    <WebsiteScanning 
+    <UniversalScanning 
         v-if="showWebsiteScanningModal"
         :show="showWebsiteScanningModal"
-        :url="selectedAsset?.website_url || selectedAsset?.original_url || selectedAsset?.file_name"
+        type="website"
+        :target-name="selectedAsset?.website_url || selectedAsset?.original_url || selectedAsset?.file_name"
         :progress="auditProgress?.progress || 0"
         :step="auditProgress?.step || 'Initializing'"
         :details="auditProgress?.details"
@@ -1719,10 +2128,11 @@ function handleRowClick(activity: any) {
 
     <!-- 3. Repository Scanning (Git Inspection) -->
     <!-- Usage: STRICTLY for repository audits -->
-    <RepositoryScanning
+    <UniversalScanning
         v-if="showRepositoryScanningModal"
         :show="showRepositoryScanningModal"
-        :repo-name="(selectedAsset?.file_name || selectedAsset?.repository_url || selectedAsset?.website_url) || ''"
+        type="repository"
+        :target-name="(selectedAsset?.file_name || selectedAsset?.repository_url || selectedAsset?.website_url) || ''"
         :progress="auditProgress?.progress || 0"
         :step="auditProgress?.step || 'Initializing'"
         :details="auditProgress?.details"
@@ -1798,10 +2208,11 @@ function handleRowClick(activity: any) {
     />
 
     <!-- Document Scan -->
-    <DocumentScanning
+    <UniversalScanning
         v-if="['document', 'pdf', 'contract'].includes(selectedAsset?.metadata?.audit_type || 'document')"
         :show="showDocumentScanningModal"
-        :file-name="selectedAsset?.file_name"
+        type="document"
+        :target-name="selectedAsset?.file_name"
         :progress="auditProgress?.progress || 0"
         :step="auditProgress?.step || 'Initializing'"
         :details="auditProgress?.details"
@@ -1810,7 +2221,7 @@ function handleRowClick(activity: any) {
     />
 
     <!-- Security / Penetration Scan -->
-    <SecurityScanning
+    <UniversalScanning
         v-if="showSecurityScanningModal || (
             (selectedAsset?.website_url || selectedAsset?.original_url || selectedAsset?.metadata?.website_url) && (
                 selectedAsset?.metadata?.security_audit || 
@@ -1822,13 +2233,12 @@ function handleRowClick(activity: any) {
                 auditProgress?.step?.toLowerCase()?.includes('deep')
             )
         )"
-        :is-scanning="showSecurityScanningModal || !!(selectedAsset?.status === 'processing' && (auditProgress?.step || '').includes('Scan'))"
-        :url="selectedAsset?.website_url || selectedAsset?.original_url || selectedAsset?.metadata?.website_url || selectedAsset?.file_name"
+        :show="showSecurityScanningModal || !!(selectedAsset?.status === 'processing' && (auditProgress?.step || '').includes('Scan'))"
+        type="security"
+        :target-name="selectedAsset?.website_url || selectedAsset?.original_url || selectedAsset?.metadata?.website_url || selectedAsset?.file_name"
         :progress="auditProgress?.progress || 0"
         :step="auditProgress?.step || 'Initializing Security Scan...'"
         :details="auditProgress?.details"
-        :current-phase="auditProgress?.step || 'init'"
-        :logs="auditLogs"
         @view-results="async () => { await refreshSelectedAsset(); showSecurityScanningModal = false; showQAResultsModal = true; }"
         @close="showSecurityScanningModal = false"
     />
@@ -1842,7 +2252,7 @@ function handleRowClick(activity: any) {
         @close="showPentestAiModal = false"
     />
 
-    <!-- Marketplace Listing Modal -->
+    <!-- Marketplace Listing Modal commented out as marketplace is disabled
     <MarketplaceListingModal
         v-if="selectedAsset"
         :show="showMarketplaceModal"
@@ -1852,6 +2262,7 @@ function handleRowClick(activity: any) {
         @close="showMarketplaceModal = false"
         @confirm="handleMarketplaceConfirm"
     />
+    -->
 
     <!-- Re-scan Confirmation Modal -->
     <Modal :show="showRescanConfirmModal" @close="showRescanConfirmModal = false">
@@ -1876,7 +2287,7 @@ function handleRowClick(activity: any) {
                 </button>
                 <button
                     @click="executeRescan"
-                    class="px-6 py-2 bg-brand-primary hover:bg-emerald-500 text-white text-sm font-bold rounded-lg transition-all shadow-lg shadow-brand-primary/20"
+                    class="px-6 py-2 bg-[#CBB48A] hover:bg-[#CBB48A]/80 text-black text-sm font-bold rounded-lg transition-all shadow-lg shadow-[#CBB48A]/20"
                 >
                     Confirm & Scan Again
                 </button>
