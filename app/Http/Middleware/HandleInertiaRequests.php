@@ -30,10 +30,22 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user() ? $request->user()->load('activeSubscription') : null,
+                'user' => $user ? $user->load('activeSubscription') : null,
+                'unread_notifications' => $user ? $user->unreadNotifications()->orderBy('created_at', 'desc')->take(5)->get()->map(function($notification) {
+                    return [
+                        'id' => $notification->id,
+                        'type' => $notification->type,
+                        'data' => $notification->data,
+                        'read_at' => $notification->read_at,
+                        'created_at' => $notification->created_at ? $notification->created_at->toISOString() : null,
+                        'time_ago' => $notification->created_at ? $notification->created_at->diffForHumans() : 'N/A',
+                    ];
+                })->toArray() : [],
+                'unread_notifications_count' => $user ? $user->unreadNotifications()->count() : 0,
             ],
             'ziggy' => fn () => [
                 ...(new Ziggy)->toArray(),
@@ -41,4 +53,5 @@ class HandleInertiaRequests extends Middleware
             ],
         ];
     }
+
 }

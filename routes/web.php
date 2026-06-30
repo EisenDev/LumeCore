@@ -24,21 +24,21 @@ Route::get('/', function () {
 });
 
 // Public Marketplace (No Auth Required)
-Route::get('/marketplace', [MarketplaceController::class, 'index'])->name('marketplace.index');
-Route::get('/marketplace/asset/{asset}', [MarketplaceController::class, 'show'])->name('marketplace.asset.view');
+// Route::get('/marketplace', [MarketplaceController::class, 'index'])->name('marketplace.index');
+// Route::get('/marketplace/asset/{asset}', [MarketplaceController::class, 'show'])->name('marketplace.asset.view');
 
 // Global AI Architect Route (Publicly accessible for landing page)
 Route::post('/ai/chat', [\App\Http\Controllers\Api\GlobalHelperController::class, 'chat'])->name('ai.chat');
 Route::get('/ai/chat/history', [\App\Http\Controllers\Api\GlobalHelperController::class, 'history'])->name('ai.chat.history');
 Route::post('/ai/detect', [\App\Http\Controllers\Api\GlobalHelperController::class, 'aiDetection'])->name('ai.detect');
 
-Route::get('/dashboard', [DashboardController::class, 'index'])
+Route::get('/overview', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+    ->name('overview');
 
-Route::get('/dashboard/refresh', [DashboardController::class, 'refresh'])
+Route::get('/overview/refresh', [DashboardController::class, 'refresh'])
     ->middleware(['auth', 'verified'])
-    ->name('dashboard.refresh');
+    ->name('overview.refresh');
 
 Route::delete('/scan-activities/{activity}', [DashboardController::class, 'destroyActivity'])
     ->middleware(['auth'])
@@ -98,23 +98,40 @@ Route::get('/organizations/roadmap', [OrganizationController::class, 'roadmap'])
     })->name('credits.add-test');
 
     // Marketplace Routes
-    Route::get('/my-marketplace', [\App\Http\Controllers\MarketplaceController::class, 'myListings'])
-        ->name('marketplace.mylistings');
+    // Route::get('/my-marketplace', [\App\Http\Controllers\MarketplaceController::class, 'myListings'])
+    //     ->name('marketplace.mylistings');
 
     // Acquisition & Vault Routes
-    Route::post('/marketplace/purchase/{asset}', [\App\Http\Controllers\MarketplaceController::class, 'purchase'])
-        ->name('marketplace.purchase');
-    Route::get('/marketplace/vault/{asset}', [\App\Http\Controllers\MarketplaceController::class, 'vault'])
-        ->name('marketplace.vault.show');
+    // Route::post('/marketplace/purchase/{asset}', [\App\Http\Controllers\MarketplaceController::class, 'purchase'])
+    //     ->name('marketplace.purchase');
+    // Route::get('/marketplace/vault/{asset}', [\App\Http\Controllers\MarketplaceController::class, 'vault'])
+    //     ->name('marketplace.vault.show');
         
-    Route::post('/marketplace/toggle/{asset}', [\App\Http\Controllers\MarketplaceController::class, 'toggleListing'])
-        ->name('marketplace.asset.toggle');
+    // Route::post('/marketplace/toggle/{asset}', [\App\Http\Controllers\MarketplaceController::class, 'toggleListing'])
+    //     ->name('marketplace.asset.toggle');
 
-    Route::post('/marketplace/check-duplicate', [\App\Http\Controllers\MarketplaceController::class, 'checkDuplicate'])
-        ->name('marketplace.check-duplicate');
+    // Route::post('/marketplace/check-duplicate', [\App\Http\Controllers\MarketplaceController::class, 'checkDuplicate'])
+    //     ->name('marketplace.check-duplicate');
 
-    Route::post('/marketplace/publish/{asset}', [\App\Http\Controllers\MarketplaceController::class, 'publish'])
-        ->name('marketplace.publish');
+    // Route::post('/marketplace/publish/{asset}', [\App\Http\Controllers\MarketplaceController::class, 'publish'])
+    //     ->name('marketplace.publish');
+
+    // Scans Route
+    Route::get('/scans', [\App\Http\Controllers\ScansController::class, 'index'])->name('scans.index');
+    Route::get('/targets', [\App\Http\Controllers\TargetsController::class, 'index'])->name('targets.index');
+    Route::get('/integrations', [\App\Http\Controllers\IntegrationsController::class, 'index'])->name('integrations.index');
+    Route::get('/schedules', [\App\Http\Controllers\SchedulesController::class, 'index'])->name('schedules.index');
+    Route::get('/ai-assistant', [\App\Http\Controllers\AIAssistantController::class, 'index'])->name('ai-assistant.index');
+    Route::get('/reports', [\App\Http\Controllers\ReportsController::class, 'index'])->name('reports.index');
+    Route::get('/teams', [\App\Http\Controllers\TeamController::class, 'indexGlobal'])->name('teams.index');
+
+    // Scanned Website Results Page (Refactored from Modal)
+    Route::get('/overview/website/{hash}', [DashboardController::class, 'showWebsiteResults'])->name('website.results');
+
+    // Notifications Routes
+    Route::patch('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+
 
     // Project & Codebase Routes (M&A Platform)
     Route::prefix('projects')->name('projects.')->group(function () {
