@@ -83,6 +83,8 @@ Record major workspace modifications here:
 | 2026-06-29 | `.clickup.json`    | Verified and stored the project-to-ClickUp workspace/space/list mapping, and ran connection test | Antigravity|
 | 2026-06-30 | `Reports.vue`, `ReportsController.php` | Created ClickUp ticket [DEBT-009](https://app.clickup.com/t/86d3gvxjz): Replace all hardcoded/mock data in Reports page with real DB-driven data via Inertia props from `scan_activities` and `vault_assets` | Antigravity|
 | 2026-06-30 | `Reports.vue`, `ReportsController.php`, `ReportsTest.php` | Implemented dynamic backend mapping, SVG doughnut chart calculations, dropdown filters, and automated tests for [DEBT-009](https://app.clickup.com/t/86d3gw6a1) | Antigravity|
+| 2026-06-30 | `AuthenticatedLayout.vue`, `HandleInertiaRequests.php`, `NotificationController.php`, `NotificationsTest.php` | Implemented notifications database table, shared props, mark-as-read endpoints, and interactive layout bell dropdown menu for [BUG-001](https://app.clickup.com/t/86d3gwcu5) | Antigravity|
+
 
 
 
