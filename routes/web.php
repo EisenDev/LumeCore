@@ -120,6 +120,7 @@ Route::get('/organizations/roadmap', [OrganizationController::class, 'roadmap'])
     Route::get('/scans', [\App\Http\Controllers\ScansController::class, 'index'])->name('scans.index');
     Route::get('/targets', [\App\Http\Controllers\TargetsController::class, 'index'])->name('targets.index');
     Route::get('/integrations', [\App\Http\Controllers\IntegrationsController::class, 'index'])->name('integrations.index');
+    Route::post('/integrations/{platform}/toggle', [\App\Http\Controllers\IntegrationsController::class, 'toggle'])->name('integrations.toggle');
     Route::get('/schedules', [\App\Http\Controllers\SchedulesController::class, 'index'])->name('schedules.index');
     Route::get('/ai-assistant', [\App\Http\Controllers\AIAssistantController::class, 'index'])->name('ai-assistant.index');
     Route::get('/reports', [\App\Http\Controllers\ReportsController::class, 'index'])->name('reports.index');
