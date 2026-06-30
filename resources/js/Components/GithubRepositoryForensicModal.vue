@@ -119,10 +119,10 @@ const chartData = computed(() => ({
     datasets: [{
         label: 'Repo Score',
         data: Object.values(radarData.value),
-        backgroundColor: 'rgba(16, 185, 129, 0.2)', // Emerald tint
-        borderColor: '#10b981',
+        backgroundColor: 'rgba(203, 180, 138, 0.2)', // Emerald tint
+        borderColor: '#CBB48A',
         borderWidth: 2,
-        pointBackgroundColor: '#10b981',
+        pointBackgroundColor: '#CBB48A',
         pointBorderColor: '#fff'
     }]
 }));
@@ -140,8 +140,8 @@ const busFactorPieData = computed(() => {
         datasets: [{
             data: sorted.map((a: any) => a.commits),
             backgroundColor: [
-                '#10b981', // Emerald 500
-                '#06b6d4', // Cyan 500
+                '#CBB48A', // Emerald 500
+                '#CBB48A', // Cyan 500
                 '#14b8a6', // Teal 500
                 '#2dd4bf', // Teal 400
                 '#4ade80', // Green 400
@@ -191,7 +191,7 @@ const chartOptions = computed(() => ({
         legend: { display: false },
         tooltip: {
             backgroundColor: 'rgba(15, 23, 42, 0.9)',
-            titleColor: '#10b981',
+            titleColor: '#CBB48A',
             bodyColor: '#cbd5e1',
             borderColor: '#334155',
             borderWidth: 1,
@@ -266,23 +266,23 @@ const closeModal = () => emit('close');
             <div v-if="show && asset" class="fixed inset-0 z-50 flex items-center justify-center p-4">
                 <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" @click="closeModal"></div>
                 
-                <div class="relative w-full max-w-7xl h-[90vh] bg-[#0a0f1a] border border-emerald-500/20 rounded-xl shadow-2xl flex flex-col overflow-hidden">
+                <div class="relative w-full max-w-7xl h-[90vh] bg-[#0a0f1a] border border-[#CBB48A]/20 rounded-xl shadow-2xl flex flex-col overflow-hidden">
                     
                     <!-- Code Forensic Header -->
-                    <div class="flex items-center justify-between px-6 py-4 bg-[#05080f] border-b border-emerald-500/20">
+                    <div class="flex items-center justify-between px-6 py-4 bg-[#05080f] border-b border-[#CBB48A]/20">
                         <div class="flex items-center gap-3">
-                            <div class="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                                <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="p-2 bg-[#CBB48A]/10 rounded-lg border border-[#CBB48A]/20">
+                                <svg class="w-6 h-6 text-[#CBB48A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                                 </svg>
                             </div>
                             <div>
                                 <h2 class="text-white font-mono font-bold">{{ asset.file_name }}</h2>
-                                <p class="text-[10px] text-emerald-400 font-mono tracking-widest uppercase">LUME_SOURCE_CODE_ANALYST</p>
+                                <p class="text-[10px] text-[#CBB48A] font-mono tracking-widest uppercase">LUME_SOURCE_CODE_ANALYST</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-4">
-                            <span class="text-2xl font-mono font-bold" :class="animatedScore >= 80 ? 'text-emerald-400' : (animatedScore >= 60 ? 'text-cyan-400' : 'text-rose-400')">
+                            <span class="text-2xl font-mono font-bold" :class="animatedScore >= 80 ? 'text-[#CBB48A]' : (animatedScore >= 60 ? 'text-[#F3E7C9]' : 'text-rose-400')">
                                 {{ animatedScore }}/100
                             </span>
                             <button @click="closeModal" class="text-slate-500 hover:text-white">
@@ -301,18 +301,18 @@ const closeModal = () => emit('close');
                             <div class="lg:col-span-2 space-y-6 lg:order-2">
                                 
                                 <!-- Strategic Context (New) -->
-                                <div v-if="auditData.niche || auditData.executive_summary" class="bg-[#0f172a] border border-cyan-500/20 rounded-xl p-6 relative overflow-hidden group">
-                                     <div class="absolute inset-0 bg-cyan-500/5 group-hover:bg-cyan-500/10 transition-colors"></div>
+                                <div v-if="auditData.niche || auditData.executive_summary" class="bg-[#0f172a] border border-[#F3E7C9]/20 rounded-xl p-6 relative overflow-hidden group">
+                                     <div class="absolute inset-0 bg-[#F3E7C9]/5 group-hover:bg-[#F3E7C9]/10 transition-colors"></div>
                                      
-                                     <h3 class="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></span>
+                                     <h3 class="text-xs font-bold text-[#F3E7C9] uppercase tracking-widest mb-3 flex items-center gap-2">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-[#F3E7C9] animate-pulse"></span>
                                         Strategic Context
                                      </h3>
 
                                      <!-- Niche / Type -->
                                      <div class="mb-3" v-if="auditData.niche">
-                                        <div class="inline-flex items-center gap-2 px-2 py-1 rounded bg-cyan-400/10 border border-cyan-400/20">
-                                            <span class="text-xs text-cyan-300 font-mono">{{ auditData.niche }} Repository</span>
+                                        <div class="inline-flex items-center gap-2 px-2 py-1 rounded bg-[#F3E7C9]/10 border border-[#F3E7C9]/20">
+                                            <span class="text-xs text-[#F3E7C9]/70 font-mono">{{ auditData.niche }} Repository</span>
                                         </div>
                                      </div>
 
@@ -331,7 +331,7 @@ const closeModal = () => emit('close');
                                             <h3 class="text-xs font-bold text-rose-400 uppercase">Code Toxicity (Heatmap)</h3>
                                             <span class="text-[10px] text-slate-500">Churn vs Complexity</span>
                                         </div>
-                                        <button @click="showDetailedToxicity = true" class="text-[10px] text-emerald-400 hover:text-emerald-300 underline font-mono">
+                                        <button @click="showDetailedToxicity = true" class="text-[10px] text-[#CBB48A] hover:text-[#CBB48A]/70 underline font-mono">
                                             View Detailed Heatmap
                                         </button>
                                      </div>
@@ -356,7 +356,7 @@ const closeModal = () => emit('close');
                                             </div>
                                             <div>
                                                 <div class="text-[9px] text-slate-500 uppercase tracking-tight">{{ tech.category }}</div>
-                                                <div class="text-[9px] text-emerald-500/70">{{ tech.version }}</div>
+                                                <div class="text-[9px] text-[#CBB48A]/70">{{ tech.version }}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -367,10 +367,10 @@ const closeModal = () => emit('close');
                             <div class="space-y-6 lg:col-span-1 lg:order-1">
                                 <!-- ... (Radar Chart) ... -->
                                 <div class="bg-white/5 border border-white/10 rounded-xl p-4 relative overflow-hidden group">
-                                    <div class="absolute inset-0 bg-emerald-500/5 group-hover:bg-emerald-500/10 transition-colors pointer-events-none"></div>
+                                    <div class="absolute inset-0 bg-[#CBB48A]/5 group-hover:bg-[#CBB48A]/10 transition-colors pointer-events-none"></div>
                                     <div class="flex justify-between items-center mb-2 relative z-10">
                                          <h3 class="text-[10px] font-bold text-slate-500 uppercase">Hexagon Vectors</h3>
-                                         <button @click="showVectorAnalytics = true" class="text-[10px] text-emerald-400 hover:text-emerald-300 underline font-mono">
+                                         <button @click="showVectorAnalytics = true" class="text-[10px] text-[#CBB48A] hover:text-[#CBB48A]/70 underline font-mono">
                                             View Analytics
                                          </button>
                                     </div>
@@ -386,7 +386,7 @@ const closeModal = () => emit('close');
                                         <svg class="w-3 h-3 text-slate-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                     </h3>
                                     <div class="flex items-center justify-between">
-                                        <div class="text-5xl font-mono font-black text-emerald-400 text-shadow-glow">{{ codeQuality.rating || 'N/A' }}</div>
+                                        <div class="text-5xl font-mono font-black text-[#CBB48A] text-shadow-glow">{{ codeQuality.rating || 'N/A' }}</div>
                                         <div class="text-right">
                                             <div class="text-xs text-slate-500">SPAGHETTI LEVEL</div>
                                             <div class="font-mono text-amber-400">{{ codeQuality.spaghetti_level || 'Unknown' }}</div>
@@ -404,7 +404,7 @@ const closeModal = () => emit('close');
                                                 <span class="text-slate-500">{{ lang.percentage }}%</span>
                                             </div>
                                             <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                                                <div class="h-full bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.4)]" :style="{ width: `${lang.percentage}%` }"></div>
+                                                <div class="h-full bg-[#F3E7C9] shadow-[0_0_10px_rgba(6,182,212,0.4)]" :style="{ width: `${lang.percentage}%` }"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -429,7 +429,7 @@ const closeModal = () => emit('close');
                                         </div>
                                         <div class="flex flex-col items-end">
                                             <span class="text-[10px] font-mono px-2 py-0.5 rounded" 
-                                                :class="forensics.bus_factor.bus_factor_score <= 3 ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'">
+                                                :class="forensics.bus_factor.bus_factor_score <= 3 ? 'bg-rose-500/20 text-rose-400' : 'bg-[#CBB48A]/20 text-[#CBB48A]'">
                                                 {{ forensics.bus_factor.bus_factor_score <= 3 ? 'CRITICAL' : 'HEALTHY' }}
                                             </span>
                                         </div>
@@ -469,7 +469,7 @@ const closeModal = () => emit('close');
                                     </div>
                                     <div class="h-4 bg-slate-800 rounded-full overflow-hidden flex mb-2 border border-slate-700/50">
                                         <!-- Healthy Code -->
-                                        <div class="bg-emerald-500 h-full shadow-[inset_0_0_10px_rgba(0,0,0,0.2)]" :style="{ width: `${100 - ghostCode.percentage}%` }"></div>
+                                        <div class="bg-[#CBB48A] h-full shadow-[inset_0_0_10px_rgba(0,0,0,0.2)]" :style="{ width: `${100 - ghostCode.percentage}%` }"></div>
                                         <!-- Ghost Code -->
                                         <div class="bg-slate-600 h-full relative group" :style="{ width: `${ghostCode.percentage}%` }">
                                             <div class="absolute inset-0 bg-repeat bg-[length:4px_4px] opacity-20"
@@ -494,7 +494,7 @@ const closeModal = () => emit('close');
                                             </div>
                                         </div>
                                         <span class="text-[10px] uppercase border px-1.5 py-0.5 rounded"
-                                            :class="supplyChain.verdict === 'Bloated' ? 'border-rose-500 text-rose-400' : 'border-emerald-500 text-emerald-400'">
+                                            :class="supplyChain.verdict === 'Bloated' ? 'border-rose-500 text-rose-400' : 'border-[#CBB48A] text-[#CBB48A]'">
                                             {{ supplyChain.verdict }}
                                         </span>
                                     </div>
@@ -530,7 +530,7 @@ const closeModal = () => emit('close');
 
                                  <!-- Insights Button (Moved here for consistency) -->
                                 <div class="text-center pt-2">
-                                    <button @click="showInsights = true" class="w-full py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-xs font-bold uppercase tracking-wider rounded transition-colors">
+                                    <button @click="showInsights = true" class="w-full py-2 bg-[#CBB48A]/10 hover:bg-[#CBB48A]/20 border border-[#CBB48A]/50 text-[#CBB48A] text-xs font-bold uppercase tracking-wider rounded transition-colors">
                                         View Deep Insights & Findings
                                     </button>
                                 </div>
@@ -572,7 +572,7 @@ const closeModal = () => emit('close');
 
 <style scoped>
 .text-shadow-glow {
-    text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+    text-shadow: 0 0 20px rgba(203, 180, 138, 0.5);
 }
 .custom-scrollbar::-webkit-scrollbar {
     width: 6px;

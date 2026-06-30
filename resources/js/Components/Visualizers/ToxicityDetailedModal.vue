@@ -50,8 +50,8 @@ const emit = defineEmits<{
                                     <div class="text-amber-400 font-bold mb-1">Medium Toxicity (Amber/Pink)</div>
                                     <div class="text-xs text-slate-400">Moderate churn or size. Watch these files closely during code reviews.</div>
                                     </div>
-                                    <div class="bg-black/30 p-4 rounded border border-emerald-500/20">
-                                    <div class="text-emerald-400 font-bold mb-1">Stable (Green)</div>
+                                    <div class="bg-black/30 p-4 rounded border border-[#CBB48A]/20">
+                                    <div class="text-[#CBB48A] font-bold mb-1">Stable (Green)</div>
                                     <div class="text-xs text-slate-400">Static or small files. Low maintenance cost. Solid foundation.</div>
                                     </div>
                             </div>

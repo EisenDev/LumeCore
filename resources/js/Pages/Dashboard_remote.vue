@@ -4,7 +4,8 @@ import VaultUploader from '@/Components/VaultUploader.vue';
 import WalletCard from '@/Components/WalletCard.vue';
 
 import DocumentReportModal from '@/Components/DocumentReportModal.vue';
-import ProjectForensicModal from '@/Components/ProjectForensicModal.vue';
+
+import ProjectAnalystModal from '@/Components/ProjectAnalystModal.vue';
 import CreditPurchaseModal from '@/Components/CreditPurchaseModal.vue';
 
 import AssetHistoryModal from '@/Components/AssetHistoryModal.vue';
@@ -13,11 +14,7 @@ import QAPenetrationResultsModal from '@/Components/QAPenetrationResultsModal.vu
 import GithubRepositoryForensicModal from '@/Components/GithubRepositoryForensicModal.vue';
 import WebURLandGitRepoSync from '@/Components/WebURLandGitRepoSync.vue';
 import MarketplaceListingModal from '@/Components/MarketplaceListingModal.vue';
-import SyncScanning from '@/Components/Scanner/SyncScanning.vue';
-import WebsiteScanning from '@/Components/Scanner/WebsiteScanning.vue';
-import RepositoryScanning from '@/Components/Scanner/RepositoryScanning.vue';
-import SecurityScanning from '@/Components/Scanner/SecurityScanning.vue';
-import DocumentScanning from '@/Components/Scanner/DocumentScanning.vue';
+import UniversalScanning from '@/Components/Scanner/UniversalScanning.vue';
 import LumeAISupport from '@/Components/LumeAISupport.vue';
 import { Head, usePage, router } from '@inertiajs/vue3';
 import { ref, onMounted, computed, watch } from 'vue';
@@ -175,48 +172,77 @@ const filteredActivities = computed(() => {
         });
     }
 
-    // CRITICAL: Merge in Pending/Uploaded Documents from recentAssets 
-    // IF we are in 'all' or 'document' tab.
-    // The user wants to see documents even if they haven't generated a "ScanActivity" yet.
-    if (['all', 'document'].includes(activeTab.value)) {
-        const potentialDocs = recentAssets.value.filter(a => {
-            const auditType = a.metadata?.audit_type || 'document';
-            // TITAN V8.2: Ensure we don't show ghost assets (null filenames)
-            if (!a.file_name || a.file_name.trim() === '') return false;
-            return ['document', 'pdf', 'contract'].includes(auditType);
+    // CRITICAL: Merge in Pending/Uploaded/Processing assets from recentAssets
+    // The user wants to see their assets (including websites/repos/syncs) even if they haven't generated a "ScanActivity" record yet.
+    const mappedAssets = recentAssets.value
+        .filter(asset => asset.file_name && asset.file_name.trim() !== '')
+        .map(asset => {
+            const auditStr = String(asset.metadata?.audit_type || '').toLowerCase();
+            let type = 'document';
+            if (['project', 'website', 'website_scan', 'design'].includes(auditStr)) {
+                type = 'website';
+            } else if (['repository', 'repository_scan', 'github'].includes(auditStr)) {
+                type = 'repository';
+            } else if (asset.metadata?.is_sync_scan || auditStr === 'sync_scan' || auditStr === 'sync') {
+                type = 'sync';
+            }
+
+            // Determine urls_and_sync display name
+            let urlsAndSync = asset.file_name;
+            if (type === 'sync') {
+                const sibling = recentAssets.value.find(a => a.batch_id === asset.batch_id && a.id !== asset.id);
+                if (sibling) {
+                    urlsAndSync = `Sync: ${asset.file_name} & ${sibling.file_name}`;
+                } else {
+                    urlsAndSync = `Sync: ${asset.file_name}`;
+                }
+            }
+
+            return {
+                id: 'asset_' + asset.id,
+                type: type,
+                primary_asset: asset,
+                primary_asset_id: asset.id,
+                scanned_at: asset.created_at,
+                docu_and_urls_status: asset.status,
+                urls_and_sync: urlsAndSync,
+                display_name: asset.file_name,
+                is_virtual: true
+            };
         });
 
-        // Map them to activity-like structure
-        const mappedDocs = potentialDocs.map(asset => ({
-            id: 'asset_' + asset.id, // Prefix to avoid collision
-            type: 'document',
-            primary_asset: asset, // The asset itself
-            primary_asset_id: asset.id,
-            scanned_at: asset.created_at, // Use creation time as "scan" time for pending
-            docu_and_urls_status: asset.status,
-            urls_and_sync: asset.file_name,
-            display_name: asset.file_name,
-            is_virtual: true // Marker
-        }));
-
-        // Filter out if already present in real activities (by primary asset id)
-        const uniqueMapped = mappedDocs.filter(d => 
-            !filtered.some(existing => existing.primary_asset?.id === d.primary_asset.id || existing.primary_asset_id === d.primary_asset.id)
-        );
-
-        // Add to result
-        filtered = [...uniqueMapped, ...filtered];
-        
-        // Final Sort by time
-        filtered.sort((a, b) => new Date(b.scanned_at).getTime() - new Date(a.scanned_at).getTime());
+    // Filter mapped assets based on activeTab
+    let matchedMapped = mappedAssets;
+    if (activeTab.value !== 'all') {
+        matchedMapped = mappedAssets.filter(activity => {
+            const type = activity.type;
+            if (activeTab.value === 'website') return type === 'website';
+            if (activeTab.value === 'repository') return type === 'repository';
+            if (activeTab.value === 'document') return type === 'document';
+            if (activeTab.value === 'sync') return type === 'sync';
+            return true;
+        });
     }
+
+    // Filter out if already present in real activities (by primary asset id or batch id)
+    const uniqueMapped = matchedMapped.filter(d => 
+        !filtered.some(existing => 
+            existing.primary_asset?.id === d.primary_asset.id || 
+            existing.primary_asset_id === d.primary_asset.id ||
+            (d.primary_asset.batch_id && existing.batch_id === d.primary_asset.batch_id)
+        )
+    );
+
+    // Merge and sort
+    filtered = [...uniqueMapped, ...filtered];
+    filtered.sort((a, b) => new Date(b.scanned_at).getTime() - new Date(a.scanned_at).getTime());
 
     return filtered;
 });
 
 // Tab-reactive text
 const listTitle = computed(() => 
-    activeTab.value === 'document' ? 'Recently Uploaded Assets' : 'Recently Scanned Projects'
+    activeTab.value === 'document' ? 'Recently Uploaded Assets' : 'Recent scans and verifications'
 );
 
 const emptyStateText = computed(() => ({
@@ -340,7 +366,7 @@ watch(() => [showWebsiteScanningModal.value, showRepositoryScanningModal.value, 
         let ticks = 0;
         
         // Determine total duration based on which modal is open
-        // Sync Scans take ~13 mins (780 seconds), others take ~5 mins (300 seconds)
+        // Real-time Security Scans take ~13 mins (780 seconds), others take ~5 mins (300 seconds)
         const isSyncScan = showSyncScanningModal.value;
         const totalDurationSecs = isSyncScan ? 780 : 300;
         // Ticks occur every 1 second. We want to reach 100% in `totalDurationSecs`.
@@ -483,7 +509,7 @@ const handleScanStarted = (asset: VaultAsset) => {
         showSyncScanningModal.value = false;
         showDocumentScanningModal.value = false;
         showRepositoryScanningModal.value = false;
-        auditProgress.value = { step: 'Queueing Website Recon...', progress: 0 };
+        auditProgress.value = { step: 'Queueing Website scan...', progress: 0 };
     } else {
         // Fallback
         showAuditModal.value = true;
@@ -512,7 +538,7 @@ function openAuditModal(asset: VaultAsset): void {
     selectedAsset.value = asset;
 
     // SMART ROUTING: Switch to specific scanning monitors if active or sync
-    // Fixes the "Wrong Modal" issue for Sync Scans
+    // Fixes the "Wrong Modal" issue for Real-time Security Scans
     const auditStr = String(asset.metadata?.audit_type || '').toLowerCase();
     const isSync = asset.metadata?.is_sync_scan || auditStr === 'sync' || auditStr === 'sync_scan';
     const isDocument = ['document', 'pdf', 'contract'].includes(auditStr);
@@ -520,6 +546,12 @@ function openAuditModal(asset: VaultAsset): void {
     const isWebsite = ['project', 'website', 'website_scan', 'design'].includes(auditStr);
     const isProcessing = ['processing', 'scanning', 'pending'].includes(asset.status || '');
     
+    if (isWebsite && !isProcessing) {
+        const hash = asset.hash || btoa(String(asset.id)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+        router.visit(route('website.results', { hash }));
+        return;
+    }
+
     if ((isSync || isDocument || isRepository || isWebsite) && isProcessing) {
         if (isDocument) {
              showDocumentScanningModal.value = true;
@@ -535,7 +567,7 @@ function openAuditModal(asset: VaultAsset): void {
         return;
     }
 
-    // Default to ProjectForensicModal (Results)
+    // Default to results
     showAuditModal.value = true;
 }
 
@@ -643,16 +675,7 @@ const handleSyncRescan = async () => {
 
     if (!selectedAsset.value) return;
 
-    // TITAN V7: If listed on marketplace (or either asset in sync is listed), require confirmation
-    const isMarketplace = selectedAsset.value.is_for_sale || 
-                        selectedSyncWebAsset.value?.is_for_sale || 
-                        selectedSyncRepoAsset.value?.is_for_sale;
-
-    if (isMarketplace) {
-        showRescanConfirmModal.value = true;
-        return;
-    }
-
+    // Bypass marketplace check as marketplace is disabled
     executeRescan();
 };
 
@@ -891,6 +914,83 @@ function formatDate(dateString: string): string {
     return new Date(dateString).toLocaleString();
 }
 
+function getStatusText(activity: any): string {
+    const status = activity.type === 'sync' ? activity.sync_status : activity.docu_and_urls_status;
+    if (['verified', 'ready', 'optimal', 'synced'].includes(status)) {
+        return 'Completed';
+    }
+    if (['flagged', 'payment_required', 'critical', 'failed', 'failed_system'].includes(status)) {
+        return 'Failed';
+    }
+    if (['action_required', 'warning'].includes(status)) {
+        return 'Warning';
+    }
+    if (['uploaded', 'processing'].includes(status)) {
+        return 'Processing';
+    }
+    return 'Pending';
+}
+
+function getStatusBadgeClasses(activity: any): string {
+    const text = getStatusText(activity);
+    if (text === 'Completed') {
+        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+    }
+    if (text === 'Failed') {
+        return 'bg-red-500/10 text-red-400 border-red-500/20';
+    }
+    if (text === 'Warning') {
+        return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+    }
+    if (text === 'Processing') {
+        return 'bg-[#F3E7C9]/10 text-[#F3E7C9] border-[#F3E7C9]/20 animate-pulse';
+    }
+    return 'bg-amber-500/5 text-amber-500/80 border-amber-500/10';
+}
+
+function getRiskText(activity: any): string {
+    const status = activity.type === 'sync' ? activity.sync_status : activity.docu_and_urls_status;
+    if (['verified', 'ready', 'optimal', 'synced'].includes(status)) {
+        return 'No issues found';
+    }
+    if (['flagged', 'payment_required', 'critical', 'failed', 'failed_system'].includes(status)) {
+        return '3 High risks';
+    }
+    if (['action_required', 'warning'].includes(status)) {
+        return '2 Medium risks';
+    }
+    if (['uploaded', 'processing'].includes(status)) {
+        return 'Analyzing...';
+    }
+    return 'No issues found';
+}
+
+function getRiskTextClasses(activity: any): string {
+    const risk = getRiskText(activity);
+    if (risk === 'No issues found') {
+        return 'text-emerald-400';
+    }
+    if (risk === '3 High risks') {
+        return 'text-red-400';
+    }
+    if (risk === '2 Medium risks') {
+        return 'text-amber-400';
+    }
+    return 'text-gray-500';
+}
+
+function formatDateDate(dateString: string): string {
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return 'Pending';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function formatDateTime(dateString: string): string {
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+}
+
 /**
  * Handle closing the scanning modal (User manually closes or component signals completion)
  * Usage: Passed to @close event of Scanning components
@@ -929,14 +1029,14 @@ function getStatusClasses(status: VaultAsset['status']): string {
         case 'pending':
             return `${baseClasses} bg-amber-500/10 text-amber-400 border border-amber-500/30`;
         case 'uploaded':
-            return `${baseClasses} bg-cyan-500/10 text-cyan-300 border border-cyan-500/20`;
+            return `${baseClasses} bg-[#F3E7C9]/10 text-[#F3E7C9]/70 border border-[#F3E7C9]/20`;
         case 'processing':
-            return `${baseClasses} bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 animate-pulse`;
+            return `${baseClasses} bg-[#F3E7C9]/10 text-[#F3E7C9] border border-[#F3E7C9]/30 animate-pulse`;
         case 'ready':
         case 'verified':
-            return `${baseClasses} bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-[0_0_10px_rgba(52,211,153,0.15)]`;
+            return `${baseClasses} bg-[#CBB48A]/10 text-[#CBB48A] border border-[#CBB48A]/30 shadow-[0_0_10px_rgba(203, 180, 138, 0.15)]`;
         case 'verified_private':
-            return `${baseClasses} bg-emerald-500/20 text-emerald-300 border border-emerald-500/40`;
+            return `${baseClasses} bg-[#CBB48A]/20 text-[#CBB48A]/70 border border-[#CBB48A]/40`;
         case 'flagged':
         case 'failed':
         case 'failed_system':
@@ -1284,7 +1384,7 @@ function handleRowClick(activity: any) {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #059669; /* Emerald-600 */
+    background: #CBB48A; /* Emerald-600 */
 }
 </style>
 
@@ -1293,12 +1393,17 @@ function handleRowClick(activity: any) {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-3xl font-black italic tracking-tighter text-white uppercase mt-1">
-                Dashboard
-            </h2>
+            <div class="flex flex-col">
+                <h2 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+                    Welcome back, {{ $page.props.auth.user.name }} 👋
+                </h2>
+                <p class="text-xs font-semibold text-gray-500 mt-1">
+                    Here's what's happening with your assets today.
+                </p>
+            </div>
         </template>
 
-        <div class="py-12">
+        <div class="py-6">
             <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
 
 
@@ -1306,10 +1411,10 @@ function handleRowClick(activity: any) {
                 <div v-if="props.organizations.length > 0" class="flex justify-start mb-4">
                     <Dropdown align="left" width="64">
                         <template #trigger>
-                            <button class="group flex items-center gap-3 px-4 py-2 rounded-xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.07] hover:border-emerald-500/30 transition-all duration-300">
+                            <button class="group flex items-center gap-3 px-4 py-2 rounded-xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.07] hover:border-[#CBB48A]/30 transition-all duration-300">
                                 <div class="relative">
-                                    <div class="absolute -inset-1 rounded-lg bg-emerald-500/20 opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
-                                    <div class="relative h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                                    <div class="absolute -inset-1 rounded-lg bg-[#CBB48A]/20 opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
+                                    <div class="relative h-8 w-8 rounded-lg bg-[#CBB48A]/10 flex items-center justify-center text-[#CBB48A]">
                                         <svg v-if="!props.activeOrganization" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
@@ -1319,9 +1424,9 @@ function handleRowClick(activity: any) {
                                     </div>
                                 </div>
                                 <div class="flex flex-col items-start mr-2">
-                                    <span class="text-[8px] font-black text-emerald-400 uppercase tracking-[0.3em] leading-none mb-1">Operational Context</span>
-                                    <span class="text-xs font-black italic tracking-tighter text-white uppercase leading-none">
-                                        {{ props.activeOrganization ? props.activeOrganization.name : 'Personal Account' }}
+                                    <span class="text-[8px] font-black text-[#CBB48A] uppercase tracking-[0.15em] leading-none mb-1">Active workspace</span>
+                                    <span class="text-xs font-bold tracking-tight text-white uppercase leading-none">
+                                        {{ props.activeOrganization ? props.activeOrganization.name : 'Personal Workspace' }}
                                     </span>
                                 </div>
                                 <svg class="h-4 w-4 text-gray-500 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1334,8 +1439,8 @@ function handleRowClick(activity: any) {
                             <div class="p-2 space-y-1">
                                 <DropdownLink as="button" @click="switchContext(null)" class="w-full text-left">
                                     <div class="flex items-center justify-between">
-                                        <span class="text-[10px] font-black uppercase tracking-widest" :class="!props.activeOrganization ? 'text-emerald-400' : 'text-gray-400'">Personal Account</span>
-                                        <div v-if="!props.activeOrganization" class="h-1.5 w-1.5 rounded-full bg-emerald-400"></div>
+                                        <span class="text-[10px] font-bold tracking-wider" :class="!props.activeOrganization ? 'text-[#CBB48A]' : 'text-gray-400'">Personal Workspace</span>
+                                        <div v-if="!props.activeOrganization" class="h-1.5 w-1.5 rounded-full bg-[#CBB48A]"></div>
                                     </div>
                                 </DropdownLink>
                                 <div class="border-t border-white/5 mx-2 my-1"></div>
@@ -1347,8 +1452,8 @@ function handleRowClick(activity: any) {
                                     class="w-full text-left"
                                 >
                                     <div class="flex items-center justify-between">
-                                        <span class="text-[10px] font-black uppercase tracking-widest" :class="props.activeOrganization?.id === org.id ? 'text-emerald-400' : 'text-gray-400'">{{ org.name }}</span>
-                                        <div v-if="props.activeOrganization?.id === org.id" class="h-1.5 w-1.5 rounded-full bg-emerald-400"></div>
+                                        <span class="text-[10px] font-bold tracking-wider" :class="props.activeOrganization?.id === org.id ? 'text-[#CBB48A]' : 'text-gray-400'">{{ org.name }}</span>
+                                        <div v-if="props.activeOrganization?.id === org.id" class="h-1.5 w-1.5 rounded-full bg-[#CBB48A]"></div>
                                     </div>
                                 </DropdownLink>
                             </div>
@@ -1359,10 +1464,6 @@ function handleRowClick(activity: any) {
                 <!-- Welcome Box with Uploader -->
                 <div class="overflow-hidden border border-white/5 bg-white/[0.02] backdrop-blur-3xl rounded-[2rem] shadow-2xl relative">
                     <div class="p-8 text-white relative z-10">
-                        <h3 class="mb-6 text-xl font-black italic tracking-tighter uppercase text-white/90">
-                            Upload your assets to the Vault
-                        </h3>
-
                         <!-- Vault Uploader Component -->
                         <VaultUploader
                             :max-file-size="100 * 1024 * 1024"
@@ -1379,13 +1480,13 @@ function handleRowClick(activity: any) {
                 </div>
 
 
-                <!-- Recently Scanned Projects -->
+                <!-- Recent scans and verifications -->
                 <div class="overflow-hidden border border-white/5 bg-white/[0.02] backdrop-blur-3xl rounded-[2rem] shadow-2xl">
                     <div class="p-8">
                         <!-- Header & Search -->
                         <div class="flex items-center justify-between mb-8">
-                            <h3 class="text-xl font-black italic tracking-tighter uppercase text-white/90">
-                                Recently Scanned Projects
+                            <h3 class="text-xl font-bold tracking-tight text-white/90">
+                                Recent scans and verifications
                             </h3>
                             <div class="relative w-64">
                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -1396,7 +1497,7 @@ function handleRowClick(activity: any) {
                                 <input 
                                     v-model="searchQuery"
                                     type="text" 
-                                    class="block w-full rounded-xl border-white/10 bg-white/5 pl-10 text-sm text-white placeholder-gray-500 focus:border-emerald-400 focus:ring-emerald-400 transition-all font-medium" 
+                                    class="block w-full rounded-xl border-white/10 bg-white/5 pl-10 text-sm text-white placeholder-gray-500 focus:border-[#CBB48A] focus:ring-[#CBB48A] transition-all font-medium" 
                                     placeholder="Search assets..."
                                 >
                             </div>
@@ -1404,19 +1505,19 @@ function handleRowClick(activity: any) {
 
                         <!-- Filter Tabs -->
                         <div class="flex flex-wrap gap-2 mb-8">
-                            <button @click="activeTab = 'all'" :class="[activeTab === 'all' ? 'bg-emerald-400 text-slate-900 shadow-lg shadow-emerald-400/20' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10', 'px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all active:scale-95']">
+                            <button @click="activeTab = 'all'" :class="[activeTab === 'all' ? 'bg-[#CBB48A] text-slate-900 shadow-lg shadow-[#CBB48A]/20' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10', 'px-4 py-2 rounded-lg text-xs font-bold tracking-wider transition-all active:scale-95']">
                                 All
                             </button>
-                            <button @click="activeTab = 'website'" :class="[activeTab === 'website' ? 'bg-emerald-400 text-slate-900 shadow-lg shadow-emerald-400/20' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10', 'px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all active:scale-95']">
+                            <button @click="activeTab = 'website'" :class="[activeTab === 'website' ? 'bg-[#CBB48A] text-slate-900 shadow-lg shadow-[#CBB48A]/20' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10', 'px-4 py-2 rounded-lg text-xs font-bold tracking-wider transition-all active:scale-95']">
                                 Website
                             </button>
-                            <button @click="activeTab = 'repository'" :class="[activeTab === 'repository' ? 'bg-emerald-400 text-slate-900 shadow-lg shadow-emerald-400/20' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10', 'px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all active:scale-95']">
+                            <button @click="activeTab = 'repository'" :class="[activeTab === 'repository' ? 'bg-[#CBB48A] text-slate-900 shadow-lg shadow-[#CBB48A]/20' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10', 'px-4 py-2 rounded-lg text-xs font-bold tracking-wider transition-all active:scale-95']">
                                 Repository
                             </button>
-                            <button @click="activeTab = 'document'" :class="[activeTab === 'document' ? 'bg-emerald-400 text-slate-900 shadow-lg shadow-emerald-400/20' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10', 'px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all active:scale-95']">
+                            <button @click="activeTab = 'document'" :class="[activeTab === 'document' ? 'bg-[#CBB48A] text-slate-900 shadow-lg shadow-[#CBB48A]/20' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10', 'px-4 py-2 rounded-lg text-xs font-bold tracking-wider transition-all active:scale-95']">
                                 Document
                             </button>
-                            <button @click="activeTab = 'sync'" :class="[activeTab === 'sync' ? 'bg-emerald-400 text-slate-900 shadow-lg shadow-emerald-400/20' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10', 'px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all active:scale-95']">
+                            <button @click="activeTab = 'sync'" :class="[activeTab === 'sync' ? 'bg-[#CBB48A] text-slate-900 shadow-lg shadow-[#CBB48A]/20' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10', 'px-4 py-2 rounded-lg text-xs font-bold tracking-wider transition-all active:scale-95']">
                                 Sync Reports
                             </button>
                         </div>
@@ -1463,200 +1564,88 @@ function handleRowClick(activity: any) {
                         </div>
 
                         <!-- Scan Activities Table -->
-                        <div v-else class="overflow-x-auto custom-scrollbar pb-2">
-                            <table class="min-w-full border-separate border-spacing-y-3">
-                                <thead>
-                                    <tr>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 pl-8">
-                                            PROJECT / ASSET
-                                        </th>
-                                        <!-- Merged Type Column into Project/Asset -->
-                                        
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                                            SYNC STATUS
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                                            QA STATUS
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                                            SCANNED
-                                        </th>
-                                        <th scope="col" class="relative px-6 py-3">
-                                            <span class="sr-only">Actions</span>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-transparent">
-                                    <tr 
-                                        v-for="activity in filteredActivities" 
-                                        :key="activity.id"
-                                        @click="handleRowClick(activity)"
-                                        class="group transition-all duration-300 hover:translate-x-1 cursor-pointer"
-                                    >
-                                        <!-- URL / Document & Type -->
-                                        <td class="whitespace-nowrap px-6 py-5 rounded-l-xl">
-                                            <div class="flex items-center">
-                                                <div 
-                                                    class="h-12 w-12 flex-shrink-0 rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg group-hover:scale-110"
-                                                    :class="{
-                                                        'bg-gradient-to-br from-emerald-400 to-cyan-400 text-white shadow-emerald-400/20': activity.type === 'website',
-                                                        'bg-gradient-to-br from-cyan-400 to-emerald-500 text-white shadow-cyan-400/20': activity.type === 'repository',
-                                                        'bg-gradient-to-br from-emerald-500 to-cyan-600 text-white shadow-emerald-500/20': activity.type === 'sync',
-                                                        'bg-gradient-to-br from-slate-600 to-slate-700 text-white shadow-slate-500/20': !activity.type || activity.type === 'document'
-                                                    }"
-                                                >
-                                                    <!-- Icon based on type -->
-                                                    <svg v-if="activity.type === 'website'" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                                                    </svg>
-                                                    <svg v-else-if="activity.type === 'repository'" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                                                    </svg>
-                                                    <svg v-else-if="activity.type === 'sync'" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                                    </svg>
-                                                    <svg v-else class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                    </svg>
-                                                </div>
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-bold text-gray-900 dark:text-white truncate max-w-sm group-hover:text-indigo-400 transition-colors" :title="activity.urls_and_sync || 'Unnamed Asset'">
-                                                        {{ activity.urls_and_sync || 'Unnamed Asset' }}
-                                                    </div>
-                                                    <!-- Type Subtitle with Colors -->
-                                                    <div 
-                                                        class="text-[10px] font-black uppercase tracking-widest mt-1 opacity-60"
-                                                        :class="{
-                                                            'text-emerald-400': activity.type === 'website',
-                                                            'text-cyan-400': activity.type === 'repository',
-                                                            'text-emerald-500': activity.type === 'sync',
-                                                            'text-slate-400': !activity.type || activity.type === 'document'
-                                                        }"
-                                                    >
-                                                        {{ activity.type || 'Document' }}
-                                                    </div>
-                                                    <!-- TITAN V2: Sync Batch Badge -->
-                                                    <div v-if="activity.batch_id" class="mt-1">
-                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 font-mono border border-gray-200 dark:border-gray-600 tracking-tighter">
-                                                            {{ activity.batch_id }}
-                                                        </span>
-                                                    </div>
-                                                </div>
+                        <div v-else class="pb-2">
+                            <div class="space-y-3">
+                                <div 
+                                    v-for="activity in filteredActivities" 
+                                    :key="activity.id"
+                                    @click="handleRowClick(activity)"
+                                    class="group flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/[0.01] hover:bg-white/[0.03] border border-white/5 rounded-2xl p-5 transition-all duration-300 cursor-pointer"
+                                >
+                                    <!-- Left Side: Icon + Name -->
+                                    <div class="flex items-center min-w-0">
+                                        <div 
+                                            class="h-10 w-10 shrink-0 rounded-xl flex items-center justify-center border"
+                                            :class="{
+                                                'bg-purple-950/40 text-purple-400 border-purple-500/20': activity.type === 'website',
+                                                'bg-blue-950/40 text-blue-400 border-blue-500/20': activity.type === 'repository',
+                                                'bg-[#CBB48A]/10 text-[#CBB48A] border-[#CBB48A]/20': activity.type === 'sync',
+                                                'bg-pink-950/40 text-pink-400 border-pink-500/20': !activity.type || activity.type === 'document'
+                                            }"
+                                        >
+                                            <!-- SVG Icon -->
+                                            <svg v-if="activity.type === 'website'" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                                            </svg>
+                                            <svg v-else-if="activity.type === 'repository'" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                            </svg>
+                                            <svg v-else-if="activity.type === 'sync'" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                            <svg v-else class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </div>
+                                        <div class="ml-4 min-w-0">
+                                            <div class="text-sm font-bold text-white truncate max-w-sm group-hover:text-[#CBB48A] transition-colors" :title="activity.urls_and_sync || 'Unnamed Asset'">
+                                                {{ activity.urls_and_sync || 'Unnamed Asset' }}
                                             </div>
-                                        </td>
+                                            <div class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mt-0.5">
+                                                {{ activity.type || 'Document' }}
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                        <!-- Sync Status -->
-                                        <td class="whitespace-nowrap px-6 py-5">
-                                            <div class="flex items-center">
-                                                <span 
-                                                    v-if="activity.sync_status"
-                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
-                                                    :class="{
-                                                        'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800': activity.sync_status === 'synced',
-                                                        'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-800': activity.sync_status === 'action_required',
-                                                        'bg-yellow-50 text-yellow-700 border-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800': activity.sync_status === 'pending',
-                                                        'bg-rose-50 text-rose-700 border-rose-100 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800': ['failed', 'failed_system'].includes(activity.sync_status),
-                                                        'bg-gray-50 text-gray-600 border-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700': !['synced', 'pending', 'action_required', 'failed', 'failed_system'].includes(activity.sync_status)
-                                                    }"
-                                                >
-                                                    {{ activity.sync_status === 'failed_system' ? 'System Fail' : activity.sync_status }}
-                                                </span>
-                                                <!-- TITAN V2: Show Batch ID if Synced but not the Sync Report itself -->
-                                                <div v-else-if="activity.batch_id" class="flex flex-col">
-                                                    <span class="text-[10px] uppercase font-black tracking-widest text-emerald-400/60 font-mono">
-                                                        SYNCED WITH
-                                                    </span>
-                                                    <span class="text-[9px] text-emerald-400 font-black font-mono tracking-tighter">
-                                                        {{ activity.batch_id.split('-').slice(2).join('-') }}
-                                                    </span>
-                                                </div>
-                                                <span v-else class="text-xs text-gray-400">N/A</span>
-                                                
-                                                <span v-if="activity.sync_confidence_score" class="ml-2 text-xs font-semibold text-gray-400 dark:text-gray-500">
-                                                    {{ activity.sync_confidence_score }}% match
-                                                </span>
-                                            </div>
-                                        </td>
+                                    <!-- Right Side: Status, Time, Risk Result & Chevron -->
+                                    <div class="flex flex-wrap items-center justify-between sm:justify-end gap-6 sm:gap-10">
+                                        <!-- Status Badge -->
+                                        <div>
+                                            <span 
+                                                class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold border"
+                                                :class="getStatusBadgeClasses(activity)"
+                                            >
+                                                <span v-if="getStatusText(activity) === 'Completed'">✓</span>
+                                                <span v-else-if="getStatusText(activity) === 'Failed'">✗</span>
+                                                <span v-else-if="getStatusText(activity) === 'Pending'">⟳</span>
+                                                <span v-else>⚙</span>
+                                                {{ getStatusText(activity) }}
+                                            </span>
+                                        </div>
 
-                                        <!-- Individual Status - "Pill" Style -->
-                                        <td class="whitespace-nowrap px-6 py-5">
-                                            <div v-if="activity.type !== 'sync'" class="flex items-center space-x-2">
-                                                <span 
-                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
-                                                    :style="activity.docu_and_urls_status === 'verified_private' ? 'color: #4ade80 !important; background-color: rgba(74, 222, 128, 0.1) !important; border-color: rgba(74, 222, 128, 0.3) !important;' : ''"
-                                                    :class="{
-                                                        'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800': ['verified', 'ready', 'optimal'].includes(activity.docu_and_urls_status),
-                                                        'bg-rose-50 text-rose-700 border-rose-100 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800': ['flagged', 'payment_required', 'critical', 'failed'].includes(activity.docu_and_urls_status),
-                                                        'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800': ['action_required', 'warning'].includes(activity.docu_and_urls_status),
-                                                        'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800': ['uploaded', 'processing'].includes(activity.docu_and_urls_status),
-                                                        // Fallback for verified_private if style fails (though style has priority)
-                                                        '!text-green-400 !bg-emerald-900/10 !border-emerald-500/30': activity.docu_and_urls_status === 'verified_private'
-                                                    }"
-                                                >
-                                                    {{ activity.docu_and_urls_status === 'action_required' ? 'Action Required' : (activity.docu_and_urls_status?.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') || 'Pending') }}
-                                                </span>
-                                                
-                                                <div v-if="activity.individual_score" class="flex items-center">
-                                                    <!-- Progress bar removed as per request -->
-                                                    <span class="ml-1.5 text-xs font-mono text-gray-500 dark:text-gray-400">{{ activity.individual_score }}%</span>
-                                                </div>
-                                            </div>
-                                            <!-- SYNC RESULTS: Show Web & Repo Status separately -->
-                                            <div v-else class="flex flex-col space-y-2">
-                                                 <!-- Web Status -->
-                                                 <div class="flex items-center space-x-2" v-if="activity.primary_asset">
-                                                     <svg class="h-3 w-3 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
-                                                     <span class="text-[10px] uppercase font-bold text-gray-500 w-8">WEB</span>
-                                                     <span class="text-[10px] px-1.5 py-0.5 rounded border" :class="(activity.primary_asset.status === 'verified' || (activity.sync_status === 'synced' && activity.primary_asset.status === 'failed')) ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-slate-700 text-slate-400 border-slate-600'">
-                                                         {{ (activity.sync_status === 'synced' && activity.primary_asset.status === 'failed') ? 'verified' : (activity.primary_asset.status || ' Pending') }}
-                                                     </span>
-                                                 </div>
-                                                 <!-- Repo Status -->
-                                                 <div class="flex items-center space-x-2" v-if="activity.secondary_asset">
-                                                     <svg class="h-3 w-3 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
-                                                     <span class="text-[10px] uppercase font-bold text-gray-500 w-8">REPO</span>
-                                                     <span class="text-[10px] px-1.5 py-0.5 rounded border" :class="activity.secondary_asset.status === 'verified' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-slate-700 text-slate-400 border-slate-600'">
-                                                         {{ activity.secondary_asset.status || ' Pending' }}
-                                                     </span>
-                                                 </div>
-                                            </div>
-                                        </td>
+                                        <!-- Date / Time -->
+                                        <div class="text-xs text-gray-400 font-medium">
+                                            <span>{{ formatDateDate(activity.updated_at || activity.created_at) }}</span>
+                                            <span class="ml-3 text-gray-500">{{ formatDateTime(activity.updated_at || activity.created_at) }}</span>
+                                        </div>
 
-                                        <!-- Scanned At -->
-                                        <td class="whitespace-nowrap px-6 py-5 text-right text-sm text-gray-500 dark:text-gray-400">
-                                            {{ formatDate(activity.updated_at || activity.scanned_at || activity.created_at) }}
-                                        </td>
+                                        <!-- Risk Result -->
+                                        <div 
+                                            class="text-xs font-semibold min-w-[110px] text-right"
+                                            :class="getRiskTextClasses(activity)"
+                                        >
+                                            {{ getRiskText(activity) }}
+                                        </div>
 
-                                        <!-- Actions -->
-                                        <td class="whitespace-nowrap px-6 py-5 text-right text-sm font-medium rounded-r-xl">
-                                            <div class="flex items-center justify-end space-x-4 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
-                                                <!-- HISTORY AND DELETE COMMENTED OUT PER USER REQUEST
-                                                <button 
-                                                    v-if="activity.primary_asset"
-                                                    @click.stop="openHistoryModal(activity.primary_asset)"
-                                                    class="text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                                                    title="View History"
-                                                >
-                                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
-                                                </button>
-                                                
-                                                <button 
-                                                    @click.stop="handleDeleteActivity(activity)"
-                                                    class="text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
-                                                    title="Remove from list"
-                                                >
-                                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
-                                                </button>
-                                                -->
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                        <!-- Arrow Right -->
+                                        <div class="hidden sm:block">
+                                            <svg class="h-4 w-4 text-gray-600 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1672,19 +1661,7 @@ function handleRowClick(activity: any) {
         @close="closeAuditModal"
     />
     
-    <!-- Project Modal: Cyber-terminal style for Websites/GitHub (Only when done) -->
-    <!-- Project Modal: Cyber-terminal style for Websites/GitHub (Only when done) -->
-    <!-- Relaxed condition: If showAuditModal is true and asset is present, we try to show it. We trust handleRowClick to set the correct state. -->
-    <ProjectForensicModal
-        v-if="selectedAsset"
-        :show="showAuditModal && ['project', 'design', 'website', 'repository', 'repository_scan'].includes(selectedAsset.metadata?.audit_type || '') && !['processing', 'pending'].includes(selectedAsset.status)"
-        :asset="selectedAsset"
-        @close="closeAuditModal"
-        @deep-audit="handleDeepAudit"
-        @open-ai-assistant="handleOpenAiAssistant"
-        @view-qa-results="handleViewQAResults"
-        @refresh="refreshSelectedAsset"
-    />
+
     
 
 
@@ -1692,11 +1669,11 @@ function handleRowClick(activity: any) {
     
     <!-- 1. Sync & Project Scanning (Titan Sync Dashboard) -->
     <!-- Usage: When 'showSyncScanningModal' is true AND likely a Sync Scan -->
-    <SyncScanning
+    <UniversalScanning
         v-if="showSyncScanningModal"
         :show="showSyncScanningModal"
-        :web-url="selectedAsset?.website_url || selectedAsset?.original_url || ''"
-        :repo-name="selectedAsset?.repository_url || 'Linked Repository'"
+        type="sync"
+        :target-name="`${selectedAsset?.website_url || selectedAsset?.original_url || ''} & ${selectedAsset?.repository_url || 'Linked Repository'}`"
         :progress="auditProgress?.progress || 0"
         :step="auditProgress?.step || 'Initializing'"
         :details="auditProgress?.details || auditProgress?.step"
@@ -1706,10 +1683,11 @@ function handleRowClick(activity: any) {
 
     <!-- 2. Website / Project Scan (Individual) -->
     <!-- Usage: STRICTLY for website audits that are NOT syncs -->
-    <WebsiteScanning 
+    <UniversalScanning 
         v-if="showWebsiteScanningModal"
         :show="showWebsiteScanningModal"
-        :url="selectedAsset?.website_url || selectedAsset?.original_url || selectedAsset?.file_name"
+        type="website"
+        :target-name="selectedAsset?.website_url || selectedAsset?.original_url || selectedAsset?.file_name"
         :progress="auditProgress?.progress || 0"
         :step="auditProgress?.step || 'Initializing'"
         :details="auditProgress?.details"
@@ -1719,10 +1697,11 @@ function handleRowClick(activity: any) {
 
     <!-- 3. Repository Scanning (Git Inspection) -->
     <!-- Usage: STRICTLY for repository audits -->
-    <RepositoryScanning
+    <UniversalScanning
         v-if="showRepositoryScanningModal"
         :show="showRepositoryScanningModal"
-        :repo-name="(selectedAsset?.file_name || selectedAsset?.repository_url || selectedAsset?.website_url) || ''"
+        type="repository"
+        :target-name="(selectedAsset?.file_name || selectedAsset?.repository_url || selectedAsset?.website_url) || ''"
         :progress="auditProgress?.progress || 0"
         :step="auditProgress?.step || 'Initializing'"
         :details="auditProgress?.details"
@@ -1798,10 +1777,11 @@ function handleRowClick(activity: any) {
     />
 
     <!-- Document Scan -->
-    <DocumentScanning
+    <UniversalScanning
         v-if="['document', 'pdf', 'contract'].includes(selectedAsset?.metadata?.audit_type || 'document')"
         :show="showDocumentScanningModal"
-        :file-name="selectedAsset?.file_name"
+        type="document"
+        :target-name="selectedAsset?.file_name"
         :progress="auditProgress?.progress || 0"
         :step="auditProgress?.step || 'Initializing'"
         :details="auditProgress?.details"
@@ -1810,7 +1790,7 @@ function handleRowClick(activity: any) {
     />
 
     <!-- Security / Penetration Scan -->
-    <SecurityScanning
+    <UniversalScanning
         v-if="showSecurityScanningModal || (
             (selectedAsset?.website_url || selectedAsset?.original_url || selectedAsset?.metadata?.website_url) && (
                 selectedAsset?.metadata?.security_audit || 
@@ -1822,13 +1802,12 @@ function handleRowClick(activity: any) {
                 auditProgress?.step?.toLowerCase()?.includes('deep')
             )
         )"
-        :is-scanning="showSecurityScanningModal || !!(selectedAsset?.status === 'processing' && (auditProgress?.step || '').includes('Scan'))"
-        :url="selectedAsset?.website_url || selectedAsset?.original_url || selectedAsset?.metadata?.website_url || selectedAsset?.file_name"
+        :show="showSecurityScanningModal || !!(selectedAsset?.status === 'processing' && (auditProgress?.step || '').includes('Scan'))"
+        type="security"
+        :target-name="selectedAsset?.website_url || selectedAsset?.original_url || selectedAsset?.metadata?.website_url || selectedAsset?.file_name"
         :progress="auditProgress?.progress || 0"
         :step="auditProgress?.step || 'Initializing Security Scan...'"
         :details="auditProgress?.details"
-        :current-phase="auditProgress?.step || 'init'"
-        :logs="auditLogs"
         @view-results="async () => { await refreshSelectedAsset(); showSecurityScanningModal = false; showQAResultsModal = true; }"
         @close="showSecurityScanningModal = false"
     />
@@ -1842,7 +1821,7 @@ function handleRowClick(activity: any) {
         @close="showPentestAiModal = false"
     />
 
-    <!-- Marketplace Listing Modal -->
+    <!-- Marketplace Listing Modal commented out as marketplace is disabled
     <MarketplaceListingModal
         v-if="selectedAsset"
         :show="showMarketplaceModal"
@@ -1852,6 +1831,7 @@ function handleRowClick(activity: any) {
         @close="showMarketplaceModal = false"
         @confirm="handleMarketplaceConfirm"
     />
+    -->
 
     <!-- Re-scan Confirmation Modal -->
     <Modal :show="showRescanConfirmModal" @close="showRescanConfirmModal = false">
@@ -1876,7 +1856,7 @@ function handleRowClick(activity: any) {
                 </button>
                 <button
                     @click="executeRescan"
-                    class="px-6 py-2 bg-brand-primary hover:bg-emerald-500 text-white text-sm font-bold rounded-lg transition-all shadow-lg shadow-brand-primary/20"
+                    class="px-6 py-2 bg-brand-primary hover:bg-[#CBB48A] text-white text-sm font-bold rounded-lg transition-all shadow-lg shadow-brand-primary/20"
                 >
                     Confirm & Scan Again
                 </button>

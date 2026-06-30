@@ -38,7 +38,7 @@ const updatePassword = () => {
 <template>
     <section>
         <header>
-            <h2 class="text-xl font-black italic tracking-tighter text-white uppercase mt-1">
+            <h2 class="text-xl font-bold tracking-tight text-white uppercase mt-1">
                 Update Password
             </h2>
 
@@ -49,14 +49,14 @@ const updatePassword = () => {
 
         <form @submit.prevent="updatePassword" class="mt-6 space-y-6">
             <div>
-                <InputLabel for="current_password" value="Current Password" class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
+                <InputLabel for="current_password" value="Current Password" class="text-[10px] font-bold tracking-wider text-gray-400 mb-2" />
 
                 <TextInput
                     id="current_password"
                     ref="currentPasswordInput"
                     v-model="form.current_password"
                     type="password"
-                    class="mt-1 block w-full bg-white/5 border-white/10 text-white text-sm font-bold tracking-tight px-4 py-3 rounded-xl focus:ring-emerald-400/30 focus:border-emerald-400/50"
+                    class="mt-1 block w-full bg-white/5 border-white/10 text-white text-sm font-bold tracking-tight px-4 py-3 rounded-xl focus:ring-[#CBB48A]/30 focus:border-[#CBB48A]/50"
                     autocomplete="current-password"
                 />
 
@@ -64,14 +64,14 @@ const updatePassword = () => {
             </div>
 
             <div>
-                <InputLabel for="password" value="New Password" class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
+                <InputLabel for="password" value="New Password" class="text-[10px] font-bold tracking-wider text-gray-400 mb-2" />
 
                 <TextInput
                     id="password"
                     ref="passwordInput"
                     v-model="form.password"
                     type="password"
-                    class="mt-1 block w-full bg-white/5 border-white/10 text-white text-sm font-bold tracking-tight px-4 py-3 rounded-xl focus:ring-cyan-400/30 focus:border-cyan-400/50"
+                    class="mt-1 block w-full bg-white/5 border-white/10 text-white text-sm font-bold tracking-tight px-4 py-3 rounded-xl focus:ring-[#F3E7C9]/30 focus:border-[#F3E7C9]/50"
                     autocomplete="new-password"
                 />
 
@@ -82,14 +82,14 @@ const updatePassword = () => {
                 <InputLabel
                     for="password_confirmation"
                     value="Confirm Password"
-                    class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2"
+                    class="text-[10px] font-bold tracking-wider text-gray-400 mb-2"
                 />
 
                 <TextInput
                     id="password_confirmation"
                     v-model="form.password_confirmation"
                     type="password"
-                    class="mt-1 block w-full bg-white/5 border-white/10 text-white text-sm font-bold tracking-tight px-4 py-3 rounded-xl focus:ring-cyan-400/30 focus:border-cyan-400/50"
+                    class="mt-1 block w-full bg-white/5 border-white/10 text-white text-sm font-bold tracking-tight px-4 py-3 rounded-xl focus:ring-[#F3E7C9]/30 focus:border-[#F3E7C9]/50"
                     autocomplete="new-password"
                 />
 
@@ -102,7 +102,7 @@ const updatePassword = () => {
             <div class="flex items-center gap-4">
                 <PrimaryButton 
                     :disabled="form.processing"
-                    class="bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-black italic tracking-tighter uppercase px-8 py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-cyan-400/10"
+                    class="bg-[#F3E7C9] hover:bg-[#F3E7C9]/70 text-slate-950 font-bold tracking-tight px-8 py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-[#F3E7C9]/10"
                 >
                     Update Password
                 </PrimaryButton>
@@ -115,7 +115,7 @@ const updatePassword = () => {
                 >
                     <p
                         v-if="form.recentlySuccessful"
-                        class="text-[10px] font-black uppercase tracking-widest text-cyan-400 animate-pulse"
+                        class="text-[10px] font-bold tracking-wider text-[#F3E7C9] animate-pulse"
                     >
                         Saved.
                     </p>

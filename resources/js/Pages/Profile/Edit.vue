@@ -17,7 +17,7 @@ defineProps<{
     <AuthenticatedLayout>
         <template #header>
             <div class="flex items-center gap-3">
-                <span class="text-2xl font-black italic tracking-tighter text-white uppercase mt-1">Profile Settings</span>
+                <span class="text-2xl font-bold tracking-tight text-white uppercase mt-1">Profile Settings</span>
             </div>
         </template>
 
@@ -25,7 +25,7 @@ defineProps<{
             <div class="mx-auto max-w-7xl space-y-8 sm:px-6 lg:px-8">
                 <!-- Profile Information -->
                 <div class="bg-[#0A0A0B]/60 backdrop-blur-3xl p-8 rounded-[2rem] border border-white/5 shadow-2xl relative overflow-hidden group">
-                    <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-emerald-400/5 blur-[100px] group-hover:bg-emerald-400/10 transition-all duration-700"></div>
+                    <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#CBB48A]/5 blur-[100px] group-hover:bg-[#CBB48A]/10 transition-all duration-700"></div>
                     <UpdateProfileInformationForm
                         :must-verify-email="mustVerifyEmail"
                         :status="status"
@@ -35,7 +35,7 @@ defineProps<{
 
                 <!-- Update Password -->
                 <div class="bg-[#0A0A0B]/60 backdrop-blur-3xl p-8 rounded-[2rem] border border-white/5 shadow-2xl relative overflow-hidden group">
-                    <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-cyan-400/5 blur-[100px] group-hover:bg-cyan-400/10 transition-all duration-700"></div>
+                    <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#F3E7C9]/5 blur-[100px] group-hover:bg-[#F3E7C9]/10 transition-all duration-700"></div>
                     <UpdatePasswordForm class="max-w-xl relative z-10" />
                 </div>
 

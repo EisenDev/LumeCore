@@ -218,7 +218,7 @@ function getCategoryColor(category: string): string {
         'Cache': 'bg-red-500/20 text-red-400 ring-red-500/30',
         'Queue': 'bg-orange-500/20 text-orange-400 ring-orange-500/30',
         'AWS': 'bg-yellow-500/20 text-yellow-400 ring-yellow-500/30',
-        'Real-time': 'bg-cyan-500/20 text-cyan-400 ring-cyan-500/30',
+        'Real-time': 'bg-[#F3E7C9]/20 text-[#F3E7C9] ring-[#F3E7C9]/30',
         'Search': 'bg-pink-500/20 text-pink-400 ring-pink-500/30',
         'Error Tracking': 'bg-rose-500/20 text-rose-400 ring-rose-500/30',
         'Storage': 'bg-indigo-500/20 text-indigo-400 ring-indigo-500/30',

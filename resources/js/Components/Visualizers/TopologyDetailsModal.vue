@@ -53,7 +53,7 @@ function getSecurityImplication(type: string): string {
 
 <template>
     <div v-if="show" class="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="$emit('close')">
-        <div class="bg-slate-900 border border-cyan-500/30 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="bg-slate-900 border border-[#F3E7C9]/30 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             <!-- Header -->
             <div class="flex items-center justify-between p-6 border-b border-white/10 bg-slate-950/20">
                 <div>
@@ -74,18 +74,18 @@ function getSecurityImplication(type: string): string {
             <div class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
                 <!-- Root Nodes -->
                 <div v-if="categorizedNodes.root.length">
-                    <h4 class="text-sm font-bold text-emerald-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <h4 class="text-sm font-bold text-[#CBB48A] uppercase tracking-wider mb-3 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         Root Domain
                     </h4>
-                    <div class="bg-slate-900/50 rounded-lg p-4 border border-cyan-500/10">
+                    <div class="bg-slate-900/50 rounded-lg p-4 border border-[#F3E7C9]/10">
                         <div v-for="node in categorizedNodes.root" :key="node.id" class="mb-4 last:mb-0">
                             <div class="flex items-start justify-between mb-2">
                                 <div class="flex items-center gap-3">
                                     <span class="font-mono text-sm text-white">{{ node.id }}</span>
-                                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold">{{ node.status }}</span>
+                                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-[#CBB48A]/20 text-[#CBB48A] font-bold">{{ node.status }}</span>
                                 </div>
                             </div>
                             <p class="text-xs text-slate-400 mb-2">{{ getNodeExplanation('root') }}</p>
@@ -104,11 +104,11 @@ function getSecurityImplication(type: string): string {
                         </svg>
                         JavaScript Resources ({{ categorizedNodes.scripts.length }})
                     </h4>
-                    <div class="bg-slate-900/50 rounded-lg p-4 border border-cyan-500/10 space-y-3">
+                    <div class="bg-slate-900/50 rounded-lg p-4 border border-[#F3E7C9]/10 space-y-3">
                         <div v-for="node in categorizedNodes.scripts" :key="node.id" class="pb-3 border-b border-slate-800/50 last:border-0 last:pb-0">
                             <div class="flex items-start justify-between mb-2">
                                 <span class="font-mono text-xs text-white truncate max-w-md" :title="node.id">{{ node.id }}</span>
-                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 font-bold whitespace-nowrap ml-2 border border-cyan-500/30">{{ node.status }}</span>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-[#F3E7C9]/20 text-[#F3E7C9] font-bold whitespace-nowrap ml-2 border border-[#F3E7C9]/30">{{ node.status }}</span>
                             </div>
                             <p class="text-[11px] text-slate-500">{{ getNodeExplanation('script') }}</p>
                         </div>
@@ -120,17 +120,17 @@ function getSecurityImplication(type: string): string {
 
                 <!-- External Nodes -->
                 <div v-if="categorizedNodes.external.length">
-                    <h4 class="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <h4 class="text-sm font-bold text-[#F3E7C9] uppercase tracking-wider mb-3 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
                         </svg>
                         External Dependencies ({{ categorizedNodes.external.length }})
                     </h4>
-                    <div class="bg-slate-900/50 rounded-lg p-4 border border-cyan-500/10 space-y-3">
+                    <div class="bg-slate-900/50 rounded-lg p-4 border border-[#F3E7C9]/10 space-y-3">
                         <div v-for="node in categorizedNodes.external" :key="node.id" class="pb-3 border-b border-slate-800/50 last:border-0 last:pb-0">
                             <div class="flex items-start justify-between mb-2">
                                 <span class="font-mono text-xs text-white truncate max-w-md" :title="node.id">{{ node.id }}</span>
-                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-bold whitespace-nowrap ml-2 border border-cyan-500/30">{{ node.status }}</span>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-[#F3E7C9]/20 text-[#F3E7C9]/70 font-bold whitespace-nowrap ml-2 border border-[#F3E7C9]/30">{{ node.status }}</span>
                             </div>
                             <p class="text-[11px] text-slate-500">{{ getNodeExplanation('external') }}</p>
                         </div>
@@ -153,7 +153,7 @@ function getSecurityImplication(type: string): string {
             <div class="p-4 border-t border-white/10 bg-slate-950/50">
                 <button 
                     @click="$emit('close')"
-                    class="w-full px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold rounded-lg transition-colors border border-cyan-500/30"
+                    class="w-full px-4 py-2 bg-[#DCC8A5] hover:bg-[#F3E7C9] text-white text-sm font-semibold rounded-lg transition-colors border border-[#F3E7C9]/30"
                 >
                     Close Forensic Details
                 </button>
@@ -171,13 +171,13 @@ function getSecurityImplication(type: string): string {
     background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #164e63; /* cyan-900 */
+    background: #164e63; /* [#F3E7C9]/20 */
     border-radius: 20px;
     border: 2px solid transparent;
     background-clip: content-box;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #0891b2; /* cyan-600 */
+    background: #0891b2; /* [#DCC8A5] */
     background-clip: content-box;
 }
 /* Firefox support */

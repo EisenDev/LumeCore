@@ -238,8 +238,8 @@ function calculateScoreFromVectors(asset: VaultAsset): number {
  * Get grade based on confidence score (S, A, B, C, F)
  */
 function getGrade(score: number): { letter: string; color: string; bg: string } {
-    if (score >= 95) return { letter: 'S', color: 'text-emerald-400', bg: 'bg-emerald-500/20' };
-    if (score >= 90) return { letter: 'A', color: 'text-cyan-400', bg: 'bg-cyan-500/20' };
+    if (score >= 95) return { letter: 'S', color: 'text-[#CBB48A]', bg: 'bg-[#CBB48A]/20' };
+    if (score >= 90) return { letter: 'A', color: 'text-[#F3E7C9]', bg: 'bg-[#F3E7C9]/20' };
     if (score >= 80) return { letter: 'B', color: 'text-blue-400', bg: 'bg-blue-500/20' };
     if (score >= 75) return { letter: 'C', color: 'text-yellow-400', bg: 'bg-yellow-500/20' };
     return { letter: 'F', color: 'text-red-400', bg: 'bg-red-500/20' };
@@ -311,14 +311,14 @@ function getTechStackIcons(asset: VaultAsset): { name: string; path: string; vie
         if (n.includes('react')) return { 
             name: 'React', 
             viewBox: '0 0 24 24', 
-            color: 'text-cyan-400', 
+            color: 'text-[#F3E7C9]', 
             path: 'M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2.2c4.35 0 8.08 2.8 9.28 6.72-.6-.24-1.24-.4-1.92-.4-3.53 0-6.4 2.87-6.4 6.4 0 .9.19 1.75.52 2.52C12.37 17.11 11.23 16 10 16c-3.1 0-5.6 2.5-5.6 5.6 0 .44.06.87.16 1.28-2.6-1.5-4.36-4.32-4.36-7.58 0-4.97 4.03-9 9-9z' 
         };
         // Vue
         if (n.includes('vue')) return {
             name: 'Vue.js',
             viewBox: '0 0 24 24',
-            color: 'text-emerald-400',
+            color: 'text-[#CBB48A]',
             path: 'M2 3h20v18H2V3zm18 16V5H4v14h16zM6 7h12v2H6V7zm0 4h12v2H6v-2zm0 4h8v2H6v-2z' 
         };
         // Laravel
@@ -347,7 +347,7 @@ function getTechStackIcons(asset: VaultAsset): { name: string; path: string; vie
         if (n.includes('tailwind')) return {
             name: 'Tailwind CSS',
             viewBox: '0 0 24 24',
-            color: 'text-cyan-300',
+            color: 'text-[#F3E7C9]/70',
             path: 'M12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z'
         };
 
@@ -370,7 +370,7 @@ function getCategoryColor(category: string): string {
         'Dataset': 'bg-blue-500/20 text-blue-400 ring-blue-500/30',
         'Educational': 'bg-green-500/20 text-green-400 ring-green-500/30',
         'Creative Work': 'bg-pink-500/20 text-pink-400 ring-pink-500/30',
-        'Public Audit': 'bg-emerald-500/20 text-emerald-400 ring-emerald-500/30',
+        'Public Audit': 'bg-[#CBB48A]/20 text-[#CBB48A] ring-[#CBB48A]/30',
     };
     return colors[category] ?? 'bg-gray-500/20 text-gray-400 ring-gray-500/30';
 }
@@ -459,34 +459,34 @@ function createPolygon(v: any): string {
 </script>
 
 <template>
-    <Head title="Marketplace - LUME" />
+    <Head title="Marketplace - Lume" />
 
-    <div class="min-h-screen bg-brand-dark text-slate-300 font-sans selection:bg-emerald-400/30 selection:text-white overflow-x-hidden">
+    <div class="min-h-screen bg-brand-dark text-slate-300 font-sans selection:bg-[#CBB48A]/30 selection:text-white overflow-x-hidden">
         <!-- Grain Overlay -->
         <div class="fixed inset-0 z-[100] pointer-events-none opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] brightness-100 contrast-150" />
         
         <!-- Modern Header & Search -->
         <header class="relative z-20 border-b border-white/5 bg-brand-dark/40 backdrop-blur-2xl transition-all duration-500">
-             <div class="absolute inset-x-0 top-0 h-[500px] bg-gradient-to-b from-emerald-400/[0.05] via-transparent to-transparent pointer-events-none"></div>
+             <div class="absolute inset-x-0 top-0 h-[500px] bg-gradient-to-b from-[#CBB48A]/[0.05] via-transparent to-transparent pointer-events-none"></div>
             
             <div class="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                 <!-- Branding & Nav -->
                 <div class="flex items-center justify-between mb-12">
                      <Link href="/" class="flex items-center gap-4 group">
                         <div class="relative">
-                            <div class="absolute -inset-2 bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-xl blur-lg opacity-20 group-hover:opacity-40 transition-opacity" />
-                            <div class="relative flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-400 shadow-xl shadow-emerald-400/20 transition-transform group-hover:scale-105">
+                            <div class="absolute -inset-2 bg-gradient-to-r from-[#CBB48A] to-[#F3E7C9] rounded-xl blur-lg opacity-20 group-hover:opacity-40 transition-opacity" />
+                            <div class="relative flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#CBB48A] to-[#F3E7C9] shadow-xl shadow-[#CBB48A]/20 transition-transform group-hover:scale-105">
                                 <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                 </svg>
                             </div>
                         </div>
-                        <span class="text-2xl font-black tracking-tighter text-white uppercase italic">LUME<span class="text-emerald-400 not-italic">CORE</span></span>
+                        <span class="text-2xl font-black tracking-tight text-white uppercase italic">LUME<span class="text-[#CBB48A] not-italic">CORE</span></span>
                     </Link>
                     
                     <nav class="flex items-center gap-6">
                         <template v-if="isAuthenticated">
-                            <Link :href="route('dashboard')" class="text-sm font-medium text-slate-400 hover:text-white transition-colors">Dashboard</Link>
+                            <Link :href="route('overview')" class="text-sm font-medium text-slate-400 hover:text-white transition-colors">Overview</Link>
                             <div class="h-4 w-px bg-white/10"></div>
                             
                             <!-- Profile Dropdown -->
@@ -494,12 +494,12 @@ function createPolygon(v: any): string {
                                 <Dropdown align="right" width="48">
                                     <template #trigger>
                                         <button class="flex items-center gap-2 group focus:outline-none">
-                                            <div class="h-8 w-8 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 p-[1px] group-hover:shadow-[0_0_15px_rgba(52,211,153,0.4)] transition-all">
+                                            <div class="h-8 w-8 rounded-full bg-gradient-to-r from-[#CBB48A] to-[#F3E7C9] p-[1px] group-hover:shadow-[0_0_15px_rgba(203, 180, 138, 0.4)] transition-all">
                                                 <div class="h-full w-full rounded-full bg-[#0a0f1a] flex items-center justify-center text-xs font-bold text-white group-hover:bg-transparent transition-colors">
                                                     {{ authUser?.name.charAt(0) }}
                                                 </div>
                                             </div>
-                                            <svg class="h-4 w-4 text-slate-500 group-hover:text-emerald-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <svg class="h-4 w-4 text-slate-500 group-hover:text-[#CBB48A] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                             </svg>
                                         </button>
@@ -534,14 +534,14 @@ function createPolygon(v: any): string {
                          <Link 
                             :href="route('marketplace.index')" 
                             class="px-6 py-2 rounded-lg text-sm font-bold transition-all"
-                            :class="viewMode === 'browse' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20' : 'text-slate-400 hover:text-white'"
+                            :class="viewMode === 'browse' ? 'bg-[#DCC8A5] text-white shadow-lg shadow-[#CBB48A]/20' : 'text-slate-400 hover:text-white'"
                         >
                             Browse Market
                         </Link>
                         <Link 
                             :href="route('marketplace.mylistings')" 
                             class="px-6 py-2 rounded-lg text-sm font-bold transition-all"
-                            :class="viewMode === 'mylistings' ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/20' : 'text-slate-400 hover:text-white'"
+                            :class="viewMode === 'mylistings' ? 'bg-[#DCC8A5] text-white shadow-lg shadow-[#F3E7C9]/20' : 'text-slate-400 hover:text-white'"
                         >
                             My Listings
                         </Link>
@@ -550,14 +550,14 @@ function createPolygon(v: any): string {
 
                 <!-- Hero Search -->
                 <div class="mx-auto max-w-4xl text-center relative z-10 py-12 lg:py-20">
-                     <h1 class="text-5xl lg:text-[6rem] font-[1000] tracking-[-0.05em] text-white mb-10 select-none uppercase italic leading-[0.9]">
-                        Find <span class="bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-500 bg-clip-text text-transparent">Verified</span> <br class="hidden lg:block"> Assets.
+                     <h1 class="text-5xl lg:text-[6rem] font-bold tracking-[-0.05em] text-white mb-10 select-none uppercase italic leading-[0.9]">
+                        Find <span class="bg-gradient-to-r from-[#CBB48A] via-[#F3E7C9] to-[#CBB48A] bg-clip-text text-transparent">Verified</span> <br class="hidden lg:block"> Assets.
                     </h1>
                     
                     <div class="relative group max-w-2xl mx-auto">
-                        <div class="absolute -inset-1 bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-2xl blur-lg opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                        <div class="absolute -inset-1 bg-gradient-to-r from-[#CBB48A] to-[#F3E7C9] rounded-2xl blur-lg opacity-20 group-hover:opacity-40 transition duration-1000"></div>
                         <div class="relative flex items-center bg-white/[0.03] backdrop-blur-md rounded-2xl border border-white/10 shadow-2xl p-3 ring-1 ring-white/5 transition-all group-hover:bg-white/[0.05]">
-                            <div class="pl-4 text-emerald-400/60">
+                            <div class="pl-4 text-[#CBB48A]/60">
                                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                             </div>
                             <input 
@@ -581,7 +581,7 @@ function createPolygon(v: any): string {
                             :class="[
                                 'px-4 py-1.5 rounded-full text-sm font-medium transition-all border',
                                 activeCategory === cat 
-                                    ? 'bg-emerald-400/10 border-emerald-400 text-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.2)]' 
+                                    ? 'bg-[#CBB48A]/10 border-[#CBB48A] text-[#CBB48A] shadow-[0_0_10px_rgba(203, 180, 138, 0.2)]' 
                                     : 'bg-transparent border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200'
                             ]"
                          >
@@ -593,7 +593,7 @@ function createPolygon(v: any): string {
                     <div class="flex gap-3">
                          <div class="relative">
                             <label class="block text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1 px-1">Price</label>
-                            <select v-model="priceRange" class="bg-white/5 border border-white/10 text-slate-300 text-xs rounded-lg focus:ring-emerald-400 focus:border-emerald-400 py-1.5 px-3 min-w-[120px]">
+                            <select v-model="priceRange" class="bg-white/5 border border-white/10 text-slate-300 text-xs rounded-lg focus:ring-[#CBB48A] focus:border-[#CBB48A] py-1.5 px-3 min-w-[120px]">
                                 <option>All Prices</option>
                                 <option>Under $100</option>
                                 <option>$100 - $500</option>
@@ -602,7 +602,7 @@ function createPolygon(v: any): string {
                          </div>
                          <div class="relative">
                             <label class="block text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1 px-1">Tech Stack</label>
-                            <select v-model="selectedStack" class="bg-white/5 border border-white/10 text-slate-300 text-xs rounded-lg focus:ring-emerald-400 focus:border-emerald-400 py-1.5 px-3 min-w-[120px]">
+                            <select v-model="selectedStack" class="bg-white/5 border border-white/10 text-slate-300 text-xs rounded-lg focus:ring-[#CBB48A] focus:border-[#CBB48A] py-1.5 px-3 min-w-[120px]">
                                 <option>All Stacks</option>
                                 <option>React</option>
                                 <option>Vue</option>
@@ -612,7 +612,7 @@ function createPolygon(v: any): string {
                         </div>
                          <div class="relative">
                             <label class="block text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1 px-1">Audit Score</label>
-                            <select v-model="minScore" class="bg-white/5 border border-white/10 text-slate-300 text-xs rounded-lg focus:ring-emerald-400 focus:border-emerald-400 py-1.5 px-3 min-w-[120px]">
+                            <select v-model="minScore" class="bg-white/5 border border-white/10 text-slate-300 text-xs rounded-lg focus:ring-[#CBB48A] focus:border-[#CBB48A] py-1.5 px-3 min-w-[120px]">
                                  <option>All Scores</option>
                                  <option>90+ (Elite)</option>
                                  <option>80+ (Verified)</option>
@@ -629,27 +629,27 @@ function createPolygon(v: any): string {
             <!-- Premium Empty State -->
              <div v-if="!props.listings?.data || props.listings.data.length === 0" class="flex flex-col items-center justify-center py-24 text-center relative overflow-hidden rounded-[2rem] border border-slate-800/50 bg-[#0a0f1a]/40 backdrop-blur-2xl group transition-all hover:border-slate-700/50">
                  <!-- Animated Background glow -->
-                 <div class="absolute -top-24 -left-24 w-64 h-64 bg-emerald-400/10 blur-[100px] rounded-full animate-pulse"></div>
-                 <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-cyan-400/10 blur-[100px] rounded-full animate-pulse" style="animation-delay: 1s"></div>
+                 <div class="absolute -top-24 -left-24 w-64 h-64 bg-[#CBB48A]/10 blur-[100px] rounded-full animate-pulse"></div>
+                 <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-[#F3E7C9]/10 blur-[100px] rounded-full animate-pulse" style="animation-delay: 1s"></div>
                 
                  <div class="relative z-10 animate-fade-in-up">
                      <div class="mb-8 relative inline-block">
-                          <div class="absolute inset-0 bg-emerald-400/20 blur-2xl rounded-full scale-125 animate-pulse"></div>
-                          <div class="h-28 w-28 rounded-3xl bg-gradient-to-br from-emerald-400 to-cyan-400 flex items-center justify-center shadow-[0_0_50px_rgba(52,211,153,0.3)] relative z-10 transform transition-all duration-700 group-hover:rotate-[10deg] group-hover:scale-110">
+                          <div class="absolute inset-0 bg-[#CBB48A]/20 blur-2xl rounded-full scale-125 animate-pulse"></div>
+                          <div class="h-28 w-28 rounded-3xl bg-gradient-to-br from-[#CBB48A] to-[#F3E7C9] flex items-center justify-center shadow-[0_0_50px_rgba(203, 180, 138, 0.3)] relative z-10 transform transition-all duration-700 group-hover:rotate-[10deg] group-hover:scale-110">
                              <svg class="h-14 w-14 text-white drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                              </svg>
                           </div>
                      </div>
                     
-                      <h3 class="text-4xl lg:text-5xl font-[1000] text-white mb-4 tracking-tighter uppercase italic">The Frontier is Open.</h3>
+                      <h3 class="text-4xl lg:text-5xl font-bold text-white mb-4 tracking-tight uppercase italic">The Frontier is Open.</h3>
                      <p class="text-slate-400 max-w-lg mx-auto mb-12 text-lg lg:text-xl leading-relaxed font-medium">
-                         No projects discovered in this sector. Be the pioneer and list your <span class="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent font-black">AI-Verified Architecture</span> on LUME today.
+                         No projects discovered in this sector. Be the pioneer and list your <span class="bg-gradient-to-r from-[#CBB48A] to-[#F3E7C9] bg-clip-text text-transparent font-black">AI-Verified Architecture</span> on LUME today.
                      </p>
                     
                      <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
                          <Link
-                             :href="route('dashboard')"
+                             :href="route('overview')"
                              class="group relative inline-flex items-center gap-3 rounded-2xl bg-white px-10 py-5 font-black text-slate-900 transition-all hover:scale-105 hover:bg-slate-100 shadow-[0_0_40px_rgba(255,255,255,0.15)] active:scale-95"
                          >
                              <span>Deploy Your First Project</span>
@@ -658,7 +658,7 @@ function createPolygon(v: any): string {
                         
                          <button 
                              @click="searchQuery = ''; activeCategory = 'All Projects'; priceRange = 'All Prices'; selectedStack = 'All Stacks'; minScore = 'All Scores'"
-                             class="px-10 py-5 rounded-2xl border border-slate-700/50 text-slate-400 font-black uppercase tracking-widest text-xs hover:bg-slate-800 hover:text-white hover:border-slate-600 transition-all active:scale-95 backdrop-blur-sm"
+                             class="px-10 py-5 rounded-2xl border border-slate-700/50 text-slate-400 font-bold tracking-wider text-xs hover:bg-slate-800 hover:text-white hover:border-slate-600 transition-all active:scale-95 backdrop-blur-sm"
                          >
                              Reset Scanning Parameters
                          </button>
@@ -678,7 +678,7 @@ function createPolygon(v: any): string {
                         asset.is_purchased ? 'opacity-60 cursor-not-allowed' : '',
                         asset.marketplace_status === 'updating' ? 'cursor-wait border-yellow-500/30' : '',
                         asset.marketplace_status === 'flagged' ? 'cursor-not-allowed border-red-500/30' : '',
-                        !asset.is_purchased && asset.marketplace_status !== 'updating' && asset.marketplace_status !== 'flagged' ? 'hover:border-emerald-400/50 hover:shadow-[0_0_30px_rgba(52,211,153,0.1)] cursor-pointer' : ''
+                        !asset.is_purchased && asset.marketplace_status !== 'updating' && asset.marketplace_status !== 'flagged' ? 'hover:border-[#CBB48A]/50 hover:shadow-[0_0_30px_rgba(203, 180, 138, 0.1)] cursor-pointer' : ''
                     ]"
                 >
                     <!-- SOLD BADGE -->
@@ -717,12 +717,12 @@ function createPolygon(v: any): string {
                                 {{ asset.metadata?.custom_name || asset.file_name }}
                             </h3>
                             <p class="text-xs text-slate-400 font-mono flex items-center gap-2">
-                                <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <span class="inline-block w-2 h-2 rounded-full bg-[#CBB48A] animate-pulse"></span>
                                 Verified System
                             </p>
                         </div>
                         <!-- Price Pill (Moved to Top Right) -->
-                        <div class="bg-[#0f172a] border border-emerald-400/30 shadow-[0_0_15px_rgba(52,211,153,0.15)] rounded-lg px-3 py-1.5 flex flex-col items-end">
+                        <div class="bg-[#0f172a] border border-[#CBB48A]/30 shadow-[0_0_15px_rgba(203, 180, 138, 0.15)] rounded-lg px-3 py-1.5 flex flex-col items-end">
                             <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Price</span>
                             <span class="text-white text-sm font-bold font-mono">${{ Number(asset.price).toLocaleString() }}</span>
                         </div>
@@ -758,13 +758,13 @@ function createPolygon(v: any): string {
                             <div class="relative w-12 h-12 opacity-100">
                                 <svg viewBox="0 0 100 100" class="w-full h-full overflow-visible drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]">
                                      <!-- Background Hexagon -->
-                                    <polygon points="50,5 93.3,25 93.3,75 50,95 6.7,75 6.7,25" fill="#1e293b" class="stroke-cyan-500/30" stroke-width="1.5" />
+                                    <polygon points="50,5 93.3,25 93.3,75 50,95 6.7,75 6.7,25" fill="#1e293b" class="stroke-[#F3E7C9]/30" stroke-width="1.5" />
                                     <!-- Dynamic Data shape (Simulated based on score) -->
                                     <polygon 
                                         :points="getRadarPoints(asset.synced_metadata?.hexagon_vectors || asset.synced_metadata?.radar_data || asset.website_metadata?.hexagon_vectors || calculateScoreFromVectors(asset))" 
-                                        class="fill-emerald-400" 
+                                        class="fill-[#CBB48A]" 
                                         fill-opacity="0.5"
-                                        stroke="#34d399"
+                                        stroke="#CBB48A"
                                         stroke-width="2"
                                         stroke-linejoin="round"
                                     />
@@ -842,9 +842,9 @@ function createPolygon(v: any): string {
 
                         <!-- Sync Bar (Dynamic Status) -->
                         <!-- Sync Bar (Dynamic Status) -->
-                        <div class="w-full bg-emerald-500/10 border border-emerald-500/20 rounded-md py-1.5 text-center">
+                        <div class="w-full bg-[#CBB48A]/10 border border-[#CBB48A]/20 rounded-md py-1.5 text-center">
                             <!-- Use authoritative score calculated in Controller -->
-                            <span v-if="(asset.latest_sync_score || calculateScoreFromVectors(asset)) > 80" class="text-xs font-bold text-emerald-400 tracking-wide">
+                            <span v-if="(asset.latest_sync_score || calculateScoreFromVectors(asset)) > 80" class="text-xs font-bold text-[#CBB48A] tracking-wide">
                                 Status: Synchronized ({{ asset.latest_sync_score || calculateScoreFromVectors(asset) }}% Match)
                             </span>
                             <span v-else class="text-xs font-bold text-red-400 tracking-wide">
@@ -875,7 +875,7 @@ function createPolygon(v: any): string {
                         <Link 
                             v-else
                             :href="route('marketplace.asset.view', asset.id)"
-                            class="px-6 py-2 bg-emerald-400 text-slate-900 text-xs font-bold uppercase tracking-wider rounded shadow-lg shadow-emerald-400/20 group-hover:scale-105 transition-transform"
+                            class="px-6 py-2 bg-[#CBB48A] text-slate-900 text-xs font-bold uppercase tracking-wider rounded shadow-lg shadow-[#CBB48A]/20 group-hover:scale-105 transition-transform"
                         >
                             View Scan
                         </Link>
@@ -895,7 +895,7 @@ function createPolygon(v: any): string {
             <div v-if="props.listings.last_page > 1" class="mt-12 flex justify-center">
                  <div class="flex gap-2">
                      <button class="px-4 py-2 rounded-lg border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500">Previous</button>
-                     <button class="px-4 py-2 rounded-lg bg-emerald-400 text-slate-900 font-bold">1</button>
+                     <button class="px-4 py-2 rounded-lg bg-[#CBB48A] text-slate-900 font-bold">1</button>
                      <button class="px-4 py-2 rounded-lg border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500">2</button>
                      <button class="px-4 py-2 rounded-lg border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500">3</button>
                      <button class="px-4 py-2 rounded-lg border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500">Next</button>
@@ -940,8 +940,8 @@ function createPolygon(v: any): string {
 
                              <!-- Modal Header -->
                              <div class="mb-6 text-center">
-                                 <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-400/20">
-                                     <svg class="h-7 w-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#CBB48A]/20">
+                                     <svg class="h-7 w-7 text-[#CBB48A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                      </svg>
                                  </div>
@@ -959,7 +959,7 @@ function createPolygon(v: any): string {
                                              <p class="text-xs text-gray-400">{{ selectedAsset.metadata?.category ?? 'Asset' }}</p>
                                          </div>
                                      </div>
-                                     <p class="text-lg font-bold text-cyan-400">${{ Number(selectedAsset?.price || 0).toFixed(2) }}</p>
+                                     <p class="text-lg font-bold text-[#F3E7C9]">${{ Number(selectedAsset?.price || 0).toFixed(2) }}</p>
                                  </div>
                              </div>
 
@@ -970,7 +970,7 @@ function createPolygon(v: any): string {
                                      v-model="guestEmail"
                                      type="email"
                                      placeholder="you@example.com"
-                                     class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400 transition-all font-medium"
+                                     class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-gray-500 focus:border-[#CBB48A] focus:outline-none focus:ring-1 focus:ring-[#CBB48A] transition-all font-medium"
                                      @keyup.enter="submitGuestEmail"
                                  />
                                  <p v-if="emailError" class="mt-2 text-sm text-red-400">{{ emailError }}</p>
@@ -987,7 +987,7 @@ function createPolygon(v: any): string {
                                  <button
                                      @click="submitGuestEmail"
                                      :disabled="isSubmitting"
-                                     class="flex-1 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 px-4 py-3 font-black uppercase text-xs tracking-widest text-[#0a0f1a] shadow-lg shadow-emerald-400/20 transition-all hover:scale-[1.02] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                                     class="flex-1 rounded-xl bg-gradient-to-r from-[#CBB48A] to-[#F3E7C9] px-4 py-3 font-black uppercase text-xs tracking-widest text-[#0a0f1a] shadow-lg shadow-[#CBB48A]/20 transition-all hover:scale-[1.02] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                                  >
                                      <span v-if="isSubmitting" class="flex items-center justify-center gap-2">
                                          <svg class="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -1003,7 +1003,7 @@ function createPolygon(v: any): string {
                              <!-- Login Link -->
                              <p class="mt-4 text-center text-sm text-gray-400">
                                  Already have an account?
-                                 <Link :href="route('login')" class="font-bold text-emerald-400 hover:text-emerald-300 transition-colors">Log in</Link>
+                                 <Link :href="route('login')" class="font-bold text-[#CBB48A] hover:text-[#CBB48A]/70 transition-colors">Log in</Link>
                              </p>
                         </div>
                     </transition>

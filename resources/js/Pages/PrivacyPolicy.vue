@@ -32,26 +32,26 @@ const scrollToSection = (id: string) => {
 
     <PublicLayout>
         <!-- Hero Section -->
-        <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        <section class="relative pt-32 pb-20 lg:pt-40 lg:pb-24 overflow-hidden">
             <!-- Background Gradients -->
             <div class="absolute inset-0 pointer-events-none">
-                <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-lume-primary/10 rounded-full blur-[120px]" />
-                <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-sovereign-primary/10 rounded-full blur-[120px]" />
+                <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-lume-primary/5 rounded-full blur-[120px]" />
+                <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-lume-primary/5 rounded-full blur-[120px]" />
             </div>
 
-            <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="relative z-10 mx-auto max-w-5xl px-6 lg:px-8">
                 <div class="reveal">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-8">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span class="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">Legal Protocol</span>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#CBB48A]/10 border border-[#CBB48A]/20 backdrop-blur-sm mb-6">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#CBB48A] animate-pulse"></span>
+                        <span class="text-[10px] font-semibold uppercase tracking-wider text-[#CBB48A]">Legal framework</span>
                     </div>
                     
-                    <h1 class="text-5xl lg:text-8xl font-[1000] text-white tracking-tighter uppercase italic leading-[0.85] mb-8">
-                        Data <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Sovereignty.</span>
+                    <h1 class="text-4xl lg:text-6xl font-bold text-white tracking-tight leading-tight mb-6">
+                        Data sovereignty and <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-[#CBB48A] to-[#F3E7C9]">privacy protocol.</span>
                     </h1>
                     
-                    <p class="text-lg lg:text-2xl text-gray-400 font-medium max-w-2xl leading-relaxed border-l-2 border-emerald-500/30 pl-6">
-                        LUME CORE architecture is effectively designed to minimize PII exposure while maximizing forensic utility.
+                    <p class="text-base lg:text-lg text-gray-400 font-medium max-w-3xl leading-relaxed border-l-2 border-[#CBB48A]/30 pl-6">
+                        The Lume architecture is engineered to minimize personal data exposure while ensuring complete audit transparency. We prioritize mathematical verification over physical data ingestion.
                     </p>
                 </div>
             </div>
@@ -59,88 +59,77 @@ const scrollToSection = (id: string) => {
 
         <!-- Content Section -->
         <section class="relative pb-24 lg:pb-32">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="grid lg:grid-cols-12 gap-12 lg:gap-24">
+            <div class="mx-auto max-w-5xl px-6 lg:px-8">
+                <div class="grid lg:grid-cols-12 gap-12 lg:gap-16">
                     <!-- Navigation / Table of Contents -->
-                    <div class="lg:col-span-4 hidden lg:block">
-                        <div class="sticky top-32 space-y-8">
-                            <div class="p-8 rounded-[2rem] bg-white/[0.02] border border-white/5 backdrop-blur-sm">
-                                <h3 class="text-xs font-black uppercase tracking-[0.3em] text-white mb-6">Quick Jump</h3>
-                                <ul class="space-y-4">
-                                    <li @click="scrollToSection('intro')" class="group flex items-center gap-3 text-sm font-bold text-gray-500 hover:text-emerald-400 transition-colors cursor-pointer">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-gray-700 group-hover:bg-emerald-400 transition-colors"></span>
-                                        Introduction
-                                    </li>
-                                    <li @click="scrollToSection('collection')" class="group flex items-center gap-3 text-sm font-bold text-gray-500 hover:text-emerald-400 transition-colors cursor-pointer">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-gray-700 group-hover:bg-emerald-400 transition-colors"></span>
-                                        Data Collection
-                                    </li>
-                                    <li @click="scrollToSection('usage')" class="group flex items-center gap-3 text-sm font-bold text-gray-500 hover:text-emerald-400 transition-colors cursor-pointer">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-gray-700 group-hover:bg-emerald-400 transition-colors"></span>
-                                        How We Use Data
-                                    </li>
-                                    <li @click="scrollToSection('sharing')" class="group flex items-center gap-3 text-sm font-bold text-gray-500 hover:text-emerald-400 transition-colors cursor-pointer">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-gray-700 group-hover:bg-emerald-400 transition-colors"></span>
-                                        Data Sharing
-                                    </li>
-                                    <li @click="scrollToSection('security')" class="group flex items-center gap-3 text-sm font-bold text-gray-500 hover:text-emerald-400 transition-colors cursor-pointer">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-gray-700 group-hover:bg-emerald-400 transition-colors"></span>
-                                        Security & Retention
-                                    </li>
-                                    <li @click="scrollToSection('contact')" class="group flex items-center gap-3 text-sm font-bold text-gray-500 hover:text-emerald-400 transition-colors cursor-pointer">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-gray-700 group-hover:bg-emerald-400 transition-colors"></span>
-                                        Contact Legal
-                                    </li>
-                                </ul>
-                            </div>
-                            
-                            <div class="p-8 rounded-[2rem] bg-gradient-to-br from-emerald-900/10 to-transparent border border-emerald-500/10">
-                                <h3 class="text-xs font-black uppercase tracking-[0.3em] text-emerald-400 mb-2">Last Updated</h3>
-                                <p class="text-2xl font-black text-white italic tracking-tighter">JAN 2026</p>
-                            </div>
+                    <div class="lg:col-span-4 hidden lg:block sticky top-32 self-start space-y-6">
+                        <div class="p-6 rounded-2xl bg-white/[0.01] border border-white/5 backdrop-blur-sm">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-white mb-4">Quick jump</h3>
+                            <ul class="space-y-3">
+                                <li @click="scrollToSection('intro')" class="group flex items-center gap-3 text-xs font-semibold text-gray-400 hover:text-[#CBB48A] transition-colors cursor-pointer">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-gray-800 group-hover:bg-[#CBB48A] transition-colors"></span>
+                                    Core directive
+                                </li>
+                                <li @click="scrollToSection('collection')" class="group flex items-center gap-3 text-xs font-semibold text-gray-400 hover:text-[#CBB48A] transition-colors cursor-pointer">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-gray-800 group-hover:bg-[#CBB48A] transition-colors"></span>
+                                    Data collection vectors
+                                </li>
+                                <li @click="scrollToSection('usage')" class="group flex items-center gap-3 text-xs font-semibold text-gray-400 hover:text-[#CBB48A] transition-colors cursor-pointer">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-gray-800 group-hover:bg-[#CBB48A] transition-colors"></span>
+                                    Processing parameters
+                                </li>
+                                <li @click="scrollToSection('sharing')" class="group flex items-center gap-3 text-xs font-semibold text-gray-400 hover:text-[#CBB48A] transition-colors cursor-pointer">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-gray-800 group-hover:bg-[#CBB48A] transition-colors"></span>
+                                    Data egress protocols
+                                </li>
+                                <li @click="scrollToSection('security')" class="group flex items-center gap-3 text-xs font-semibold text-gray-400 hover:text-[#CBB48A] transition-colors cursor-pointer">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-gray-800 group-hover:bg-[#CBB48A] transition-colors"></span>
+                                    Retention & encryption
+                                </li>
+                                <li @click="scrollToSection('compliance')" class="group flex items-center gap-3 text-xs font-semibold text-gray-400 hover:text-[#CBB48A] transition-colors cursor-pointer">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-gray-800 group-hover:bg-[#CBB48A] transition-colors"></span>
+                                    Global standards compliance
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="p-6 rounded-2xl bg-[#CBB48A]/5 border border-[#CBB48A]/10">
+                            <h3 class="text-[10px] font-bold uppercase tracking-wider text-[#CBB48A] mb-1">Last updated</h3>
+                            <p class="text-lg font-bold text-white">June 2026</p>
+                        </div>
 
-                             <!-- Definitions -->
-                            <div class="p-8 rounded-[2rem] bg-white/[0.02] border border-white/5 backdrop-blur-sm">
-                                <h3 class="text-xs font-black uppercase tracking-[0.3em] text-white mb-6">Core Definitions</h3>
-                                <dl class="space-y-6">
-                                    <div>
-                                        <dt class="text-[10px] font-bold uppercase tracking-wider text-lume-primary">Sovereign Node</dt>
-                                        <dd class="text-xs text-gray-500 mt-2 leading-relaxed">A verified user account with full cryptographic control over their data vault and assets.</dd>
-                                    </div>
-                                    <div>
-                                        <dt class="text-[10px] font-bold uppercase tracking-wider text-lume-primary">Forensic Engine</dt>
-                                        <dd class="text-xs text-gray-500 mt-2 leading-relaxed">The AI-driven auditing system that analyzes codebases for security, quality, and originality.</dd>
-                                    </div>
-                                    <div>
-                                        <dt class="text-[10px] font-bold uppercase tracking-wider text-lume-primary">Vault Content</dt>
-                                        <dd class="text-xs text-gray-500 mt-2 leading-relaxed">Code, documents, and media uploaded by a Node. Remains strictly owned by the Node.</dd>
-                                    </div>
-                                </dl>
-                            </div>
-
-                             <!-- Legal Downloads -->
-                            <div class="p-6 rounded-[2rem] border border-white/5 hover:border-white/10 transition-colors group cursor-pointer bg-white/[0.02]">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h3 class="text-xs font-black uppercase tracking-[0.3em] text-white">Legal Assets</h3>
-                                    <svg class="w-4 h-4 text-gray-500 group-hover:text-emerald-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                         <!-- Definitions -->
+                        <div class="p-6 rounded-2xl bg-white/[0.01] border border-white/5 backdrop-blur-sm">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-white mb-4">Core definitions</h3>
+                            <dl class="space-y-4">
+                                <div>
+                                    <dt class="text-[9px] font-bold uppercase tracking-wider text-[#CBB48A]">Sovereign Node</dt>
+                                    <dd class="text-xs text-gray-400 mt-1 leading-relaxed">A registered account possessing cryptographic credentials to interact with workspace sandboxes.</dd>
                                 </div>
-                                <p class="text-[10px] text-gray-500 font-mono mb-4">Signed_Privacy_Protocol_v2.4.pdf</p>
-                                <div class="w-full bg-white/5 h-0.5 rounded-full overflow-hidden">
-                                    <div class="bg-emerald-500 w-1/3 h-full group-hover:w-full transition-all duration-700 ease-out"></div>
+                                <div>
+                                    <dt class="text-[9px] font-bold uppercase tracking-wider text-[#CBB48A]">CloudVault Storage</dt>
+                                    <dd class="text-xs text-gray-400 mt-1 leading-relaxed">The isolated storage environment holding uploaded project assets during verification.</dd>
                                 </div>
-                            </div>
+                                <div>
+                                    <dt class="text-[9px] font-bold uppercase tracking-wider text-[#CBB48A]">Audit Metadata</dt>
+                                    <dd class="text-xs text-gray-400 mt-1 leading-relaxed">Non-proprietary structural results, configuration stats, and compliance markers logged to the ledger.</dd>
+                                </div>
+                            </dl>
                         </div>
                     </div>
 
                     <!-- Main Content -->
-                    <div class="lg:col-span-8 space-y-16">
+                    <div class="lg:col-span-8 space-y-16 text-left">
                         <!-- Introduction -->
-                        <div id="intro" class="reveal delay-100">
-                             <div class="text-[10px] font-black uppercase tracking-[0.3em] text-lume-primary mb-4">01 // The Core Directive</div>
-                             <h2 class="text-3xl lg:text-4xl font-black text-white mb-6 uppercase italic tracking-tight">Zero-Knowledge First.</h2>
-                             <div class="prose prose-invert prose-lg text-gray-400 leading-relaxed">
+                        <div id="intro" class="reveal space-y-4">
+                             <div class="text-[9px] font-bold uppercase tracking-wider text-[#CBB48A]">01 / Core directive</div>
+                             <h2 class="text-2xl font-bold text-white tracking-tight">Zero-disclosure architecture</h2>
+                             <div class="text-xs text-gray-400 space-y-4 leading-relaxed font-medium">
                                 <p>
-                                    At LUME, we take data privacy seriously. Our AI-powered <span class="text-white font-bold">Sovereign Vault Auditor</span> is designed to analyze documents for professional quality while detecting and protecting Personal Identifiable Information (PII). We don't just "comply" with privacy laws; we architect our system to make data exploitation mathematically impossible.
+                                    Lume enforces a zero-knowledge data ingestion policy. We believe that your codebase is your most valuable intellectual property. Our platform is architected to ensure that your raw source files are parsed solely in transient, air-gapped memory space and are never stored in plain text formats across permanent databases.
+                                </p>
+                                <p>
+                                    Our scanning engines map code schemas and compile structural dependency metrics to compute integrity scores. Once this structural verification concludes, the staging sandboxes are automatically terminated and all localized copies are destroyed. Only anonymized metadata remains.
                                 </p>
                              </div>
                         </div>
@@ -148,27 +137,27 @@ const scrollToSection = (id: string) => {
                         <div class="w-full h-px bg-white/5"></div>
 
                         <!-- Data Collection -->
-                        <div id="collection" class="reveal delay-200">
-                             <div class="text-[10px] font-black uppercase tracking-[0.3em] text-lume-primary mb-4">02 // Surveillance Vectors</div>
-                             <h2 class="text-3xl lg:text-4xl font-black text-white mb-8 uppercase italic tracking-tight">Information We Collect.</h2>
+                        <div id="collection" class="reveal space-y-6">
+                             <div class="text-[9px] font-bold uppercase tracking-wider text-[#CBB48A]">02 / Ingestion vectors</div>
+                             <h2 class="text-2xl font-bold text-white tracking-tight">Information we collect and ingest</h2>
                              
-                             <div class="space-y-6">
-                                 <div class="p-6 rounded-3xl bg-white/[0.02] border border-white/5">
-                                     <h3 class="text-white font-black uppercase tracking-wide text-sm mb-3">Account Information</h3>
-                                     <p class="text-sm text-gray-400 leading-relaxed">
-                                         To create a Sovereign Node (Account), you must provide a username and a verified email address. If you purchase paid services, we (or our payment processors) collect billing details. We do not store full credit card numbers on our servers.
+                             <div class="space-y-4 text-xs text-gray-400 leading-relaxed font-medium">
+                                 <div class="p-6 rounded-2xl bg-white/[0.01] border border-white/5 space-y-2">
+                                     <h3 class="text-white font-bold text-sm">Account identity parameters</h3>
+                                     <p>
+                                         To provision sovereign workspaces, we collect identifiers including name, email address, and organization profiles. Access credentials, local API tokens, and cryptographic keys are hashed prior to database commits.
                                      </p>
                                  </div>
-                                 <div class="p-6 rounded-3xl bg-white/[0.02] border border-white/5">
-                                     <h3 class="text-white font-black uppercase tracking-wide text-sm mb-3">Usage and Device Information</h3>
-                                     <p class="text-sm text-gray-400 leading-relaxed">
-                                         We collect telemetry regarding your interaction with the Forensic Engine, including IP addresses, browser types, and device identifiers. This data is strictly used for security auditing and ensuring the integrity of the scanning process.
+                                 <div class="p-6 rounded-2xl bg-white/[0.01] border border-white/5 space-y-2">
+                                     <h3 class="text-white font-bold text-sm">Staged workspace assets</h3>
+                                     <p>
+                                         Codebases, configuration profiles, and project assets uploaded to CloudVault are encrypted in transit via TLS 1.3 and at rest using AES-256 keys. Staged assets reside within ephemeral sandboxes and are isolated strictly by organization namespace.
                                      </p>
                                  </div>
-                                 <div class="p-6 rounded-3xl bg-white/[0.02] border border-white/5">
-                                     <h3 class="text-white font-black uppercase tracking-wide text-sm mb-3">Sovereign Vault Content</h3>
-                                     <p class="text-sm text-gray-400 leading-relaxed">
-                                         When you upload codebases or documents to the Sovereign Vault, we store and process this content to provide our forensic services. This content is encrypted at rest and in transit. You retain full ownership and sovereignty over this data.
+                                 <div class="p-6 rounded-2xl bg-white/[0.01] border border-white/5 space-y-2">
+                                     <h3 class="text-white font-bold text-sm">System telemetry & transaction logs</h3>
+                                     <p>
+                                         We record system operations, transaction markers, workspace switch activities, and credits allocations. Telemetry logging excludes code snippets, structural text content, or environment parameters to prevent proprietary exposure.
                                      </p>
                                  </div>
                              </div>
@@ -177,81 +166,90 @@ const scrollToSection = (id: string) => {
                         <div class="w-full h-px bg-white/5"></div>
 
                         <!-- Usage -->
-                        <div id="usage" class="reveal delay-200">
-                             <div class="text-[10px] font-black uppercase tracking-[0.3em] text-lume-primary mb-4">03 // Operation Parameters</div>
-                             <h2 class="text-3xl lg:text-4xl font-black text-white mb-8 uppercase italic tracking-tight">How We Use Your Data.</h2>
-                             <ul class="space-y-4 text-gray-400 leading-relaxed">
-                                 <li class="flex items-start gap-4">
-                                     <div class="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0"></div>
-                                     <span><strong>Service Provisioning:</strong> To operate the Forensic Engine, manage your account, and settle transactions on the LUME Ledger.</span>
-                                 </li>
-                                 <li class="flex items-start gap-4">
-                                     <div class="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0"></div>
-                                     <span><strong>Security & Forensics:</strong> To detect abuse, prevent malware proliferation, and maintain the integrity of the Sovereign Network.</span>
-                                 </li>
-                                 <li class="flex items-start gap-4">
-                                     <div class="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0"></div>
-                                     <span><strong>Communications:</strong> To send transactional emails (invoices, scan completion reports) and critical infrastructure updates.</span>
-                                 </li>
-                             </ul>
+                        <div id="usage" class="reveal space-y-4">
+                             <div class="text-[9px] font-bold uppercase tracking-wider text-[#CBB48A]">03 / Processing parameters</div>
+                             <h2 class="text-2xl font-bold text-white tracking-tight">How we process information</h2>
+                             <div class="text-xs text-gray-400 space-y-4 leading-relaxed font-medium">
+                                 <p>
+                                     Ingested details are processed strictly under the following parameters to ensure operational compliance:
+                                 </p>
+                                 <ul class="space-y-3 pl-4">
+                                     <li class="flex items-start gap-3">
+                                         <span class="mt-1.5 h-1.5 w-1.5 rounded-full bg-[#CBB48A] shrink-0"></span>
+                                         <span><strong>Pipeline verification:</strong> To run vulnerability scans, dependency graph evaluations, license compliance audits, and architectural risk scoring.</span>
+                                     </li>
+                                     <li class="flex items-start gap-3">
+                                         <span class="mt-1.5 h-1.5 w-1.5 rounded-full bg-[#CBB48A] shrink-0"></span>
+                                         <span><strong>Ledger settlement:</strong> To process credit consumption loops, verify balances, and record immutable audit verification histories on the Lume accounting ledger.</span>
+                                     </li>
+                                     <li class="flex items-start gap-3">
+                                         <span class="mt-1.5 h-1.5 w-1.5 rounded-full bg-[#CBB48A] shrink-0"></span>
+                                         <span><strong>System security:</strong> To monitor for denial-of-service attempts, coordinate container kill-switches, and defend against infrastructure exploits.</span>
+                                     </li>
+                                 </ul>
+                             </div>
                         </div>
 
                         <div class="w-full h-px bg-white/5"></div>
 
                         <!-- Sharing -->
-                        <div id="sharing" class="reveal delay-200">
-                             <div class="text-[10px] font-black uppercase tracking-[0.3em] text-lume-primary mb-4">04 // Data Egress</div>
-                             <h2 class="text-3xl lg:text-4xl font-black text-white mb-8 uppercase italic tracking-tight">Data Sharing Protocol.</h2>
+                        <div id="sharing" class="reveal space-y-6">
+                             <div class="text-[9px] font-bold uppercase tracking-wider text-[#CBB48A]">04 / Data egress</div>
+                             <h2 class="text-2xl font-bold text-white tracking-tight">Data egress and sharing policies</h2>
                              
-                             <div class="grid md:grid-cols-2 gap-8">
-                                 <div>
-                                     <h3 class="flex items-center gap-3 text-lg font-black uppercase italic text-red-500 mb-4">
-                                         <span class="flex h-6 w-6 items-center justify-center rounded-full bg-red-500/20 text-[10px]">✕</span> 
-                                         Strictly Prohibited
+                             <div class="grid md:grid-cols-2 gap-6 text-xs font-medium leading-relaxed text-gray-400">
+                                 <div class="p-6 rounded-2xl bg-white/[0.01] border border-white/5 space-y-3">
+                                     <h3 class="text-white font-bold text-sm flex items-center gap-2">
+                                         <span class="h-2 w-2 rounded-full bg-red-500"></span> 
+                                         Strictly prohibited
                                      </h3>
-                                     <ul class="space-y-4">
-                                         <li class="flex items-start gap-4 p-4 rounded-xl bg-red-500/[0.03] border border-red-500/10">
-                                             <div class="text-xs font-medium text-gray-400 leading-relaxed">
-                                                 <strong class="text-white block mb-1">Data Sales</strong>
-                                                 We do NOT sell, rent, or trade your Personal Data or Vault Content to data brokers, advertisers, or third parties.
-                                             </div>
-                                         </li>
-                                     </ul>
+                                     <p>
+                                         Lume does not sell, license, or monetize codebase files, account parameters, or usage histories to advertisers, data brokers, LLM training registries, or commercial third parties.
+                                     </p>
                                  </div>
                                  
-                                 <div>
-                                     <h3 class="flex items-center gap-3 text-lg font-black uppercase italic text-emerald-400 mb-4">
-                                         <span class="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 text-[10px]">✓</span> 
-                                         Authorized Egress
+                                 <div class="p-6 rounded-2xl bg-white/[0.01] border border-white/5 space-y-3">
+                                     <h3 class="text-white font-bold text-sm flex items-center gap-2">
+                                         <span class="h-2 w-2 rounded-full bg-[#CBB48A]"></span> 
+                                         Authorized subprocessors
                                      </h3>
-                                     <ul class="space-y-4">
-                                         <li class="flex items-start gap-4 p-4 rounded-xl bg-emerald-500/[0.03] border border-emerald-500/10">
-                                             <div class="text-xs font-medium text-gray-400 leading-relaxed">
-                                                 <strong class="text-white block mb-1">Infrastructure Providers</strong>
-                                                 We share data with trusted subprocessors (e.g., Cloudflare, Stripe) solely to power the infrastructure. They are bound by strict DPA (Data Processing Agreements).
-                                             </div>
-                                         </li>
-                                          <li class="flex items-start gap-4 p-4 rounded-xl bg-emerald-500/[0.03] border border-emerald-500/10">
-                                             <div class="text-xs font-medium text-gray-400 leading-relaxed">
-                                                 <strong class="text-white block mb-1">Legal Compulsion</strong>
-                                                 We may disclose data if compelled by valid legal process (e.g., specific court order), but only after exhausting all available legal challenges.
-                                             </div>
-                                         </li>
-                                     </ul>
+                                     <p>
+                                         Data transfers are limited strictly to trusted infrastructure partners (e.g. cloud hosting utilities, payment processing portals) under binding Data Processing Agreements (DPA).
+                                     </p>
                                  </div>
                              </div>
                         </div>
 
+                         <div class="w-full h-px bg-white/5"></div>
+
                          <!-- Security -->
-                        <div id="security" class="reveal delay-200">
-                             <div class="text-[10px] font-black uppercase tracking-[0.3em] text-lume-primary mb-4">05 // Fortification</div>
-                             <h2 class="text-3xl lg:text-4xl font-black text-white mb-8 uppercase italic tracking-tight">Security & Retention.</h2>
-                             <p class="text-gray-400 leading-relaxed mb-6">
-                                 LUME utilizes military-grade encryption (AES-256) for data at rest and TLS 1.3 for data in transit. Access to production systems is strictly limited to core engineers with multi-factor authentication (MFA).
-                             </p>
-                             <p class="text-gray-400 leading-relaxed">
-                                 We retain your data for as long as your account is active or needed to provide services. Upon account deletion, cryptographic keys are shredded, rendering data unrecoverable, subject to standard backup retention cycles (30 days).
-                             </p>
+                        <div id="security" class="reveal space-y-4">
+                             <div class="text-[9px] font-bold uppercase tracking-wider text-[#CBB48A]">05 / Fortification</div>
+                             <h2 class="text-2xl font-bold text-white tracking-tight">Retention, encryption, and destruction</h2>
+                             <div class="text-xs text-gray-400 space-y-4 leading-relaxed font-medium">
+                                 <p>
+                                     Staged repositories reside within highly isolated, air-gapped Docker instances. Host networking interfaces are disabled during processing to prevent code extraction. Asset keys, system data, and configuration parameters are stored on isolated database blocks.
+                                 </p>
+                                 <p>
+                                     Upon account deletion, all associated workspace data is programmatically purged, and virtual encryption keys are destroyed, rendering past backups unrecoverable.
+                                 </p>
+                             </div>
+                        </div>
+
+                        <div class="w-full h-px bg-white/5"></div>
+
+                        <!-- Compliance -->
+                        <div id="compliance" class="reveal space-y-4">
+                             <div class="text-[9px] font-bold uppercase tracking-wider text-[#CBB48A]">06 / Global standards</div>
+                             <h2 class="text-2xl font-bold text-white tracking-tight">GDPR, CCPA, and compliance control</h2>
+                             <div class="text-xs text-gray-400 space-y-4 leading-relaxed font-medium">
+                                 <p>
+                                     We align our processing systems with standard data privacy guidelines, including the General Data Protection Regulation (GDPR) and the California Consumer Privacy Act (CCPA). Under these frameworks, users retain rights to access, update, export, or request deletion of their personal identity parameters.
+                                 </p>
+                                 <p>
+                                     To exercise your data sovereignty rights, or to request a complete export of your ledger transaction details, you can contact our compliance desk using the secure channels listed below.
+                                 </p>
+                             </div>
                         </div>
 
                     </div>
@@ -259,16 +257,16 @@ const scrollToSection = (id: string) => {
             </div>
         </section>
 
-        <!-- Use Cases / Final CTA -->
-        <section id="contact" class="py-24 border-t border-white/5 bg-white/[0.02]">
-             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center reveal">
-                 <h2 class="text-2xl font-black text-white uppercase italic tracking-tight mb-6">Need Clarity on your specific use case?</h2>
-                 <p class="text-gray-500 mb-10 max-w-xl mx-auto">Our sovereign legal team is available for encrypted consultation regarding high-value asset processing.</p>
-                 <a href="mailto:lumecore.tech@gmail.com" class="inline-flex items-center justify-center px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-black bg-white rounded-full hover:scale-105 transition-transform">
-                     Contact Legal
+        <!-- Final Statement / Contact -->
+        <section class="py-24 border-t border-white/5 bg-white/[0.01]">
+             <div class="mx-auto max-w-5xl px-6 lg:px-8 text-center reveal">
+                 <h2 class="text-2xl font-bold text-white tracking-tight mb-4">Request a data export or deletion</h2>
+                 <p class="text-sm text-gray-400 mb-10 max-w-xl mx-auto font-medium leading-relaxed">Our compliance and legal desk is available to assist you with data requests or specific compliance alignment reports.</p>
+                 <a href="mailto:lumecore.tech@gmail.com" class="inline-flex items-center justify-center px-6 py-3.5 text-xs font-semibold text-slate-950 bg-white rounded-lg hover:scale-[1.02] transition-transform">
+                     Contact compliance desk
                  </a>
-                 <div class="mt-4 text-xs font-black tracking-[0.2em] text-gray-600">
-                     LUMECORE.TECH@GMAIL.COM
+                 <div class="mt-4 text-[10px] font-mono text-gray-500 uppercase tracking-widest">
+                     lumecore.tech@gmail.com
                  </div>
              </div>
         </section>
@@ -278,8 +276,8 @@ const scrollToSection = (id: string) => {
 <style scoped>
 .reveal {
     opacity: 0;
-    transform: translateY(30px);
-    transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transform: translateY(20px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     will-change: opacity, transform;
 }
 

@@ -40,13 +40,13 @@ const emit = defineEmits<{
                     
                     <!-- Recommendations -->
                     <div v-if="data.recommendations?.length">
-                        <h4 class="text-sm font-bold text-emerald-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <h4 class="text-sm font-bold text-[#CBB48A] uppercase tracking-wider mb-3 flex items-center gap-2">
                              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                              Recommended Actions
                         </h4>
                         <ul class="space-y-3">
-                            <li v-for="(rec, i) in data.recommendations" :key="i" class="bg-emerald-500/5 border border-emerald-500/10 p-3 rounded-lg text-slate-300 text-sm flex gap-3">
-                                <span class="text-emerald-500 font-mono font-bold">{{ i + 1 }}.</span>
+                            <li v-for="(rec, i) in data.recommendations" :key="i" class="bg-[#CBB48A]/5 border border-[#CBB48A]/10 p-3 rounded-lg text-slate-300 text-sm flex gap-3">
+                                <span class="text-[#CBB48A] font-mono font-bold">{{ i + 1 }}.</span>
                                 {{ rec }}
                             </li>
                         </ul>

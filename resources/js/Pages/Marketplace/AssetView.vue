@@ -130,12 +130,12 @@ const radarData = computed(() => {
             {
                 label: 'Live Website',
                 data: webData,
-                backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                borderColor: '#10b981',
-                pointBackgroundColor: '#10b981',
+                backgroundColor: 'rgba(203, 180, 138, 0.2)',
+                borderColor: '#CBB48A',
+                pointBackgroundColor: '#CBB48A',
                 pointBorderColor: '#fff',
                 pointHoverBackgroundColor: '#fff',
-                pointHoverBorderColor: '#10b981',
+                pointHoverBorderColor: '#CBB48A',
                 spanGaps: true
             },
             {
@@ -161,7 +161,7 @@ const chartOptions = {
             angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
             grid: { color: 'rgba(255, 255, 255, 0.1)' },
             pointLabels: { 
-                color: (context: any) => context.index % 2 === 0 ? '#10b981' : '#6366f1',
+                color: (context: any) => context.index % 2 === 0 ? '#CBB48A' : '#6366f1',
                 font: { size: 10, family: 'monospace', weight: 'bold' } 
             },
             ticks: { display: false, backdropColor: 'transparent' },
@@ -212,7 +212,7 @@ const grade = computed(() => {
     const s = score.value;
     if (s >= 95) return { letter: 'S', color: 'text-purple-400' };
     if (s >= 90) return { letter: 'A', color: 'text-brand-secondary' };
-    if (s >= 80) return { letter: 'B', color: 'text-emerald-400' };
+    if (s >= 80) return { letter: 'B', color: 'text-[#CBB48A]' };
     if (s >= 75) return { letter: 'C', color: 'text-yellow-400' };
     return { letter: 'F', color: 'text-red-400' };
 });
@@ -305,8 +305,8 @@ const roadmapItems = computed(() => {
                     <span class="text-sm font-bold uppercase tracking-wide">Back to Marketplace</span>
                 </Link>
                 <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span class="text-xs font-mono text-emerald-500">SECURE VAULT CONNECTION ESTABLISHED</span>
+                    <div class="w-2 h-2 rounded-full bg-[#CBB48A] animate-pulse"></div>
+                    <span class="text-xs font-mono text-[#CBB48A]">SECURE VAULT CONNECTION ESTABLISHED</span>
                 </div>
             </div>
         </header>
@@ -318,7 +318,7 @@ const roadmapItems = computed(() => {
                     <div>
                         <!-- Badges -->
                         <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#CBB48A]/10 text-[#CBB48A] border border-[#CBB48A]/20 flex items-center gap-1">
                                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 SHA-256 Verified
                             </span>
@@ -388,8 +388,8 @@ const roadmapItems = computed(() => {
                             <div class="space-y-4">
                                 <div class="flex items-center justify-between text-xs mb-2">
                                     <div class="flex items-center gap-2">
-                                        <div class="w-3 h-3 bg-emerald-500/20 border border-emerald-500 rounded-full"></div>
-                                        <span class="text-emerald-400 font-bold uppercase">Live Website</span>
+                                        <div class="w-3 h-3 bg-[#CBB48A]/20 border border-[#CBB48A] rounded-full"></div>
+                                        <span class="text-[#CBB48A] font-bold uppercase">Live Website</span>
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <div class="w-3 h-3 bg-indigo-500/20 border border-indigo-500 rounded-full"></div>
@@ -443,7 +443,7 @@ const roadmapItems = computed(() => {
                             <div v-for="(item, i) in comparisonEvidence" :key="i" class="mb-4 last:mb-0">
                                 <div class="flex justify-between text-xs mb-1 font-mono">
                                     <span class="text-indigo-400 font-bold">{{ item.file || 'Unknown File' }}</span>
-                                    <span class="text-emerald-500">{{ item.context || 'Verified Match' }}</span>
+                                    <span class="text-[#CBB48A]">{{ item.context || 'Verified Match' }}</span>
                                 </div>
                                 <div class="bg-[#050911] border border-slate-800 rounded p-3 text-xs font-mono text-slate-400 overflow-x-auto">
                                     <pre>{{ item.snippet || '// No snippet available.' }}</pre>
@@ -462,7 +462,7 @@ const roadmapItems = computed(() => {
                             <div class="bg-[#0f172a] rounded-xl border border-slate-800 p-4 relative h-48 overflow-hidden">
                                 <div class="text-[10px] text-slate-500 uppercase font-bold mb-4">Server Topology Map</div>
                                 <div class="flex items-center justify-center h-full gap-4 relative z-10">
-                                    <div class="p-2 rounded bg-emerald-900/50 border border-emerald-500/30 text-emerald-400 text-xs text-center w-24">
+                                    <div class="p-2 rounded bg-[#CBB48A]/20/50 border border-[#CBB48A]/30 text-[#CBB48A] text-xs text-center w-24">
                                         <div class="font-bold">Database</div>
                                         <div class="text-[9px] opacity-70">{{ meta.tech_assessment?.architecture?.database || 'PostgreSQL' }}</div>
                                     </div>
@@ -483,13 +483,13 @@ const roadmapItems = computed(() => {
                                 <div class="text-[10px] text-slate-500 uppercase font-bold mb-4">File Structure & Complexity</div>
                                 <div class="w-full h-32 flex rounded border border-slate-700/50 overflow-hidden">
                                     <div class="h-full bg-blue-500 relative group border-r border-slate-900/10" style="width: 60%"></div>
-                                    <div class="h-full bg-emerald-500 relative group border-r border-slate-900/10" style="width: 25%"></div>
+                                    <div class="h-full bg-[#CBB48A] relative group border-r border-slate-900/10" style="width: 25%"></div>
                                     <div class="h-full bg-amber-500 relative group border-r border-slate-900/10" style="width: 10%"></div>
                                     <div class="h-full bg-slate-500 relative group" style="width: 5%"></div>
                                 </div>
                                 <div class="flex gap-4 mt-2 justify-center">
                                     <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-blue-500"></div><span class="text-[10px] text-slate-400">src</span></div>
-                                    <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-emerald-500"></div><span class="text-[10px] text-slate-400">components</span></div>
+                                    <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-[#CBB48A]"></div><span class="text-[10px] text-slate-400">components</span></div>
                                     <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-amber-500"></div><span class="text-[10px] text-slate-400">lib</span></div>
                                     <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-slate-500"></div><span class="text-[10px] text-slate-400">prisma</span></div>
                                 </div>
@@ -498,7 +498,7 @@ const roadmapItems = computed(() => {
                         <div class="mt-8 pt-6 border-t border-slate-800 flex items-center justify-between">
                             <div>
                                 <div class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Escrow Status</div>
-                                <div class="flex items-center gap-2 text-emerald-400 font-bold">
+                                <div class="flex items-center gap-2 text-[#CBB48A] font-bold">
                                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                     Ready for Transfer
                                 </div>
@@ -529,10 +529,10 @@ const roadmapItems = computed(() => {
                          <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">Sync Confidence</h3>
                          <div class="mb-1 flex justify-between items-end">
                              <span class="text-4xl font-black text-white">{{ score }}%</span>
-                             <span class="text-xs text-emerald-400 font-bold mb-1">Verified Match</span>
+                             <span class="text-xs text-[#CBB48A] font-bold mb-1">Verified Match</span>
                          </div>
                          <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                             <div class="h-full bg-emerald-500 rounded-full" :style="{ width: `${score}%` }"></div>
+                             <div class="h-full bg-[#CBB48A] rounded-full" :style="{ width: `${score}%` }"></div>
                          </div>
                     </section>
 
@@ -587,7 +587,7 @@ const roadmapItems = computed(() => {
                     <section class="bg-[#0a0f1a] rounded-2xl border border-slate-800 p-6 space-y-4">
                          <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Legal & Compliance Audit</h3>
                          <div class="p-3 bg-[#0f172a] rounded-lg border border-slate-800 flex items-center gap-3">
-                             <div class="w-8 h-8 rounded bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+                             <div class="w-8 h-8 rounded bg-[#CBB48A]/20 flex items-center justify-center text-[#CBB48A]">
                                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                              </div>
                              <div>

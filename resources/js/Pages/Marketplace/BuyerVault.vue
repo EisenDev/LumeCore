@@ -6,7 +6,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import type { VaultAsset } from '@/types/vault';
-import ReactMarkdown from 'vue3-markdown-it'; 
+import { marked } from 'marked';
 
 // Reuse components where possible, or inline simple ones
 import { Radar } from 'vue-chartjs';
@@ -35,6 +35,9 @@ const props = defineProps<Props>();
 
 const meta = computed(() => (props.asset.metadata || {}) as any);
 const deploymentGuide = computed(() => props.deploymentGuide || '# No Guide Available');
+const renderedMarkdown = computed(() => {
+    return marked.parse(deploymentGuide.value) as string;
+});
 
 // --- Radar Logic (Duplicated for Fidelity) ---
 const radarData = computed(() => {
@@ -82,9 +85,9 @@ const radarData = computed(() => {
             {
                 label: 'Live Website',
                 data: webValues,
-                backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                borderColor: '#10b981',
-                pointBackgroundColor: '#10b981',
+                backgroundColor: 'rgba(203, 180, 138, 0.2)',
+                borderColor: '#CBB48A',
+                pointBackgroundColor: '#CBB48A',
             },
             {
                 label: 'Source Code',
@@ -113,17 +116,17 @@ const repoUrl = computed(() => props.asset.github_repo_url || props.asset.reposi
 <template>
     <Head :title="`VAULT UNLOCKED: ${meta.custom_name || asset.file_name}`" />
 
-    <div class="min-h-screen bg-[#050911] text-slate-300 font-sans selection:bg-emerald-500/30">
+    <div class="min-h-screen bg-[#050911] text-slate-300 font-sans selection:bg-[#CBB48A]/30">
         
         <!-- Private Navbar -->
-        <header class="border-b border-emerald-500/10 bg-[#0a0f1a]/80 backdrop-blur-xl sticky top-0 z-50">
+        <header class="border-b border-[#CBB48A]/10 bg-[#0a0f1a]/80 backdrop-blur-xl sticky top-0 z-50">
             <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
                 <Link :href="route('marketplace.index')" class="flex items-center gap-2 group text-slate-400 hover:text-white transition-colors">
                      <span class="text-sm font-bold uppercase tracking-wide">Marketplace</span>
                 </Link>
                 <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span class="text-xs font-mono text-emerald-500">SECURE VAULT ACCESS GRANTED</span>
+                    <div class="w-2 h-2 rounded-full bg-[#CBB48A] animate-pulse"></div>
+                    <span class="text-xs font-mono text-[#CBB48A]">SECURE VAULT ACCESS GRANTED</span>
                 </div>
             </div>
         </header>
@@ -131,7 +134,7 @@ const repoUrl = computed(() => props.asset.github_repo_url || props.asset.reposi
         <main class="max-w-7xl mx-auto px-6 py-12">
             
             <div class="mb-12 text-center">
-                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-4">
+                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#CBB48A]/10 border border-[#CBB48A]/20 text-[#CBB48A] text-xs font-bold uppercase tracking-wider mb-4">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                     Asset Ownership Verified
                 </div>
@@ -161,14 +164,14 @@ const repoUrl = computed(() => props.asset.github_repo_url || props.asset.reposi
                 </div>
 
                  <!-- Card 2: Download Package -->
-                <div class="bg-[#0f172a] rounded-2xl border border-emerald-500/30 p-6 relative group overflow-hidden">
-                    <div class="absolute inset-0 bg-emerald-500/5 group-hover:bg-emerald-500/10 transition-colors"></div>
+                <div class="bg-[#0f172a] rounded-2xl border border-[#CBB48A]/30 p-6 relative group overflow-hidden">
+                    <div class="absolute inset-0 bg-[#CBB48A]/5 group-hover:bg-[#CBB48A]/10 transition-colors"></div>
                     <h3 class="font-bold text-white mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        <svg class="w-5 h-5 text-[#CBB48A]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                         Asset Package
                     </h3>
                    <div class="flex items-center gap-4">
-                        <button class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2">
+                        <button class="px-6 py-3 rounded-xl bg-[#DCC8A5] hover:bg-[#CBB48A] text-white font-bold text-sm shadow-lg shadow-[#CBB48A]/20 transition-all flex items-center gap-2">
                              Download .ZIP
                         </button>
                         <div class="text-xs text-slate-400">
@@ -189,8 +192,7 @@ const repoUrl = computed(() => props.asset.github_repo_url || props.asset.reposi
                 </div>
                 <div class="p-8 prose prose-invert prose-sm max-w-none">
                      <!-- Markdown Render -->
-                     <article v-html="deploymentGuide.replace(/\n/g, '<br>')"></article> 
-                     <!-- Using simple replace for now, ideally use a proper markdown library if available, but raw text is okay too -->
+                     <article v-html="renderedMarkdown"></article> 
                 </div>
             </div>
 

@@ -76,7 +76,7 @@ function close() {
                         v-model="searchQuery"
                         type="text" 
                         placeholder="Search assets..." 
-                        class="bg-slate-800 border-slate-700 rounded-lg text-sm px-3 py-1 text-slate-300 focus:ring-emerald-500 focus:border-emerald-500"
+                        class="bg-slate-800 border-slate-700 rounded-lg text-sm px-3 py-1 text-slate-300 focus:ring-[#CBB48A] focus:border-[#CBB48A]"
                     >
                 </div>
             </div>
@@ -84,7 +84,7 @@ function close() {
             <div class="grid grid-cols-2 gap-6 h-[400px]">
                 <!-- Websites Column -->
                 <div class="bg-slate-800/50 rounded-xl border border-slate-700 flex flex-col overflow-hidden">
-                    <div class="p-3 bg-slate-800 border-b border-slate-700 font-semibold text-emerald-400 text-sm flex items-center gap-2">
+                    <div class="p-3 bg-slate-800 border-b border-slate-700 font-semibold text-[#CBB48A] text-sm flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
                         Select Website
                     </div>
@@ -96,9 +96,9 @@ function close() {
                             v-for="asset in websites" 
                             :key="asset.id"
                             class="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors border"
-                            :class="selectedWebId === asset.id ? 'bg-emerald-500/10 border-emerald-500' : 'bg-slate-800 border-slate-700 hover:border-slate-600'"
+                            :class="selectedWebId === asset.id ? 'bg-[#CBB48A]/10 border-[#CBB48A]' : 'bg-slate-800 border-slate-700 hover:border-slate-600'"
                         >
-                            <input type="radio" :value="asset.id" v-model="selectedWebId" class="text-emerald-500 focus:ring-emerald-500 bg-slate-900 border-slate-600">
+                            <input type="radio" :value="asset.id" v-model="selectedWebId" class="text-[#CBB48A] focus:ring-[#CBB48A] bg-slate-900 border-slate-600">
                             <div class="overflow-hidden">
                                 <div class="font-medium text-sm truncate" :title="asset.file_name">{{ asset.file_name }}</div>
                                 <div class="text-[10px] text-slate-400">{{ new Date(asset.created_at).toLocaleDateString() }}</div>
@@ -139,7 +139,7 @@ function close() {
                 <PrimaryButton 
                     @click="initiateAction('scan-and-sync')" 
                     :disabled="!canSync"
-                    class="bg-emerald-600 hover:bg-emerald-500 border-emerald-500"
+                    class="bg-[#DCC8A5] hover:bg-[#CBB48A] border-[#CBB48A]"
                     :class="{ 'opacity-50 cursor-not-allowed': !canSync }"
                 >
                     Scan again and Sync

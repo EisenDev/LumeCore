@@ -33,12 +33,12 @@ const chartData = computed<ChartData<'line'>>(() => ({
         label: 'Trust Score',
         data: props.history.map(h => h.score),
         fill: true,
-        borderColor: '#10b981', // Emerald-500
+        borderColor: '#CBB48A', // Emerald-500
         backgroundColor: (context) => {
             const ctx = context.chart.ctx;
             const gradient = ctx.createLinearGradient(0, 0, 0, 100);
-            gradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)');
-            gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+            gradient.addColorStop(0, 'rgba(203, 180, 138, 0.4)');
+            gradient.addColorStop(1, 'rgba(203, 180, 138, 0)');
             return gradient;
         },
         tension: 0.4,

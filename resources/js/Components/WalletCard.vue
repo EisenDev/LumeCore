@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * WalletCard Component
- * Displays the user's wallet balance prominently
+ * Displays the user's Account Balance prominently
  */
 
 // TypeScript interface for wallet data
@@ -33,7 +33,7 @@ function formatBalance(balance: number): string {
         <!-- Header -->
         <div class="mb-2 flex items-center justify-between">
             <h3 class="text-sm font-medium uppercase tracking-wider text-gray-400">
-                Wallet Balance
+                Account Balance
             </h3>
             <span
                 v-if="props.wallet"

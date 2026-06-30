@@ -76,11 +76,11 @@ const statusLabel = computed(() => {
     // If score is 0 but no active findings/deductions, it might be initializing
     // However, if we truly fail everything, it's 0.
     // Let's check if we have audit data.
-    if (securityScore.value === 0 && !hasActiveFindings.value) return { text: 'ANALYZING...', class: 'text-emerald-400 bg-emerald-500/10 animate-pulse' };
+    if (securityScore.value === 0 && !hasActiveFindings.value) return { text: 'ANALYZING...', class: 'text-[#CBB48A] bg-[#CBB48A]/10 animate-pulse' };
 
     if (securityScore.value < 70) return { text: 'CRITICAL FAIL', class: 'text-rose-500 bg-rose-500/10' };
     if (securityScore.value < 85) return { text: 'ACTION REQUIRED', class: 'text-amber-500 bg-amber-500/10' };
-    return { text: 'PASS', class: 'text-emerald-500 bg-emerald-500/10' };
+    return { text: 'PASS', class: 'text-[#CBB48A] bg-[#CBB48A]/10' };
 });
 
 const getSeverityClass = (severity: string) => {
@@ -277,24 +277,24 @@ const isFixed = (vuln: any) => {
             <div v-if="show && asset" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
                 <div class="absolute inset-0 bg-black/90 backdrop-blur-md" @click="closeModal"></div>
                 
-                <div class="relative w-full max-w-5xl max-h-[90vh] overflow-hidden rounded-3xl border border-emerald-500/20 bg-[#070b14] shadow-[0_0_80px_rgba(16,185,129,0.1)] flex flex-col my-12">
+                <div class="relative w-full max-w-5xl max-h-[90vh] overflow-hidden rounded-3xl border border-[#CBB48A]/20 bg-[#070b14] shadow-[0_0_80px_rgba(203, 180, 138, 0.1)] flex flex-col my-12">
                     
                     <!-- Header -->
-                    <div class="flex-shrink-0 border-b border-emerald-500/10 bg-[#0a0f1a] px-8 py-5 flex items-center justify-between relative overflow-hidden">
+                    <div class="flex-shrink-0 border-b border-[#CBB48A]/10 bg-[#0a0f1a] px-8 py-5 flex items-center justify-between relative overflow-hidden">
                         <div class="absolute inset-0 opacity-10 pointer-events-none">
-                            <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 blur-3xl rounded-full -mr-32 -mt-32"></div>
-                            <div class="absolute bottom-0 left-0 w-64 h-64 bg-cyan-500/20 blur-3xl rounded-full -ml-32 -mb-32"></div>
+                            <div class="absolute top-0 right-0 w-64 h-64 bg-[#CBB48A]/20 blur-3xl rounded-full -mr-32 -mt-32"></div>
+                            <div class="absolute bottom-0 left-0 w-64 h-64 bg-[#F3E7C9]/20 blur-3xl rounded-full -ml-32 -mb-32"></div>
                         </div>
 
                         <div class="flex items-center gap-4 relative z-10">
-                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-600 to-cyan-700 flex items-center justify-center border border-white/10 shadow-lg shadow-emerald-500/20">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#DCC8A5] to-[#F3E7C9]/90 flex items-center justify-center border border-white/10 shadow-lg shadow-[#CBB48A]/20">
                                 <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                             </div>
                             <div>
-                                <h2 class="text-xl font-black text-white tracking-tight uppercase">LUME SOVEREIGN CONSOLE // <span class="text-emerald-400">PENETRATION AUDIT</span></h2>
+                                <h2 class="text-xl font-black text-white tracking-tight uppercase">LUME SOVEREIGN CONSOLE // <span class="text-[#CBB48A]">PENETRATION AUDIT</span></h2>
                                 <div class="flex items-center gap-2 mt-1">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                    <p class="text-[10px] text-emerald-400 font-mono uppercase tracking-[0.3em]">SEC_OPS_AUTHORIZED // SESSION_LIVE</p>
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#CBB48A] animate-pulse"></span>
+                                    <p class="text-[10px] text-[#CBB48A] font-mono uppercase tracking-[0.15em]">SEC_OPS_AUTHORIZED // SESSION_LIVE</p>
                                 </div>
                             </div>
                         </div>
@@ -309,9 +309,9 @@ const isFixed = (vuln: any) => {
                         <!-- Row 1: Recap & Progress -->
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
                             <div class="md:col-span-12 lg:col-span-7 space-y-6">
-                                <div class="p-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 relative overflow-hidden">
-                                    <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
-                                    <h4 class="text-[10px] font-black text-emerald-300 uppercase tracking-widest mb-4">Penetration Audit Summary & Scoring</h4>
+                                <div class="p-6 rounded-2xl border border-[#CBB48A]/20 bg-[#CBB48A]/5 relative overflow-hidden">
+                                    <div class="absolute top-0 left-0 w-1 h-full bg-[#CBB48A]"></div>
+                                    <h4 class="text-[10px] font-black text-[#CBB48A]/70 uppercase tracking-widest mb-4">Penetration Audit Summary & Scoring</h4>
                      <!-- Score Cards -->
                      <div class="grid grid-cols-2 gap-4">
                                 <!-- SECURITY SCORE CARD -->
@@ -332,14 +332,14 @@ const isFixed = (vuln: any) => {
                                             </h4>
                                         </div>
                                         <div class="flex items-end gap-3 z-10 relative">
-                                            <span class="text-5xl font-black text-white tracking-tighter">{{ securityScore }}</span>
+                                            <span class="text-5xl font-black text-white tracking-tight">{{ securityScore }}</span>
                                             <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md mb-2" :class="statusLabel.class">
                                                 {{ statusLabel.text }}
                                             </span>
                                         </div>
                                     </div>
                                     <!-- Background Blur -->
-                                    <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-3xl rounded-full -mr-10 -mt-10 group-hover:bg-emerald-500/20 transition-all duration-500"></div>
+                                    <div class="absolute top-0 right-0 w-32 h-32 bg-[#CBB48A]/10 blur-3xl rounded-full -mr-10 -mt-10 group-hover:bg-[#CBB48A]/20 transition-all duration-500"></div>
                                 </div>
 
                          <!-- QA Score -->
@@ -347,7 +347,7 @@ const isFixed = (vuln: any) => {
                              <div class="flex items-center gap-2 mb-2">
                                  <h4 class="text-xs font-black text-slate-500 uppercase tracking-widest">QA Score</h4>
                                  <div class="relative group/tooltip z-20">
-                                     <svg class="w-4 h-4 text-slate-600 hover:text-emerald-400 cursor-help transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                     <svg class="w-4 h-4 text-slate-600 hover:text-[#CBB48A] cursor-help transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                      <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-slate-900 border border-slate-700 rounded-lg shadow-xl opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all text-[10px] text-slate-300 pointer-events-none z-[100]">
                                           <p class="font-bold text-white mb-1">Quality Assurance Index</p>
                                          <p>Measures UI stability, functional integrity, and error rate during automated interaction simulation.</p>
@@ -355,12 +355,12 @@ const isFixed = (vuln: any) => {
                                  </div>
                              </div>
                              <div class="flex items-end gap-3 z-10 relative">
-                                 <span class="text-5xl font-black text-white tracking-tighter">{{ qaScore }}</span>
-                                 <span class="text-[10px] text-emerald-500 font-bold uppercase tracking-widest px-2 py-1 rounded-md mb-2 bg-emerald-500/10">
+                                 <span class="text-5xl font-black text-white tracking-tight">{{ qaScore }}</span>
+                                 <span class="text-[10px] text-[#CBB48A] font-bold uppercase tracking-widest px-2 py-1 rounded-md mb-2 bg-[#CBB48A]/10">
                                      Optimal
                                  </span>
                              </div>
-                             <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-3xl rounded-full -mr-10 -mt-10 group-hover:bg-emerald-500/20 transition-all duration-500"></div>
+                             <div class="absolute top-0 right-0 w-32 h-32 bg-[#CBB48A]/10 blur-3xl rounded-full -mr-10 -mt-10 group-hover:bg-[#CBB48A]/20 transition-all duration-500"></div>
                          </div>
                      </div>
                                     <div class="h-40 p-4 rounded-xl border border-white/5 bg-black/20 mt-6">
@@ -373,7 +373,7 @@ const isFixed = (vuln: any) => {
                                 <div class="p-6 rounded-2xl border border-white/5 bg-black/20 h-full">
                                     <div class="flex items-center justify-between mb-6">
                                         <h4 class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Remediation Progress</h4>
-                                        <button @click="showRemediationDetails = true" class="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold uppercase flex items-center gap-1">
+                                        <button @click="showRemediationDetails = true" class="text-[10px] text-[#CBB48A] hover:text-[#CBB48A]/70 font-bold uppercase flex items-center gap-1">
                                             View Details
                                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                         </button>
@@ -382,10 +382,10 @@ const isFixed = (vuln: any) => {
                                         <div v-for="(val, key) in remediationProgress" :key="key">
                                             <div class="flex items-center justify-between mb-2">
                                                 <span class="text-[10px] font-bold text-slate-400 uppercase">{{ key }}</span>
-                                                <span class="text-[10px] font-mono text-emerald-400">{{ val }}%</span>
+                                                <span class="text-[10px] font-mono text-[#CBB48A]">{{ val }}%</span>
                                             </div>
                                             <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                                                <div class="h-full bg-gradient-to-r from-emerald-600 to-emerald-400" :style="{ width: val + '%' }"></div>
+                                                <div class="h-full bg-gradient-to-r from-[#DCC8A5] to-[#CBB48A]" :style="{ width: val + '%' }"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -423,23 +423,23 @@ const isFixed = (vuln: any) => {
                                                 <td class="py-4 pr-4 hidden lg:table-cell">
                                                     <div class="flex flex-col gap-1">
                                                         <span v-for="(step, sIdx) in (vuln.remediation_steps || [vuln.remediation])" :key="sIdx" class="flex items-start gap-1 text-[10px] text-slate-400">
-                                                            <span class="text-emerald-500 mt-0.5">›</span> {{ stripMarkdown(step) }}
+                                                            <span class="text-[#CBB48A] mt-0.5">›</span> {{ stripMarkdown(step) }}
                                                         </span>
                                                     </div>
                                                 </td> 
                                                 <td class="py-4 pr-4 text-right flex items-center justify-end gap-2">
                                                     <!-- Proof Button -->
-                                                    <button @click="viewProof(vuln)" class="px-3 py-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-[10px] font-bold uppercase tracking-wide hover:bg-emerald-500/20 transition-all flex items-center gap-1">
+                                                    <button @click="viewProof(vuln)" class="px-3 py-1.5 rounded-lg border border-[#CBB48A]/30 bg-[#CBB48A]/10 text-[#CBB48A]/70 text-[10px] font-bold uppercase tracking-wide hover:bg-[#CBB48A]/20 transition-all flex items-center gap-1">
                                                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                                         Proof
                                                     </button>
                                                 
                                                     <!-- Check historical status if this is a rescan -->
-                                                    <button v-if="isFixed(vuln)" class="px-3 py-1.5 rounded-lg border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-wide cursor-default flex items-center gap-1">
+                                                    <button v-if="isFixed(vuln)" class="px-3 py-1.5 rounded-lg border border-[#CBB48A]/20 bg-[#CBB48A]/10 text-[#CBB48A] text-[10px] font-bold uppercase tracking-wide cursor-default flex items-center gap-1">
                                                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                                                         Fixed
                                                     </button>
-                                                    <button v-else disabled class="px-3 py-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-[10px] font-bold uppercase tracking-wide opacity-50 cursor-not-allowed">
+                                                    <button v-else disabled class="px-3 py-1.5 rounded-lg border border-[#CBB48A]/30 bg-[#CBB48A]/10 text-[#CBB48A]/70 text-[10px] font-bold uppercase tracking-wide opacity-50 cursor-not-allowed">
                                                         Fix It Now
                                                     </button>
                                                 </td>
@@ -456,7 +456,7 @@ const isFixed = (vuln: any) => {
                                 <h5 class="text-[10px] font-black text-slate-500 uppercase mb-3">Domain Map</h5>
                                 <div v-for="sub in subdomainEnum" :key="sub.subdomain" class="flex justify-between text-[10px] font-mono mb-1">
                                     <span class="text-slate-400">{{ sub.subdomain }}</span>
-                                    <span class="text-emerald-500">{{ sub.risk }}</span>
+                                    <span class="text-[#CBB48A]">{{ sub.risk }}</span>
                                 </div>
                             </div>
                             <!-- Infrastructure section removed - was showing test data -->
@@ -467,27 +467,27 @@ const isFixed = (vuln: any) => {
                         </div>
 
                         <!-- Sovereign Results -->
-                        <div v-if="asset.metadata?.specific_metadata?.ai_analysis || asset.metadata?.sovereign_instructions" class="p-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 relative overflow-hidden">
+                        <div v-if="asset.metadata?.specific_metadata?.ai_analysis || asset.metadata?.sovereign_instructions" class="p-6 rounded-2xl border border-[#CBB48A]/20 bg-[#CBB48A]/5 relative overflow-hidden">
                              
                              <!-- Custom Prompt Context Label -->
-                             <div v-if="asset.metadata?.sovereign_instructions" class="mb-4 pb-4 border-b border-emerald-500/10">
-                                 <h4 class="text-[9px] font-black text-emerald-600 uppercase tracking-widest mb-1.5 opacity-70">Specific Sovereign Instructions</h4>
-                                 <div class="text-[10px] text-emerald-400/80 font-mono italic">
+                             <div v-if="asset.metadata?.sovereign_instructions" class="mb-4 pb-4 border-b border-[#CBB48A]/10">
+                                 <h4 class="text-[9px] font-black text-[#DCC8A5] uppercase tracking-widest mb-1.5 opacity-70">Specific Sovereign Instructions</h4>
+                                 <div class="text-[10px] text-[#CBB48A]/80 font-mono italic">
                                      "{{ asset.metadata.sovereign_instructions }}"
                                  </div>
                              </div>
 
-                             <h4 class="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-4">Sovereign Result Intel</h4>
-                             <div class="text-xs text-emerald-100/80 leading-relaxed italic font-mono">
+                             <h4 class="text-[10px] font-black text-[#CBB48A] uppercase tracking-widest mb-4">Sovereign Result Intel</h4>
+                             <div class="text-xs text-[#CBB48A]/10/80 leading-relaxed italic font-mono">
                                 {{ stripMarkdown(asset.metadata?.specific_metadata?.ai_analysis || asset.metadata?.sovereign_results || 'Instructions processed. No specific deviations found.') }}
                              </div>
                              <!-- Added custom prompt output check -->
-                             <div v-if="asset.metadata?.specific_metadata?.surface_test_output" class="mt-4 pt-4 border-t border-emerald-500/20">
-                                 <h4 class="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2">Targeted Probe Results</h4>
+                             <div v-if="asset.metadata?.specific_metadata?.surface_test_output" class="mt-4 pt-4 border-t border-[#CBB48A]/20">
+                                 <h4 class="text-[10px] font-black text-[#CBB48A] uppercase tracking-widest mb-2">Targeted Probe Results</h4>
                                  <div v-for="(res, idx) in asset.metadata.specific_metadata.surface_test_output" :key="idx" class="mb-2">
                                      <div class="flex justify-between text-[10px] font-bold uppercase">
                                          <span class="text-slate-300">{{ res.check }}</span>
-                                         <span :class="res.status === 'VULNERABLE' ? 'text-rose-500' : 'text-emerald-500'">{{ res.status }}</span>
+                                         <span :class="res.status === 'VULNERABLE' ? 'text-rose-500' : 'text-[#CBB48A]'">{{ res.status }}</span>
                                      </div>
                                      <div class="text-[10px] text-slate-500 font-mono">{{ stripMarkdown(res.details) }}</div>
                                  </div>
@@ -497,10 +497,10 @@ const isFixed = (vuln: any) => {
                     </div>
                     
                     <!-- Footer -->
-                    <div class="flex-shrink-0 border-t border-emerald-500/20 bg-[#0a0f1a] px-8 py-5 flex items-center justify-end gap-3 z-10">
-                        <div class="absolute bottom-0 right-0 w-32 h-1 bg-emerald-500 blur-lg opacity-50"></div>
-                        <button @click="$emit('open-ai-chat')" class="px-4 py-2 rounded-xl border border-emerald-500/30 bg-emerald-500/5 text-emerald-400 text-[10px] font-black uppercase hover:bg-emerald-500/10 transition-all">Ask LUME AI</button>
-                        <button @click="$emit('re-scan')" class="px-4 py-2 rounded-xl border border-cyan-500/30 bg-cyan-500/5 text-cyan-400 text-[10px] font-black uppercase hover:bg-cyan-500/10 transition-all">Initiate Re-Scan</button>
+                    <div class="flex-shrink-0 border-t border-[#CBB48A]/20 bg-[#0a0f1a] px-8 py-5 flex items-center justify-end gap-3 z-10">
+                        <div class="absolute bottom-0 right-0 w-32 h-1 bg-[#CBB48A] blur-lg opacity-50"></div>
+                        <button @click="$emit('open-ai-chat')" class="px-4 py-2 rounded-xl border border-[#CBB48A]/30 bg-[#CBB48A]/5 text-[#CBB48A] text-[10px] font-black uppercase hover:bg-[#CBB48A]/10 transition-all">Ask LUME AI</button>
+                        <button @click="$emit('re-scan')" class="px-4 py-2 rounded-xl border border-[#F3E7C9]/30 bg-[#F3E7C9]/5 text-[#F3E7C9] text-[10px] font-black uppercase hover:bg-[#F3E7C9]/10 transition-all">Initiate Re-Scan</button>
                         <div class="w-px h-6 bg-white/10 mx-2"></div>
                         <button @click="closeModal" class="px-6 py-2 bg-gradient-to-r from-slate-800 to-slate-900 border border-white/5 text-white text-[10px] font-black uppercase rounded-xl hover:from-slate-700 transition-all">Close</button>
                     </div>
@@ -517,16 +517,16 @@ const isFixed = (vuln: any) => {
 
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                <div class="inline-block align-bottom bg-[#070b14] rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full border border-emerald-500/30 shadow-emerald-500/20">
+                <div class="inline-block align-bottom bg-[#070b14] rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full border border-[#CBB48A]/30 shadow-[#CBB48A]/20">
                     
                     <!-- HEADER -->
-                    <div class="bg-[#0a0f1a] px-6 py-4 border-b border-emerald-500/20 flex justify-between items-center relative overflow-hidden">
+                    <div class="bg-[#0a0f1a] px-6 py-4 border-b border-[#CBB48A]/20 flex justify-between items-center relative overflow-hidden">
                         <div class="absolute inset-0 opacity-20 pointer-events-none">
-                                <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 blur-3xl rounded-full -mr-32 -mt-32"></div>
+                                <div class="absolute top-0 right-0 w-64 h-64 bg-[#CBB48A]/20 blur-3xl rounded-full -mr-32 -mt-32"></div>
                         </div>
                         <div class="relative z-10">
                             <h3 class="text-lg leading-6 font-black text-white uppercase tracking-wider" id="modal-title">
-                                Remediation <span class="text-emerald-400">Protocols</span>
+                                Remediation <span class="text-[#CBB48A]">Protocols</span>
                             </h3>
                             <p class="mt-1 text-xs text-slate-400 font-mono">
                                 Detailed analysis and step-by-step fix implementation guide.
@@ -544,12 +544,12 @@ const isFixed = (vuln: any) => {
                         <div class="space-y-8">
                             
                             <!-- Loop through categories -->
-                            <div v-for="category in remediationCategories" :key="category.id" class="bg-slate-900/50 rounded-xl p-6 border border-white/5 hover:border-emerald-500/30 transition-colors group">
+                            <div v-for="category in remediationCategories" :key="category.id" class="bg-slate-900/50 rounded-xl p-6 border border-white/5 hover:border-[#CBB48A]/30 transition-colors group">
                                 <div class="flex items-start gap-4">
                                     <!-- Icon/Check Status -->
                                     <div class="flex-shrink-0 mt-1">
                                         <div class="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500" 
-                                            :class="remediationProgress[category.id] === 100 ? 'bg-emerald-500/20 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-rose-500/10 text-rose-500 shadow-[0_0_10px_rgba(239,68,68,0.1)]'">
+                                            :class="remediationProgress[category.id] === 100 ? 'bg-[#CBB48A]/20 text-[#CBB48A] shadow-[0_0_15px_rgba(203, 180, 138, 0.3)]' : 'bg-rose-500/10 text-rose-500 shadow-[0_0_10px_rgba(239,68,68,0.1)]'">
                                             <svg v-if="remediationProgress[category.id] === 100" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                                             <svg v-else class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                                         </div>
@@ -558,7 +558,7 @@ const isFixed = (vuln: any) => {
                                     <div class="flex-1">
                                         <div class="flex justify-between items-center mb-2">
                                             <h4 class="text-sm font-black text-white uppercase tracking-wide">{{ category.title }}</h4>
-                                            <span class="text-[10px] font-mono" :class="remediationProgress[category.id] === 100 ? 'text-emerald-400' : 'text-rose-400'">
+                                            <span class="text-[10px] font-mono" :class="remediationProgress[category.id] === 100 ? 'text-[#CBB48A]' : 'text-rose-400'">
                                                 {{ remediationProgress[category.id] }}% SECURE
                                             </span>
                                         </div>
@@ -566,7 +566,7 @@ const isFixed = (vuln: any) => {
                                         <!-- Progress Bar -->
                                         <div class="w-full bg-slate-800 rounded-full h-1.5 mb-6 overflow-hidden">
                                             <div class="h-full rounded-full transition-all duration-1000 relative" 
-                                                :class="remediationProgress[category.id] === 100 ? 'bg-emerald-500' : 'bg-rose-500'"
+                                                :class="remediationProgress[category.id] === 100 ? 'bg-[#CBB48A]' : 'bg-rose-500'"
                                                 :style="{ width: `${remediationProgress[category.id] || 5}%` }">
                                                 <div class="absolute inset-0 bg-white/20 animate-pulse-slow"></div>
                                             </div>
@@ -576,18 +576,18 @@ const isFixed = (vuln: any) => {
                                             <!-- LEFT: WHY & RECOMMENDATION -->
                                             <div class="space-y-5">
                                                 <div class="bg-black/20 p-4 rounded-lg border border-white/5">
-                                                    <h5 class="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                                    <h5 class="text-[10px] font-black text-[#CBB48A] uppercase tracking-widest mb-2 flex items-center gap-2">
                                                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                                         Risk Analysis
                                                     </h5>
                                                     <p class="text-xs text-slate-300 leading-relaxed font-light">{{ stripMarkdown(category.why) }}</p>
                                                 </div>
                                                 <div>
-                                                    <h5 class="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                                    <h5 class="text-[10px] font-black text-[#CBB48A] uppercase tracking-widest mb-2 flex items-center gap-2">
                                                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                                         Strategic Fix
                                                     </h5>
-                                                    <div class="bg-[#050911] rounded p-3 border border-emerald-500/20 font-mono text-[10px] text-emerald-200 overflow-x-auto select-all">
+                                                    <div class="bg-[#050911] rounded p-3 border border-[#CBB48A]/20 font-mono text-[10px] text-[#CBB48A]/20 overflow-x-auto select-all">
                                                         {{ stripMarkdown(category.recommendation) }}
                                                     </div>
                                                 </div>
@@ -598,7 +598,7 @@ const isFixed = (vuln: any) => {
                                                 <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Tactical Action Plan</h5>
                                                 <ul class="space-y-3">
                                                     <li v-for="(step, stepIdx) in category.steps" :key="stepIdx" class="flex items-start gap-3 text-xs text-slate-300 group/item">
-                                                        <span class="flex-shrink-0 w-5 h-5 rounded bg-slate-800 text-emerald-400 flex items-center justify-center font-mono text-[10px] border border-white/5 group-hover/item:border-emerald-500/50 transition-colors">{{ stepIdx + 1 }}</span>
+                                                        <span class="flex-shrink-0 w-5 h-5 rounded bg-slate-800 text-[#CBB48A] flex items-center justify-center font-mono text-[10px] border border-white/5 group-hover/item:border-[#CBB48A]/50 transition-colors">{{ stepIdx + 1 }}</span>
                                                         <span class="mt-0.5">{{ stripMarkdown(step) }}</span>
                                                     </li>
                                                 </ul>
@@ -612,7 +612,7 @@ const isFixed = (vuln: any) => {
                     </div>
 
                     <!-- FOOTER (Simple Dismiss) -->
-                    <div class="bg-[#0a0f1a] px-6 py-4 border-t border-emerald-500/20 flex justify-end gap-3">
+                    <div class="bg-[#0a0f1a] px-6 py-4 border-t border-[#CBB48A]/20 flex justify-end gap-3">
                         <button @click="showRemediationDetails = false" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold uppercase tracking-wide transition-colors border border-white/5">
                             Close
                         </button>
@@ -630,11 +630,11 @@ const isFixed = (vuln: any) => {
             <div v-if="showProofModal" class="fixed inset-0 z-[70] flex items-center justify-center p-4">
                 <div class="absolute inset-0 bg-black/90 backdrop-blur-md" @click="showProofModal = false"></div>
                 
-                <div class="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-emerald-500/30 bg-[#0a0f1a] shadow-[0_0_50px_rgba(16,185,129,0.2)] flex flex-col">
+                <div class="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-[#CBB48A]/30 bg-[#0a0f1a] shadow-[0_0_50px_rgba(203, 180, 138, 0.2)] flex flex-col">
                     <div class="p-6 border-b border-white/10 flex justify-between items-center bg-black/20">
                         <div>
                             <h3 class="text-sm font-black text-white uppercase tracking-wider">Forensic Evidence</h3>
-                            <p class="text-[10px] text-emerald-400 font-mono mt-1">{{ selectedProof?.type }}</p>
+                            <p class="text-[10px] text-[#CBB48A] font-mono mt-1">{{ selectedProof?.type }}</p>
                         </div>
                         <button @click="showProofModal = false" class="text-slate-500 hover:text-white transition-colors">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -647,7 +647,7 @@ const isFixed = (vuln: any) => {
                                 {{ selectedProof.evidence }}
                             </div>
                             <div class="flex items-start gap-3 text-[11px] text-slate-500 bg-white/[0.02] p-3 rounded-lg border border-white/5">
-                                <svg class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <svg class="w-4 h-4 text-[#CBB48A] mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 <span>Verified by LUME SecOps Engine. This snippet was captured directly from the HTTP response or DOM analysis during the scan window.</span>
                             </div>
                         </div>
@@ -659,7 +659,7 @@ const isFixed = (vuln: any) => {
                     </div>
                     
                     <div class="p-4 bg-black/20 border-t border-white/5 flex justify-end">
-                        <button @click="showProofModal = false" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase rounded-lg transition-colors shadow-lg">
+                        <button @click="showProofModal = false" class="px-4 py-2 bg-[#DCC8A5] hover:bg-[#CBB48A] text-white text-xs font-bold uppercase rounded-lg transition-colors shadow-lg">
                             Close Verification
                         </button>
                     </div>
@@ -673,5 +673,5 @@ const isFixed = (vuln: any) => {
 .custom-scrollbar::-webkit-scrollbar { width: 6px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #10b981; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #CBB48A; }
 </style>

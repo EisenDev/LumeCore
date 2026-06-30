@@ -70,7 +70,7 @@ const fmt = (n: number) => new Intl.NumberFormat('en-US', { style: 'currency', c
                         <h3 class="font-bold text-white text-sm mb-1">{{ asset.metadata?.custom_name || asset.file_name }}</h3>
                         <div class="flex gap-2 text-[10px] text-slate-400 font-mono uppercase">
                             <span class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">SHA-256 Verified</span>
-                            <span class="px-1.5 py-0.5 rounded bg-emerald-900/30 text-emerald-400 border border-emerald-500/30">Score: {{ asset.metadata?.score || 0 }}</span>
+                            <span class="px-1.5 py-0.5 rounded bg-[#CBB48A]/20/30 text-[#CBB48A] border border-[#CBB48A]/30">Score: {{ asset.metadata?.score || 0 }}</span>
                         </div>
                     </div>
                 </div>
@@ -95,7 +95,7 @@ const fmt = (n: number) => new Intl.NumberFormat('en-US', { style: 'currency', c
                 <!-- Payment Placeholder -->
                 <div class="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-3">
                     <div class="flex items-center gap-2 mb-2">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="w-2 h-2 rounded-full bg-[#CBB48A] animate-pulse"></span>
                         <span class="text-xs font-bold text-slate-500 uppercase">Secure Gateway Connection</span>
                     </div>
                     <!-- Fake Stripe Input -->

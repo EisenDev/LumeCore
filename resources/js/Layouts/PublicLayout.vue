@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * LUME Public Layout (PublicLayout.vue)
+ * Aligns global layout navigation and footer style with the warm charcoal premium design system.
+ */
 import { Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
@@ -10,158 +14,138 @@ defineProps<{
 </script>
 
 <template>
-    <div class="min-h-screen bg-brand-dark selection:bg-lume-primary/30 selection:text-white font-sans antialiased overflow-x-hidden text-gray-300">
-        <!-- Grain Overlay -->
-        <div class="fixed inset-0 z-[100] pointer-events-none opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] brightness-100 contrast-150" />
+    <!-- Core Layout Wrapper -->
+    <div class="landing-theme bg-[#0a0a0b] min-h-screen font-sans antialiased selection:bg-[#fbe6af]/20 selection:text-white text-[#888888]">
+        <!-- Subtle Noise Texture Overlay -->
+        <div class="fixed inset-0 z-[100] pointer-events-none opacity-[0.02] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] brightness-125 contrast-125" />
 
-        <!-- Navigation Bar -->
-        <nav class="sticky top-0 z-[60] border-b border-white/5 bg-brand-dark/40 backdrop-blur-2xl transition-all duration-500">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <!-- Navigation Bar (Floating/Fixed & Transparent) -->
+        <nav class="fixed top-0 left-0 right-0 z-[60] w-full nav-premium py-4">
+            <div class="mx-auto max-w-7xl px-6 lg:px-8">
                 <div class="flex h-20 items-center justify-between">
                     <!-- Left: Logo -->
-                    <Link href="/" class="flex items-center gap-4 group cursor-pointer">
-                        <div class="relative">
-                            <div class="absolute -inset-2 bg-gradient-to-r from-lume-primary to-sovereign-primary rounded-xl blur-lg opacity-20 group-hover:opacity-40 transition-opacity" />
-                            <div class="relative flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-lume-primary to-sovereign-primary shadow-xl shadow-lume-primary/20 transition-transform group-hover:scale-105">
-                                <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                </svg>
-                            </div>
-                        </div>
-                        <span class="text-2xl font-black tracking-tighter text-white uppercase italic">LUME<span class="text-lume-primary not-italic">CORE</span></span>
+                    <Link href="/" class="flex items-center gap-3 group">
+                        <img src="/images/none-transparent-logo.png" alt="Lume Logo" class="h-9 w-9 object-contain transition-transform group-hover:rotate-12 duration-300" />
+                        <span class="font-display text-[17px] font-bold tracking-[0.1em] text-white">Lume</span>
                     </Link>
 
-                    <!-- Middle: Links (Desktop) -->
-                    <div class="hidden items-center gap-10 md:flex">
-                        <Link :href="route('marketplace.index')" class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 transition-all hover:text-white hover:tracking-[0.4em]">
+                    <!-- Middle: Navigation Links -->
+                    <div class="hidden items-center gap-8 md:flex">
+                        <!-- <Link :href="route('marketplace.index')" class="text-sm font-medium text-[#9CA3AF] transition-colors hover:text-[#F3E7C9]">
                             Marketplace
-                        </Link>
-                        <a href="/#forensics" class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 transition-all hover:text-white hover:tracking-[0.4em]">
-                            Forensics
+                        </Link> -->
+                        <a href="/#features" class="text-sm font-medium text-[#9CA3AF] transition-colors hover:text-[#F3E7C9]">
+                            Features
                         </a>
-                        <a href="/#sync" class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 transition-all hover:text-white hover:tracking-[0.4em]">
-                            Asset Sync
-                        </a>
-                        <a href="/#pricing" class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 transition-all hover:text-white hover:tracking-[0.4em]">
+                        <a href="/#pricing" class="text-sm font-medium text-[#9CA3AF] transition-colors hover:text-[#F3E7C9]">
                             Pricing
+                        </a>
+                        <a href="/#faq" class="text-sm font-medium text-[#9CA3AF] transition-colors hover:text-[#F3E7C9]">
+                            FAQ
                         </a>
                     </div>
 
-                    <!-- Right: Auth Buttons -->
+                    <!-- Right: CTAs -->
                     <div class="flex items-center gap-6">
-                        <Link
-                            :href="route('login')"
-                            class="hidden px-4 py-2 text-xs font-black uppercase tracking-widest text-gray-400 transition-all hover:text-white hover:tracking-[0.2em] sm:block border-r border-white/5 pr-8"
-                        >
-                            Log In
-                        </Link>
-                        <Link
-                            :href="route('register')"
-                            class="relative group rounded-full bg-gradient-to-r from-lume-primary to-lume-secondary px-8 py-3 text-xs font-black uppercase tracking-[0.2em] text-white shadow-xl shadow-lume-primary/30 transition-all hover:brightness-110 active:scale-95"
-                        >
-                            <span class="relative z-10">Get Access</span>
-                        </Link>
+                        <template v-if="$page.props.auth.user">
+                            <Link :href="route('overview')" class="btn-primary py-2 px-5 text-xs font-semibold rounded-lg">
+                                Overview
+                            </Link>
+                        </template>
+                        <template v-else>
+                            <Link :href="route('login')" class="text-sm font-medium text-[#9CA3AF] transition-colors hover:text-[#F3E7C9]">
+                                Log in
+                            </Link>
+                            <Link :href="route('register')" class="btn-primary py-2 px-4.5 rounded-lg text-xs font-semibold">
+                                Get Access
+                            </Link>
+                        </template>
 
-                        <!-- Mobile Menu Button -->
-                        <button
-                            @click="mobileMenuOpen = !mobileMenuOpen"
-                            class="rounded-xl p-2.5 text-gray-400 hover:bg-white/5 hover:text-white md:hidden ring-1 ring-white/5 backdrop-blur-sm"
-                        >
+                        <!-- Mobile Toggle -->
+                        <button @click="mobileMenuOpen = !mobileMenuOpen" class="rounded-xl p-2 text-[#9CA3AF] hover:text-[#F3E7C9] md:hidden">
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path v-if="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                                <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                <path v-if="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 6h16M4 12h16M4 18h16" />
+                                <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
                     </div>
                 </div>
-
-                <!-- Mobile Menu -->
-                <transition
-                    enter-active-class="transition duration-300 ease-out"
-                    enter-from-class="transform -translate-y-4 opacity-0"
-                    enter-to-class="transform translate-y-0 opacity-100"
-                    leave-active-class="transition duration-200 ease-in"
-                    leave-from-class="transform translate-y-0 opacity-100"
-                    leave-to-class="transform -translate-y-4 opacity-0"
-                >
-                    <div v-if="mobileMenuOpen" class="border-t border-white/5 py-8 md:hidden bg-brand-dark/95 backdrop-blur-2xl px-4 absolute left-0 right-0 top-full shadow-2xl">
-                        <div class="flex flex-col gap-6">
-                            <Link :href="route('marketplace.index')" class="text-xs font-black uppercase tracking-[0.3em] text-gray-400 transition-colors hover:text-white">
-                                Marketplace
-                            </Link>
-                            <a href="/#forensics" class="text-xs font-black uppercase tracking-[0.3em] text-gray-400 transition-colors hover:text-white">
-                                Forensic Core
-                            </a>
-                            <a href="/#pricing" class="text-xs font-black uppercase tracking-[0.3em] text-gray-400 transition-colors hover:text-white">
-                                Pricing
-                            </a>
-                            <Link :href="route('login')" class="text-xs font-black uppercase tracking-[0.3em] text-gray-400 transition-colors hover:text-white mt-4 pt-4 border-t border-white/5">
-                                Log In
-                            </Link>
-                        </div>
-                    </div>
-                </transition>
             </div>
+
+            <!-- Mobile Links -->
+            <transition
+                enter-active-class="transition duration-200 ease-out"
+                enter-from-class="transform -translate-y-4 opacity-0"
+                enter-to-class="transform translate-y-0 opacity-100"
+                leave-active-class="transition duration-150 ease-in"
+                leave-from-class="transform translate-y-0 opacity-100"
+                leave-to-class="transform -translate-y-4 opacity-0"
+            >
+                <div v-if="mobileMenuOpen" class="border-t border-[#222428] bg-[#121315]/95 backdrop-blur-2xl py-6 px-6 md:hidden absolute left-0 right-0 top-20 shadow-2xl">
+                    <div class="flex flex-col gap-5">
+                        <!-- <Link :href="route('marketplace.index')" class="text-sm font-medium text-[#9CA3AF] hover:text-[#F3E7C9]" @click="mobileMenuOpen = false">
+                            Marketplace
+                        </Link> -->
+                        <a href="/#features" class="text-sm font-medium text-[#9CA3AF] hover:text-[#F3E7C9]" @click="mobileMenuOpen = false">
+                            Features
+                        </a>
+                        <a href="/#pricing" class="text-sm font-medium text-[#9CA3AF] hover:text-[#F3E7C9]" @click="mobileMenuOpen = false">
+                            Pricing
+                        </a>
+                        <a href="/#faq" class="text-sm font-medium text-[#9CA3AF] hover:text-[#F3E7C9]" @click="mobileMenuOpen = false">
+                            FAQ
+                        </a>
+                        <Link :href="route('login')" class="text-sm font-medium text-[#9CA3AF] hover:text-[#F3E7C9] pt-3 border-t border-[#222428]" @click="mobileMenuOpen = false">
+                            Log in
+                        </Link>
+                    </div>
+                </div>
+            </transition>
         </nav>
 
-        <!-- Main Content -->
+        <!-- Main Content Slot -->
         <main>
             <slot />
         </main>
 
-        <!-- Footer -->
-        <footer class="border-t border-white/5 pt-20 pb-12 mt-20">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="grid gap-12 lg:grid-cols-12 mb-20">
-                    <div class="lg:col-span-6">
-                        <div class="flex items-center gap-3 mb-8">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-lume-primary to-sovereign-primary">
-                                <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </div>
-                            <span class="text-xl font-black text-white tracking-tight uppercase">LUME <span class="text-lume-primary">CORE</span></span>
+        <!-- Footer Section -->
+        <footer class="border-t border-[#222428] pt-20 pb-12 bg-[#121315] mt-20">
+            <div class="mx-auto max-w-7xl px-6 lg:px-8">
+                <div class="grid gap-12 lg:grid-cols-12 mb-16">
+                    <div class="lg:col-span-6 space-y-6">
+                        <div class="flex items-center gap-3">
+                            <img src="/images/none-transparent-logo.png" alt="Lume Logo" class="h-7 w-7 object-contain" />
+                            <span class="font-display text-[15px] font-bold tracking-[0.1em] text-[#F3E7C9]">Lume</span>
                         </div>
-                        <p class="max-w-md text-sm text-gray-400 font-medium leading-relaxed text-left">
-                            The Sovereign Operating System for High-Value Assets. <br>
-                            Verify, protect, and monetize your digital intellectual property with LUME Forensic Engine.
+                        <p class="max-w-md text-sm text-[#9CA3AF] leading-relaxed text-left">
+                            The Sovereign Operating System for High-Value Assets. Verify, sync, and protect codebase intellectual property securely.
                         </p>
                     </div>
-                    <div class="lg:col-span-3 text-left">
-                        <h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-white mb-6">Platform</h4>
-                        <ul class="space-y-4">
-                            <li><Link :href="route('marketplace.index')" class="text-xs font-bold text-gray-500 hover:text-white transition-colors">Marketplace</Link></li>
-                            <li><a href="/#forensics" class="text-xs font-bold text-gray-500 hover:text-white transition-colors">Forensics</a></li>
-                            <li><a href="/#pricing" class="text-xs font-bold text-gray-500 hover:text-white transition-colors">Pricing</a></li>
-                            <li><Link :href="route('documentation.index')" class="text-xs font-bold text-gray-500 hover:text-white transition-colors">Documentation</Link></li>
+                    
+                    <div class="lg:col-span-3 text-left space-y-4">
+                        <h4 class="text-[10px] font-bold uppercase tracking-[0.25em] text-[#F3E7C9]">Platform</h4>
+                        <ul class="space-y-3 text-xs">
+                            <!-- <li><Link :href="route('marketplace.index')" class="text-[#9CA3AF] hover:text-[#F3E7C9] transition-colors">Marketplace</Link></li> -->
+                            <li><a href="/#features" class="text-[#9CA3AF] hover:text-[#F3E7C9] transition-colors">Features</a></li>
+                            <li><a href="/#pricing" class="text-[#9CA3AF] hover:text-[#F3E7C9] transition-colors">Pricing</a></li>
                         </ul>
                     </div>
-                    <div class="lg:col-span-3">
-                        <h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-white mb-6">Protocol</h4>
-                        <ul class="space-y-4">
-                            <li><Link :href="route('privacy-policy')" class="text-xs font-bold text-gray-500 hover:text-white transition-colors">Privacy Policy</Link></li>
-                            <li><Link :href="route('forensic-standards')" class="text-xs font-bold text-gray-500 hover:text-white transition-colors">Forensic Standards</Link></li>
-                            <li><Link :href="route('terms-of-service')" class="text-xs font-bold text-gray-500 hover:text-white transition-colors">Terms of Service</Link></li>
+
+                    <div class="lg:col-span-3 text-left space-y-4">
+                        <h4 class="text-[10px] font-bold uppercase tracking-[0.25em] text-[#F3E7C9]">Legal</h4>
+                        <ul class="space-y-3 text-xs">
+                            <li><Link :href="route('privacy-policy')" class="text-[#9CA3AF] hover:text-[#F3E7C9] transition-colors">Privacy Policy</Link></li>
+                            <li><Link :href="route('forensic-standards')" class="text-[#9CA3AF] hover:text-[#F3E7C9] transition-colors">Standards</Link></li>
+                            <li><Link :href="route('terms-of-service')" class="text-[#9CA3AF] hover:text-[#F3E7C9] transition-colors">Terms of Service</Link></li>
                         </ul>
                     </div>
                 </div>
-                <div class="flex flex-col md:flex-row justify-between items-center border-t border-white/5 pt-12">
-                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-600 mb-4 md:mb-0">© 2026 LUME PROTOCOL. ALL RIGHTS RESERVED.</p>
-                    <div class="flex gap-6">
-                        <a href="https://github.com/EisenDev" target="_blank" class="h-6 w-6 text-gray-500 hover:text-white transition-colors">
-                            <span class="sr-only">GitHub</span>
-                            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                        </a>
-                        <a href="https://www.linkedin.com/in/arjay-escabas-8a30413a0/" target="_blank" class="h-6 w-6 text-gray-500 hover:text-white transition-colors">
-                            <span class="sr-only">LinkedIn</span>
-                            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                        </a>
-                        <a href="https://v2.onlinejobs.ph/jobseekers/info/4691563" target="_blank" class="h-6 w-6 text-gray-500 hover:text-white transition-colors flex items-center justify-center">
-                            <span class="sr-only">Onlinejobs.ph</span>
-                            <img src="https://www.onlinejobs.ph/favicon.ico" alt="Onlinejobs.ph" class="h-full w-full object-contain opacity-80 hover:opacity-100 transition-opacity rounded-sm grayscale hover:grayscale-0" />
-                        </a>
-                        <a href="https://arjayescabas.me/" target="_blank" class="h-7 w-7 text-gray-500 hover:text-white transition-colors flex items-center justify-center -mt-0.5">
-                            <span class="sr-only">Portfolio</span>
-                            <img src="/AE-logo.png" alt="Portfolio" class="h-full w-full object-contain opacity-80 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" />
-                        </a>
+
+                <div class="flex flex-col md:flex-row justify-between items-center border-t border-[#222428] pt-12 text-[10px] font-mono text-[#9CA3AF]/40">
+                    <p>© 2026 zeraynce. All rights reserved. — EisenDev | Arjay Escabas</p>
+                    <div class="flex gap-6 mt-4 md:mt-0">
+                        <a href="https://github.com/EisenDev" target="_blank" class="hover:text-[#F3E7C9] transition-colors">GitHub</a>
+                        <a href="https://www.linkedin.com/in/arjay-escabas-8a30413a0/" target="_blank" class="hover:text-[#F3E7C9] transition-colors">LinkedIn</a>
                     </div>
                 </div>
             </div>

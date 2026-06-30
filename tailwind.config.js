@@ -13,7 +13,8 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Inter', ...defaultTheme.fontFamily.sans],
+                display: ['"Plus Jakarta Sans"', 'Inter', ...defaultTheme.fontFamily.sans],
             },
             // THE LUME DESIGN TOKENS
             borderRadius: {
@@ -26,14 +27,23 @@ export default {
                     dark: '#030712',      // Deep Space Dark
                 },
                 lume: {
-                    primary: '#34d399',   // Emerald 400
-                    secondary: '#10b981', // Emerald 500
-                    glow: 'rgba(52, 211, 153, 0.5)',
+                    primary: '#CBB48A',   // Muted Gold
+                    secondary: '#DCC8A5', // Warm Sand
+                    glow: 'rgba(203, 180, 138, 0.5)',
                 },
                 sovereign: {
-                    primary: '#22d3ee',   // Cyan 400
-                    secondary: '#06b6d4', // Cyan 500
-                    glow: 'rgba(34, 211, 238, 0.5)',
+                    primary: '#F3E7C9',   // Soft Ivory
+                    secondary: '#CBB48A', // Muted Gold
+                    glow: 'rgba(243, 231, 201, 0.5)',
+                },
+                theme: {
+                    bg: '#121315',        // Flat dark charcoal background
+                    'bg-alt': '#15171A',   // Secondary dark charcoal background
+                    card: '#1B1D21',      // Warm slate-black card background
+                    primary: '#F3E7C9',   // Soft Ivory
+                    secondary: '#DCC8A5', // Warm Sand
+                    accent: '#CBB48A',    // Muted Gold
+                    neutral: '#9CA3AF',   // Muted Gray
                 }
             },
             keyframes: {

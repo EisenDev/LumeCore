@@ -50,66 +50,73 @@ const submitPurchase = () => {
 
 <template>
     <Modal :show="show" @close="closeModal">
-        <div class="p-8 bg-[#0A0A0B]/90 backdrop-blur-3xl border border-white/5 rounded-[2rem] relative overflow-hidden">
-            <div class="absolute -right-24 -top-24 w-48 h-48 bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+        <div class="p-8 relative overflow-hidden">
+            <!-- Glow background highlight -->
+            <div class="absolute -right-24 -top-24 w-48 h-48 bg-[#CBB48A]/5 blur-[80px] rounded-full pointer-events-none"></div>
             
             <header class="relative z-10">
-                <h2 class="text-2xl font-black italic tracking-tighter text-emerald-400 uppercase">
-                    Top up Credits
+                <h2 class="text-lg font-bold tracking-tight text-white">
+                    Top up credits
                 </h2>
-
-                <p class="mt-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest leading-none">
+                <p class="mt-1 text-xs text-gray-400 font-medium">
                     Select a credit bundle to purchase for your operations.
                 </p>
             </header>
 
-            <div class="mt-8 space-y-3 relative z-10">
+            <div class="mt-6 space-y-2 relative z-10">
                 <div
                     v-for="tier in tiers"
                     :key="tier.credits"
                     @click="selectTier(tier.credits)"
-                    class="relative cursor-pointer rounded-2xl border p-5 transition-all duration-300 group overflow-hidden"
+                    class="relative cursor-pointer rounded-xl border p-4 transition-all duration-300 group overflow-hidden"
                     :class="[
                         selectedTier === tier.credits
-                            ? 'border-emerald-500/50 bg-emerald-500/5 shadow-[0_0_20px_rgba(16,185,129,0.1)]'
-                            : 'border-white/5 bg-white/5 hover:border-emerald-500/30 hover:bg-white/[0.07]'
+                            ? 'border-[#CBB48A]/40 bg-[#CBB48A]/[0.02] shadow-[0_0_15px_rgba(203,180,138,0.05)]'
+                            : 'border-white/5 bg-white/[0.01] hover:border-white/10 hover:bg-white/[0.03]'
                     ]"
                 >
                     <div class="flex items-center justify-between relative z-10">
                         <div class="flex items-center gap-3">
-                            <span class="text-xl font-black italic tracking-tighter text-white uppercase">
-                                {{ tier.credits }} Credits
+                            <span 
+                                class="text-sm font-bold transition-colors"
+                                :class="selectedTier === tier.credits ? 'text-[#CBB48A]' : 'text-white'"
+                            >
+                                {{ tier.credits }} credits
                             </span>
                             <span
                                 v-if="tier.badge"
-                                class="rounded-lg bg-emerald-500/10 px-3 py-1 text-[8px] font-black uppercase tracking-widest text-emerald-400 border border-emerald-500/20"
+                                class="rounded-full bg-[#CBB48A]/10 px-2 py-0.5 text-[8px] font-bold text-[#CBB48A] border border-[#CBB48A]/25 uppercase tracking-wider"
                             >
                                 {{ tier.badge }}
                             </span>
                         </div>
-                        <span class="text-xl font-black italic tracking-tighter text-white">
+                        <span 
+                            class="text-sm font-bold transition-colors"
+                            :class="selectedTier === tier.credits ? 'text-white' : 'text-gray-400'"
+                        >
                             ${{ tier.price.toFixed(2) }}
                         </span>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-10 flex justify-end gap-4 relative z-10">
-                <SecondaryButton 
+            <div class="mt-8 flex justify-end gap-3 relative z-10">
+                <button
+                    type="button"
                     @click="closeModal"
-                    class="bg-white/5 border-white/10 text-white text-[10px] font-black uppercase tracking-widest px-6 py-3 rounded-xl hover:bg-white/10"
+                    class="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-bold text-gray-300 hover:text-white transition-all duration-300 focus:outline-none"
                 > 
                     Cancel 
-                </SecondaryButton>
+                </button>
 
-                <PrimaryButton
-                    class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black italic tracking-tighter uppercase px-8 py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-emerald-500/10"
-                    :class="{ 'opacity-25': form.processing || !selectedTier }"
+                <button
+                    type="button"
+                    class="px-6 py-2.5 rounded-xl bg-[#CBB48A] hover:bg-[#CBB48A]/90 text-slate-950 text-xs font-black transition-all duration-300 focus:outline-none active:scale-95 disabled:opacity-20 shadow-lg shadow-[#CBB48A]/10"
                     :disabled="form.processing || !selectedTier"
                     @click="submitPurchase"
                 >
-                    {{ form.processing ? 'Processing' : 'Confirm Purchase' }}
-                </PrimaryButton>
+                    {{ form.processing ? 'Processing...' : 'Confirm purchase' }}
+                </button>
             </div>
         </div>
     </Modal>

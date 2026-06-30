@@ -50,6 +50,6 @@ class RegisteredUserController extends Controller
             return redirect($request->input('intended_url'));
         }
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('overview', absolute: false));
     }
 }

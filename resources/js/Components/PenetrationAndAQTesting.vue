@@ -133,7 +133,7 @@ const navigateToBilling = () => {
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 class="text-2xl font-[1000] text-white tracking-tighter uppercase italic leading-none mb-2">
+                                    <h3 class="text-2xl font-bold text-white tracking-tight uppercase italic leading-none mb-2">
                                         Deep Security <span class="text-transparent bg-clip-text bg-gradient-to-r from-lume-primary to-sovereign-primary">Protocol.</span>
                                     </h3>
                                     <p class="text-xs font-bold text-gray-400 uppercase tracking-[0.2em]">
@@ -171,13 +171,13 @@ const navigateToBilling = () => {
                                     
                                     <div v-if="activeSubscription" class="flex items-center justify-between border-b border-white/5 pb-6 relative z-10">
                                         <div class="flex flex-col gap-1">
-                                            <span class="text-lg text-white font-[1000] uppercase italic tracking-tighter">{{ activeSubscription.plan_type }} Plan</span>
+                                            <span class="text-lg text-white font-bold uppercase tracking-tight">{{ activeSubscription.plan_type }} Plan</span>
                                             <span class="text-[10px] uppercase font-black tracking-[0.2em]" :class="asset?.metadata?.security_audit ? 'text-sovereign-primary' : 'text-lume-primary'">
                                                 {{ asset?.metadata?.security_audit ? 'Re-Scan Quota' : 'Full Pentest Quota' }}
                                             </span>
                                         </div>
                                         <div class="flex flex-col items-end gap-1">
-                                            <span class="text-3xl font-[1000] text-white italic tracking-tighter">{{ remainingPentests }}</span>
+                                            <span class="text-3xl font-bold text-white tracking-tight">{{ remainingPentests }}</span>
                                             <span class="text-[9px] text-gray-500 font-black uppercase tracking-[0.2em]">
                                                 {{ asset?.metadata?.security_audit 
                                                     ? (activeSubscription.plan_type === 'agency' ? 'Daily Re-Scans' : 'Daily Re-Scans') 
@@ -191,7 +191,7 @@ const navigateToBilling = () => {
                                         <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Scan Cost</span>
                                         <div class="flex flex-col items-end">
                                             <span class="text-xl font-black text-lume-primary tracking-tight">{{ pentestCost }} Credits</span>
-                                            <span v-if="hasPentestQuota" class="text-[9px] text-white font-bold uppercase tracking-widest bg-emerald-500/20 px-2 py-0.5 rounded-full mt-1">Covered by Plan</span>
+                                            <span v-if="hasPentestQuota" class="text-[9px] text-white font-bold uppercase tracking-widest bg-[#CBB48A]/20 px-2 py-0.5 rounded-full mt-1">Covered by Plan</span>
                                         </div>
                                     </div>
 

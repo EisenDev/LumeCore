@@ -29,6 +29,7 @@
     "dependencies": {
         "@google/generative-ai": "^0.24.1",
         "@types/d3": "^7.4.3",
+        "@types/topojson-client": "^3.1.5",
         "@uppy/aws-s3": "^5.1.0",
         "@uppy/core": "^5.2.0",
         "@uppy/dashboard": "^5.1.0",
@@ -38,6 +39,7 @@
         "lucide-vue-next": "^0.363.0",
         "marked": "^17.0.1",
         "puppeteer": "^24.35.0",
+        "topojson-client": "^3.1.0",
         "vue-chartjs": "^5.3.3"
     }
 }

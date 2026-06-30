@@ -43,7 +43,7 @@ const closeModal = () => {
 <template>
     <section class="space-y-6">
         <header>
-            <h2 class="text-xl font-black italic tracking-tighter text-white uppercase mt-1">
+            <h2 class="text-xl font-bold tracking-tight text-white uppercase mt-1">
                 Delete Account
             </h2>
 
@@ -54,7 +54,7 @@ const closeModal = () => {
 
         <DangerButton 
             @click="confirmUserDeletion"
-            class="bg-rose-500 hover:bg-rose-400 text-slate-950 font-black italic tracking-tighter uppercase px-8 py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-rose-500/10 mt-6"
+            class="bg-rose-500 hover:bg-rose-400 text-slate-950 font-bold tracking-tight px-8 py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-rose-500/10 mt-6"
         >
             Delete Account
         </DangerButton>
@@ -62,7 +62,7 @@ const closeModal = () => {
         <Modal :show="confirmingUserDeletion" @close="closeModal">
             <div class="p-8 bg-[#0A0A0B]/90 backdrop-blur-3xl border border-white/5 rounded-[2rem]">
                 <h2
-                    class="text-xl font-black italic tracking-tighter text-white uppercase"
+                    class="text-xl font-bold tracking-tight text-white uppercase"
                 >
                     Are you sure you want to delete your account?
                 </h2>
@@ -96,13 +96,13 @@ const closeModal = () => {
                 <div class="mt-10 flex justify-end gap-4">
                     <SecondaryButton 
                         @click="closeModal"
-                        class="bg-white/5 border-white/10 text-white text-[10px] font-black uppercase tracking-widest px-6 py-3 rounded-xl hover:bg-white/10"
+                        class="bg-white/5 border-white/10 text-white text-[10px] font-bold tracking-wider px-6 py-3 rounded-xl hover:bg-white/10"
                     >
                         Cancel
                     </SecondaryButton>
 
                     <DangerButton
-                        class="bg-rose-500 hover:bg-rose-400 text-slate-950 font-black italic tracking-tighter uppercase px-8 py-3 rounded-xl shadow-lg shadow-rose-500/10"
+                        class="bg-rose-500 hover:bg-rose-400 text-slate-950 font-bold tracking-tight px-8 py-3 rounded-xl shadow-lg shadow-rose-500/10"
                         :class="{ 'opacity-25': form.processing }"
                         :disabled="form.processing"
                         @click="deleteUser"

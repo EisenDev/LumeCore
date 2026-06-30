@@ -28,6 +28,7 @@ class DashboardController extends Controller
             ->map(function (VaultAsset $asset) {
                 return [
                     'id' => $asset->id,
+                    'hash' => str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($asset->id)),
                     'user_id' => $asset->user_id,
                     'file_name' => $asset->file_name,
                     'file_path' => $asset->file_path,
@@ -90,7 +91,7 @@ class DashboardController extends Controller
      */
     public function index(Request $request): Response
     {
-        return Inertia::render('Dashboard', $this->getDashboardData($request->user()));
+        return Inertia::render('Overview', $this->getDashboardData($request->user()));
     }
 
     /**
@@ -114,5 +115,159 @@ class DashboardController extends Controller
         $activity->delete();
 
         return back()->with('success', 'Activity record removed.');
+    }
+
+    /**
+     * Display the full scanned website results page.
+     */
+    public function showWebsiteResults(Request $request, string $hash): Response
+    {
+        $user = $request->user();
+        
+        // Rebuild base64 and decode
+        $base64 = str_replace(['-', '_'], ['+', '/'], $hash);
+        $padding = strlen($base64) % 4;
+        if ($padding) {
+            $base64 .= str_repeat('=', 4 - $padding);
+        }
+        $uuid = base64_decode($base64);
+
+        if (!$uuid) {
+            abort(404);
+        }
+
+        // Find the vault asset owned by the user
+        $asset = VaultAsset::where('user_id', $user->id)
+            ->where('id', $uuid)
+            ->firstOrFail();
+
+        // Fetch latest scan activity for website results snapshot
+        $activity = \App\Models\ScanActivity::where('user_id', $user->id)
+            ->where('primary_asset_id', $asset->id)
+            ->orderBy('scanned_at', 'desc')
+            ->first();
+
+        // Fetch historical scan history
+        $history = $asset->auditHistory()
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($h) {
+                return [
+                    'id' => $h->id,
+                    'score' => $h->score,
+                    'status' => $h->status,
+                    'created_at' => $h->created_at->toISOString(),
+                ];
+            });
+
+        // Overlay scan activity data if available (identical to frontend createSnapshotAsset helper)
+        $snapshot = $this->createSnapshotAsset($asset, $activity);
+
+        return Inertia::render('WebsiteResults', [
+            'asset' => $snapshot,
+            'hash' => $hash,
+            'history' => $history,
+        ]);
+    }
+
+    private function createSnapshotAsset(VaultAsset $baseAsset, $activityRecord)
+    {
+        // Clone mapping array
+        $snapshot = [
+            'id' => $baseAsset->id,
+            'user_id' => $baseAsset->user_id,
+            'file_name' => $baseAsset->file_name,
+            'file_path' => $baseAsset->file_path,
+            'file_size' => $baseAsset->file_size,
+            'mime_type' => $baseAsset->mime_type,
+            'status' => $baseAsset->status,
+            'metadata' => $baseAsset->metadata ?? [],
+            'synced_metadata' => $baseAsset->synced_metadata,
+            'website_metadata' => $baseAsset->website_metadata,
+            'repository_metadata' => $baseAsset->repository_metadata,
+            'sync_score' => $baseAsset->sync_score,
+            'score' => $baseAsset->score,
+            'is_for_sale' => (bool)$baseAsset->is_for_sale,
+            'price' => $baseAsset->price,
+            'radar_data' => $baseAsset->radar_data,
+            'created_at' => $baseAsset->created_at->toISOString(),
+            'updated_at' => $baseAsset->updated_at->toISOString(),
+        ];
+
+        if (!$activityRecord) {
+            // Apply live columns to metadata if no activity
+            if ($baseAsset->website_metadata) {
+                $snapshot['metadata'] = array_merge($snapshot['metadata'], $baseAsset->website_metadata);
+            }
+            return $snapshot;
+        }
+
+        // Extract details
+        $details = $activityRecord->details ?? [];
+        if (is_string($details)) {
+            try { $details = json_decode($details, true) ?? []; } catch (\Exception $e) { $details = []; }
+        }
+
+        // Extract vectors
+        $vectors = $activityRecord->vectors ?? [];
+        if (is_string($vectors)) {
+            try { $vectors = json_decode($vectors, true) ?? []; } catch (\Exception $e) { $vectors = []; }
+        }
+
+        $deepMerge = array_merge($details, $vectors);
+
+        if ($baseAsset->website_metadata) {
+            $snapshot['metadata'] = array_merge($snapshot['metadata'], $baseAsset->website_metadata);
+        }
+        if ($baseAsset->repository_metadata) {
+            $snapshot['metadata'] = array_merge($snapshot['metadata'], $baseAsset->repository_metadata);
+        }
+        if ($baseAsset->radar_data) {
+            $snapshot['metadata']['radar_data'] = $baseAsset->radar_data;
+        }
+
+        if ($activityRecord->vectors) {
+            $snapshot['metadata']['hexagon_vectors'] = $vectors;
+            $snapshot['metadata']['radar_data'] = $vectors;
+        }
+
+        if (isset($deepMerge['security_audit'])) {
+            $snapshot['metadata'] = array_merge($snapshot['metadata'], $deepMerge['security_audit']);
+        }
+        $snapshot['metadata'] = array_merge($snapshot['metadata'], $deepMerge);
+
+        if (isset($snapshot['metadata']['security_audit'])) {
+            $snapshot['metadata'] = array_merge($snapshot['metadata'], $snapshot['metadata']['security_audit']);
+        }
+
+        if (isset($baseAsset->metadata['tech_stack']) && is_array($baseAsset->metadata['tech_stack'])) {
+            $snapshot['metadata']['tech_stack'] = $baseAsset->metadata['tech_stack'];
+        }
+        if (isset($baseAsset->metadata['tech_assessment'])) {
+            $snapshot['metadata']['tech_assessment'] = array_merge($snapshot['metadata']['tech_assessment'] ?? [], $baseAsset->metadata['tech_assessment']);
+        }
+
+        $snapshot['metadata'] = array_merge($snapshot['metadata'], [
+            'is_historical_snapshot' => true,
+            'snapshot_date' => $activityRecord->created_at->toISOString(),
+        ]);
+
+        $newScore = $activityRecord->individual_score;
+        if ($newScore !== null) {
+            $snapshot['score'] = $newScore;
+            $snapshot['metadata']['confidence_score'] = $newScore;
+        }
+
+        if (isset($deepMerge['topology'])) {
+            $snapshot['metadata']['topology'] = $deepMerge['topology'];
+        }
+        if (isset($baseAsset->website_metadata['topology'])) {
+            $snapshot['metadata']['topology'] = $baseAsset->website_metadata['topology'];
+        }
+
+        // Force type to website
+        $snapshot['metadata']['audit_type'] = 'website';
+
+        return $snapshot;
     }
 }

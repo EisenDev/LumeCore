@@ -183,22 +183,22 @@ const chartData = computed(() => {
             {
                 label: 'Live Website',
                 data: webValues,
-                backgroundColor: 'rgba(16, 185, 129, 0.2)', // Emerald
-                borderColor: '#10b981',
-                pointBackgroundColor: '#10b981',
+                backgroundColor: 'rgba(203, 180, 138, 0.2)', // Emerald
+                borderColor: '#CBB48A',
+                pointBackgroundColor: '#CBB48A',
                 pointBorderColor: '#fff',
                 pointHoverBackgroundColor: '#fff',
-                pointHoverBorderColor: '#10b981'
+                pointHoverBorderColor: '#CBB48A'
             },
             {
                 label: 'Source Code',
                 data: repoValues,
                 backgroundColor: 'rgba(6, 182, 212, 0.2)', // Cyan-500
-                borderColor: '#06b6d4',
-                pointBackgroundColor: '#06b6d4',
+                borderColor: '#CBB48A',
+                pointBackgroundColor: '#CBB48A',
                 pointBorderColor: '#fff',
                 pointHoverBackgroundColor: '#fff',
-                pointHoverBorderColor: '#06b6d4'
+                pointHoverBorderColor: '#CBB48A'
             }
         ]
     };
@@ -233,8 +233,8 @@ const getGrade = (score: number) => {
 };
 
 const getGradeColor = (score: number) => {
-    if (score >= 90) return 'text-emerald-500'; // S, A
-    if (score >= 70) return 'text-cyan-500';    // B, C
+    if (score >= 90) return 'text-[#CBB48A]'; // S, A
+    if (score >= 70) return 'text-[#F3E7C9]';    // B, C
     if (score >= 60) return 'text-yellow-500';  // D
     return 'text-rose-500';                     // F
 };
@@ -410,7 +410,7 @@ const vectorCorrelation = computed(() => {
 });
 
 const getStatusColor = (status: string) => {
-    if (status === 'match') return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
+    if (status === 'match') return 'text-[#CBB48A] bg-[#CBB48A]/10 border-[#CBB48A]/20';
     if (status === 'drift-warning') return 'text-amber-400 bg-amber-500/10 border-amber-500/20';
     return 'text-rose-400 bg-rose-500/10 border-rose-500/20';
 };
@@ -638,12 +638,12 @@ const viewOnMarketplace = () => {
             <!-- Header -->
             <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-[#080c17]">
                 <div class="flex items-center gap-3">
-                    <div class="bg-cyan-500/20 p-2 rounded-lg">
-                        <svg class="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                    <div class="bg-[#F3E7C9]/20 p-2 rounded-lg">
+                        <svg class="w-5 h-5 text-[#F3E7C9]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                     </div>
                     <div>
                         <h2 class="text-lg font-bold text-white tracking-widest uppercase italic">Forensic Sync Analysis</h2>
-                        <p class="text-[10px] text-cyan-500 font-mono tracking-tighter uppercase opacity-80">LIVE DEPLOYMENT vs. SOURCE REPOSITORY</p>
+                        <p class="text-[10px] text-[#F3E7C9] font-mono tracking-tight uppercase opacity-80">LIVE DEPLOYMENT vs. SOURCE REPOSITORY</p>
                     </div>
                 </div>
                 <button @click="$emit('close')" class="text-slate-500 hover:text-white transition-colors">
@@ -663,7 +663,7 @@ const viewOnMarketplace = () => {
                             <div class="flex justify-between items-start">
                                 <div>
                                     <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Sync Confidence</h3>
-                                    <div class="text-sm italic" :class="(comparisonData?.sync_score ?? 0) > 75 ? 'text-emerald-400' : 'text-slate-400'">
+                                    <div class="text-sm italic" :class="(comparisonData?.sync_score ?? 0) > 75 ? 'text-[#CBB48A]' : 'text-slate-400'">
                                         {{ (comparisonData?.sync_score ?? 0) > 75 ? 'Marketplace Verified' : 'Drift Risks Detected' }}
                                     </div>
                                 </div>
@@ -680,7 +680,7 @@ const viewOnMarketplace = () => {
                                         <div class="text-3xl font-bold text-white font-mono leading-none mb-2">
                                             {{ Number(comparisonData?.sync_score ?? 0).toFixed(2) }}%
                                         </div>
-                                        <button @click="showCalculationReport = true" class="px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20 text-[10px] text-cyan-400 font-bold uppercase transition-all hover:bg-cyan-500/20">
+                                        <button @click="showCalculationReport = true" class="px-2 py-0.5 rounded bg-[#F3E7C9]/10 border border-[#F3E7C9]/20 text-[10px] text-[#F3E7C9] font-bold uppercase transition-all hover:bg-[#F3E7C9]/20">
                                             View Report
                                         </button>
                                     </div>
@@ -689,13 +689,13 @@ const viewOnMarketplace = () => {
 
                             <!-- Verdict Banner -->
                             <div class="mt-6">
-                                <div v-if="(comparisonData?.sync_score ?? 0) > 75" class="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 flex items-center gap-3">
-                                    <div class="bg-emerald-500 rounded-full p-1 text-[#020408]">
+                                <div v-if="(comparisonData?.sync_score ?? 0) > 75" class="bg-[#CBB48A]/10 border border-[#CBB48A]/20 rounded-lg p-3 flex items-center gap-3">
+                                    <div class="bg-[#CBB48A] rounded-full p-1 text-[#020408]">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
                                     </div>
                                     <div>
-                                        <div class="text-emerald-400 text-xs font-bold uppercase">Ready for Market</div>
-                                        <div class="text-emerald-500/60 text-[10px] leading-tight">{{ comparisonData?.drift_analysis?.summary || 'Asset pair is fully synchronized' }}</div>
+                                        <div class="text-[#CBB48A] text-xs font-bold uppercase">Ready for Market</div>
+                                        <div class="text-[#CBB48A]/60 text-[10px] leading-tight">{{ comparisonData?.drift_analysis?.summary || 'Asset pair is fully synchronized' }}</div>
                                     </div>
                                 </div>
                                 <div v-else class="bg-rose-500/10 border border-rose-500/20 rounded-lg p-3 flex items-center gap-3">
@@ -714,7 +714,7 @@ const viewOnMarketplace = () => {
                         <div class="bg-[#0b101b] rounded-xl border border-slate-800 p-6 flex-1 flex flex-col min-h-[400px]">
                             <div class="flex justify-between items-center mb-4">
                                 <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Vector Divergence</h3>
-                                <button @click="showVectorDetails = true" class="text-[10px] text-cyan-400 hover:text-cyan-300 font-bold uppercase flex items-center gap-1">
+                                <button @click="showVectorDetails = true" class="text-[10px] text-[#F3E7C9] hover:text-[#F3E7C9]/70 font-bold uppercase flex items-center gap-1">
                                     View Details
                                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 </button>
@@ -722,11 +722,11 @@ const viewOnMarketplace = () => {
                             
                             <div class="flex items-center gap-4 text-xs font-mono mb-4 justify-center">
                                 <div class="flex items-center gap-2">
-                                    <span class="w-3 h-1 bg-emerald-500"></span>
+                                    <span class="w-3 h-1 bg-[#CBB48A]"></span>
                                     <span class="text-slate-300">Live Website</span>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <span class="w-3 h-1 bg-cyan-500"></span>
+                                    <span class="w-3 h-1 bg-[#F3E7C9]"></span>
                                     <span class="text-slate-300">Source Code</span>
                                 </div>
                             </div>
@@ -747,8 +747,8 @@ const viewOnMarketplace = () => {
                                 </div>
                             </div>
                             <div class="flex items-center gap-2 px-3 py-1 rounded bg-slate-900 border border-slate-700">
-                                <div class="w-2 h-2 rounded-full" :class="assuranceData.integritySeal === 'Verified' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'"></div>
-                                <span class="text-[10px] font-bold uppercase" :class="assuranceData.integritySeal === 'Verified' ? 'text-emerald-400' : 'text-rose-400'">
+                                <div class="w-2 h-2 rounded-full" :class="assuranceData.integritySeal === 'Verified' ? 'bg-[#CBB48A] animate-pulse' : 'bg-rose-500'"></div>
+                                <span class="text-[10px] font-bold uppercase" :class="assuranceData.integritySeal === 'Verified' ? 'text-[#CBB48A]' : 'text-rose-400'">
                                     {{ assuranceData.integritySeal }} SEAL
                                 </span>
                             </div>
@@ -763,7 +763,7 @@ const viewOnMarketplace = () => {
                         <div class="bg-[#0b101b] rounded-xl border border-slate-800 p-6">
                             <div class="flex justify-between items-center mb-4">
                                 <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Tech ID Verification</h3>
-                                <button @click="showTechDetails = true" class="text-[10px] text-cyan-400 hover:text-cyan-300 font-bold uppercase flex items-center gap-1">
+                                <button @click="showTechDetails = true" class="text-[10px] text-[#F3E7C9] hover:text-[#F3E7C9]/70 font-bold uppercase flex items-center gap-1">
                                     View Details
                                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 </button>
@@ -776,18 +776,18 @@ const viewOnMarketplace = () => {
 
                             <div class="space-y-4">
                                 <div>
-                                    <div class="text-[10px] text-emerald-500/70 font-bold uppercase mb-2">Live Site Evidence</div>
+                                    <div class="text-[10px] text-[#CBB48A]/70 font-bold uppercase mb-2">Live Site Evidence</div>
                                     <div class="flex flex-wrap gap-2">
-                                        <span v-for="tag in enrichedStackAnalysis.live_evidence" :key="tag" class="px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono">
+                                        <span v-for="tag in enrichedStackAnalysis.live_evidence" :key="tag" class="px-2 py-1 rounded bg-[#CBB48A]/10 border border-[#CBB48A]/20 text-[#CBB48A] text-xs font-mono">
                                             {{ tag }}
                                         </span>
                                     </div>
                                 </div>
                                 
                                 <div>
-                                    <div class="text-[10px] text-cyan-500/70 font-bold uppercase mb-2">Repository Evidence</div>
+                                    <div class="text-[10px] text-[#F3E7C9]/70 font-bold uppercase mb-2">Repository Evidence</div>
                                     <div class="flex flex-wrap gap-2">
-                                        <span v-for="tag in enrichedStackAnalysis.repo_evidence" :key="tag" class="px-2 py-1 rounded bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono">
+                                        <span v-for="tag in enrichedStackAnalysis.repo_evidence" :key="tag" class="px-2 py-1 rounded bg-[#F3E7C9]/10 border border-[#F3E7C9]/20 text-[#F3E7C9] text-xs font-mono">
                                             {{ tag }}
                                         </span>
                                     </div>
@@ -803,12 +803,12 @@ const viewOnMarketplace = () => {
                                     <!-- TOPOLOGY -->
                                     <div class="flex items-center justify-between text-xs bg-slate-900/50 p-2 rounded border border-slate-800">
                                         <div class="flex items-center gap-2">
-                                            <div class="w-2 h-2 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)]" 
-                                                :class="(comparisonData?.metadata?.heuristic_gates?.route_topology === 'verified' || comparisonData?.logic_gates?.topology === 'VERIFIED') ? 'bg-emerald-500' : 'bg-rose-500'"></div>
+                                            <div class="w-2 h-2 rounded-full shadow-[0_0_8px_rgba(203, 180, 138, 0.5)]" 
+                                                :class="(comparisonData?.metadata?.heuristic_gates?.route_topology === 'verified' || comparisonData?.logic_gates?.topology === 'VERIFIED') ? 'bg-[#CBB48A]' : 'bg-rose-500'"></div>
                                             <span class="text-slate-300 font-mono">Route Topology Graph</span>
                                         </div>
                                         <span class="font-bold font-mono" 
-                                            :class="(comparisonData?.metadata?.heuristic_gates?.route_topology === 'verified' || comparisonData?.logic_gates?.topology === 'VERIFIED') ? 'text-emerald-400' : 'text-rose-400'">
+                                            :class="(comparisonData?.metadata?.heuristic_gates?.route_topology === 'verified' || comparisonData?.logic_gates?.topology === 'VERIFIED') ? 'text-[#CBB48A]' : 'text-rose-400'">
                                             {{ comparisonData?.metadata?.heuristic_gates?.route_topology || comparisonData?.logic_gates?.topology || 'PENDING' }}
                                         </span>
                                     </div>
@@ -816,12 +816,12 @@ const viewOnMarketplace = () => {
                                     <!-- HASH -->
                                     <div class="flex items-center justify-between text-xs bg-slate-900/50 p-2 rounded border border-slate-800">
                                         <div class="flex items-center gap-2">
-                                            <div class="w-2 h-2 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)]"
-                                                :class="comparisonData?.metadata?.heuristic_gates?.asset_hash === 'verified' ? 'bg-emerald-500' : 'bg-rose-500'"></div>
+                                            <div class="w-2 h-2 rounded-full shadow-[0_0_8px_rgba(203, 180, 138, 0.5)]"
+                                                :class="comparisonData?.metadata?.heuristic_gates?.asset_hash === 'verified' ? 'bg-[#CBB48A]' : 'bg-rose-500'"></div>
                                             <span class="text-slate-300 font-mono">Asset Hash Fingerprint</span>
                                         </div>
                                         <span class="font-bold font-mono"
-                                            :class="comparisonData?.metadata?.heuristic_gates?.asset_hash === 'verified' ? 'text-emerald-400' : 'text-rose-400'">
+                                            :class="comparisonData?.metadata?.heuristic_gates?.asset_hash === 'verified' ? 'text-[#CBB48A]' : 'text-rose-400'">
                                             {{ comparisonData?.metadata?.heuristic_gates?.asset_hash || comparisonData?.logic_gates?.hash || 'PENDING' }}
                                         </span>
                                     </div>
@@ -830,11 +830,11 @@ const viewOnMarketplace = () => {
                                     <div class="flex items-center justify-between text-xs bg-slate-900/50 p-2 rounded border border-slate-800">
                                         <div class="flex items-center gap-2">
                                             <div class="w-2 h-2 rounded-full shadow-[0_0_8px_rgba(6,182,212,0.5)]"
-                                                :class="(comparisonData?.metadata?.heuristic_gates?.dom_parity === 'verified' || parseFloat(comparisonData?.logic_gates?.dom) > 90) ? 'bg-emerald-500' : 'bg-cyan-500'"></div>
+                                                :class="(comparisonData?.metadata?.heuristic_gates?.dom_parity === 'verified' || parseFloat(comparisonData?.logic_gates?.dom) > 90) ? 'bg-[#CBB48A]' : 'bg-[#F3E7C9]'"></div>
                                             <span class="text-slate-300 font-mono">DOM Structure Parity</span>
                                         </div>
                                         <span class="font-bold font-mono"
-                                            :class="(comparisonData?.metadata?.heuristic_gates?.dom_parity === 'verified' || parseFloat(comparisonData?.logic_gates?.dom) > 90) ? 'text-emerald-400' : 'text-cyan-400'">
+                                            :class="(comparisonData?.metadata?.heuristic_gates?.dom_parity === 'verified' || parseFloat(comparisonData?.logic_gates?.dom) > 90) ? 'text-[#CBB48A]' : 'text-[#F3E7C9]'">
                                             {{ comparisonData?.metadata?.heuristic_gates?.dom_parity || comparisonData?.logic_gates?.dom || 'Calculating...' }}
                                         </span>
                                     </div>
@@ -842,12 +842,12 @@ const viewOnMarketplace = () => {
                                     <!-- METADATA -->
                                     <div class="flex items-center justify-between text-xs bg-slate-900/50 p-2 rounded border border-slate-800">
                                         <div class="flex items-center gap-2">
-                                            <div class="w-2 h-2 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)]"
-                                                :class="comparisonData?.metadata?.heuristic_gates?.metadata_consistency === 'verified' ? 'bg-emerald-500' : 'bg-rose-500'"></div>
+                                            <div class="w-2 h-2 rounded-full shadow-[0_0_8px_rgba(203, 180, 138, 0.5)]"
+                                                :class="comparisonData?.metadata?.heuristic_gates?.metadata_consistency === 'verified' ? 'bg-[#CBB48A]' : 'bg-rose-500'"></div>
                                             <span class="text-slate-300 font-mono">Metadata Consistency</span>
                                         </div>
                                         <span class="font-bold font-mono"
-                                            :class="comparisonData?.metadata?.heuristic_gates?.metadata_consistency === 'verified' ? 'text-emerald-400' : 'text-rose-400'">
+                                            :class="comparisonData?.metadata?.heuristic_gates?.metadata_consistency === 'verified' ? 'text-[#CBB48A]' : 'text-rose-400'">
                                             {{ comparisonData?.metadata?.heuristic_gates?.metadata_consistency || comparisonData?.logic_gates?.metadata || 'PENDING' }}
                                         </span>
                                     </div>
@@ -877,7 +877,7 @@ const viewOnMarketplace = () => {
                                              <svg v-else class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
                                          </div>
                                          <div class="flex flex-col">
-                                             <span class="text-xs font-mono text-cyan-300">{{ node.repoFile }}</span>
+                                             <span class="text-xs font-mono text-[#F3E7C9]/70">{{ node.repoFile }}</span>
                                              <span class="text-[10px] text-slate-500 uppercase">{{ node.type || 'Source' }}</span>
                                          </div>
                                      </div>
@@ -887,10 +887,10 @@ const viewOnMarketplace = () => {
 
                                      <div class="flex items-center gap-2 text-right">
                                          <div class="flex flex-col items-end">
-                                             <span class="text-xs font-mono text-emerald-300">{{ node.liveRoute }}</span>
+                                             <span class="text-xs font-mono text-[#CBB48A]/70">{{ node.liveRoute }}</span>
                                              <span class="text-[10px] text-slate-500 uppercase">Live Endpoint</span>
                                          </div>
-                                         <div class="w-2 h-2 rounded-full" :class="node.status === 'match' ? 'bg-emerald-500' : 'bg-rose-500'"></div>
+                                         <div class="w-2 h-2 rounded-full" :class="node.status === 'match' ? 'bg-[#CBB48A]' : 'bg-rose-500'"></div>
                                      </div>
                                 </div>
                             </div>
@@ -910,14 +910,15 @@ const viewOnMarketplace = () => {
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                         Scan Again
                      </button>
+                     <!-- Marketplace Listing is disabled
                      <button 
                         @click="isAlreadyListed ? viewOnMarketplace() : $emit('open-marketplace-listing', isAlreadyListed)"
                         :disabled="!isAlreadyListed && (duplicateCheckResult?.is_duplicate || ((comparisonData?.sync_score || 0) < 85 && !comparisonData?.marketplace_eligible))"
                         :class="[
                             isAlreadyListed
-                            ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-500/20'
+                            ? 'bg-[#DCC8A5] hover:bg-[#CBB48A] text-white shadow-[#CBB48A]/20'
                             : ((comparisonData?.sync_score || 0) >= 85 || comparisonData?.marketplace_eligible) && !duplicateCheckResult?.is_duplicate
-                                ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-500/20' 
+                                ? 'bg-[#DCC8A5] hover:bg-[#CBB48A] text-white shadow-[#CBB48A]/20' 
                                 : 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed opacity-50'
                         ]"
                         class="px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wide shadow-lg transition-all flex items-center gap-2"
@@ -939,12 +940,13 @@ const viewOnMarketplace = () => {
                              Locked (Sync < 85%)
                         </template>
                      </button>
+                     -->
 
                      <!-- LUME VERIFICATION BUTTON (70-84 Range) -->
                      <button 
                         v-if="(comparisonData?.sync_score >= 70 && comparisonData?.sync_score < 85) || (comparisonData?.marketplace_eligible === false && (comparisonData?.sync_score >= 70))"
                         @click="showVerificationModal = true"
-                        class="px-5 py-2 rounded-lg text-xs font-bold uppercase tracking-wide bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2"
+                        class="px-5 py-2 rounded-lg text-xs font-bold uppercase tracking-wide bg-[#DCC8A5] hover:bg-[#F3E7C9] text-white shadow-lg shadow-[#F3E7C9]/20 transition-all flex items-center gap-2"
                      >
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
                         Generate Lume Verification
@@ -954,7 +956,7 @@ const viewOnMarketplace = () => {
                       <button 
                     v-if="syncScore >= 80"
                     @click="hasExistingScan ? $emit('open-pentest-results') : $emit('deep-audit')"
-                    class="px-5 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-bold rounded-lg shadow-lg shadow-cyan-500/30 flex items-center gap-2 transition-all"
+                    class="px-5 py-2.5 bg-[#DCC8A5] hover:bg-[#F3E7C9] text-white text-sm font-bold rounded-lg shadow-lg shadow-[#F3E7C9]/30 flex items-center gap-2 transition-all"
                 >
                     <!-- Icon: Document Search (View) or Lightning (Pentest) -->
                     <svg v-if="hasExistingScan" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -993,7 +995,7 @@ const viewOnMarketplace = () => {
                             <div class="p-2 rounded-lg bg-indigo-500/20 text-indigo-400">
                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             </div>
-                            <span class="text-xs font-black text-white uppercase tracking-tighter">Forensic Correlation Verdict</span>
+                            <span class="text-xs font-black text-white uppercase tracking-tight">Forensic Correlation Verdict</span>
                         </div>
                         <p class="text-sm text-slate-400 leading-relaxed italic">
                             "{{ comparisonData.drift_analysis?.summary || comparisonData.insights || 'Analysis successful. High architectural alignment detected.' }}"
@@ -1005,7 +1007,7 @@ const viewOnMarketplace = () => {
                         <div class="flex justify-between items-center px-1">
                             <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Vector Alignment Matrix</span>
                             <div class="flex items-center gap-2">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#CBB48A]"></span>
                                 <span class="text-[8px] text-slate-600 uppercase">Live</span>
                                 <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 ml-1"></span>
                                 <span class="text-[8px] text-slate-600 uppercase">Repo</span>
@@ -1030,7 +1032,7 @@ const viewOnMarketplace = () => {
                                             </div>
                                         </td>
                                         <td class="p-3 text-right">
-                                            <span class="text-xs font-mono text-emerald-400">{{ v.v1 }}</span>
+                                            <span class="text-xs font-mono text-[#CBB48A]">{{ v.v1 }}</span>
                                         </td>
                                         <td class="p-3 text-right">
                                             <span class="text-xs font-mono text-indigo-400">{{ v.v2 }}</span>
@@ -1060,10 +1062,10 @@ const viewOnMarketplace = () => {
                             
                             <div class="px-4 py-3 border-b border-slate-800 bg-white/5 flex justify-between items-center">
                                 <div class="flex items-center gap-2">
-                                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                                    <div class="w-2 h-2 rounded-full bg-[#CBB48A] animate-pulse"></div>
                                     <span class="text-[10px] font-mono text-indigo-400">{{ (evidence as any).file }}</span>
                                 </div>
-                                <div class="text-[8px] text-slate-500 font-black uppercase tracking-widest">Identity Proof #{{ Number(proofIdx) + 1 }}</div>
+                                <div class="text-[8px] text-slate-500 font-bold tracking-wider">Identity Proof #{{ Number(proofIdx) + 1 }}</div>
                             </div>
                             
                             <div class="p-4 flex flex-col gap-4">
@@ -1071,23 +1073,23 @@ const viewOnMarketplace = () => {
                                      <!-- Repo Side -->
                                      <div class="md:col-span-2 space-y-1">
                                          <span class="text-[8px] text-slate-600 font-bold uppercase">Source (Git)</span>
-                                         <pre class="text-[10px] text-cyan-300 font-mono bg-[#020408] p-3 rounded border border-cyan-500/10 overflow-x-auto whitespace-pre-wrap max-h-24 custom-scrollbar">{{ evidence.snippet }}</pre>
+                                         <pre class="text-[10px] text-[#F3E7C9]/70 font-mono bg-[#020408] p-3 rounded border border-[#F3E7C9]/10 overflow-x-auto whitespace-pre-wrap max-h-24 custom-scrollbar">{{ evidence.snippet }}</pre>
                                      </div>
 
                                      <!-- Visual Connector -->
                                      <div class="hidden md:flex flex-col items-center justify-center gap-1 opacity-50 group-hover:opacity-100 transition-all">
-                                         <div class="h-px w-full bg-gradient-to-r from-cyan-500/0 via-cyan-500 to-emerald-500/0"></div>
+                                         <div class="h-px w-full bg-gradient-to-r from-[#F3E7C9]/0 via-[#F3E7C9] to-[#CBB48A]/0"></div>
                                          <div class="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[8px] text-slate-400 font-bold uppercase">DNA SYNC</div>
-                                         <div class="h-px w-full bg-gradient-to-r from-cyan-500/0 via-emerald-500 to-emerald-500/0"></div>
+                                         <div class="h-px w-full bg-gradient-to-r from-[#F3E7C9]/0 via-[#CBB48A] to-[#CBB48A]/0"></div>
                                      </div>
 
                                      <!-- Web Side -->
                                      <div class="md:col-span-2 space-y-1">
                                          <span class="text-[8px] text-slate-600 font-bold uppercase">Runtime (Web)</span>
-                                         <div class="p-3 bg-emerald-500/5 border border-emerald-500/10 rounded-lg h-24 flex items-center justify-center">
+                                         <div class="p-3 bg-[#CBB48A]/5 border border-[#CBB48A]/10 rounded-lg h-24 flex items-center justify-center">
                                               <div class="flex flex-col items-center">
-                                                  <svg class="w-5 h-5 text-emerald-500 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                                                  <span class="text-[9px] text-emerald-400 font-bold text-center">Identity Confirmed</span>
+                                                  <svg class="w-5 h-5 text-[#CBB48A] mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                                  <span class="text-[9px] text-[#CBB48A] font-bold text-center">Identity Confirmed</span>
                                               </div>
                                          </div>
                                      </div>
@@ -1115,17 +1117,17 @@ const viewOnMarketplace = () => {
                  <div>
                      <div class="flex items-center gap-3 mb-1">
                          <div class="px-2 py-0.5 rounded bg-indigo-500 text-[8px] font-black text-white tracking-widest uppercase">Titan v2.0</div>
-                         <h3 class="text-lg font-black text-white uppercase tracking-tighter">Forensic Audit Report</h3>
+                         <h3 class="text-lg font-black text-white uppercase tracking-tight">Forensic Audit Report</h3>
                      </div>
                      <div class="flex gap-4">
-                         <div class="text-[9px] text-slate-500 uppercase font-mono tracking-tighter">Serial: <span class="text-slate-400">LUME-SYNC-{{ String(props.comparisonData?.id || 'PROD').slice(-6) }}</span></div>
-                         <div class="text-[9px] text-slate-500 uppercase font-mono tracking-tighter">Timestamp: <span class="text-slate-400">{{ new Date().toISOString().split('T')[0] }}</span></div>
+                         <div class="text-[9px] text-slate-500 uppercase font-mono tracking-tight">Serial: <span class="text-slate-400">LUME-SYNC-{{ String(props.comparisonData?.id || 'PROD').slice(-6) }}</span></div>
+                         <div class="text-[9px] text-slate-500 uppercase font-mono tracking-tight">Timestamp: <span class="text-slate-400">{{ new Date().toISOString().split('T')[0] }}</span></div>
                      </div>
                  </div>
                  <div class="flex flex-col items-end">
                       <div :class="[
-                          'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest',
-                          (comparisonData?.sync_score ?? 0) >= 85 ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 
+                          'px-3 py-1 rounded-full text-[10px] font-bold tracking-wider',
+                          (comparisonData?.sync_score ?? 0) >= 85 ? 'bg-[#CBB48A]/10 text-[#CBB48A] border border-[#CBB48A]/20' : 
                           (comparisonData?.sync_score ?? 0) >= 70 ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 
                           'bg-rose-500/10 text-rose-500 border border-rose-500/20'
                       ]">
@@ -1140,21 +1142,21 @@ const viewOnMarketplace = () => {
                   <!-- DNA Provenance -->
                   <div class="space-y-4">
                       <div class="flex justify-between items-center border-b border-slate-800/50 pb-2">
-                          <div class="text-[10px] text-indigo-400 font-black uppercase tracking-widest">DNA Provenance (Provenance Tier 1)</div>
+                          <div class="text-[10px] text-indigo-400 font-bold tracking-wider">DNA Provenance (Provenance Tier 1)</div>
                            <div class="text-[9px] text-slate-500 font-mono italic">Universal Forensic Audit</div>
                       </div>
                       
                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                            <!-- Card 1: STRUCTURE DNA -->
                            <div class="p-4 bg-[#050811] border border-white/5 rounded-xl flex flex-col items-center justify-center text-center">
-                               <div :class="['w-8 h-8 rounded-lg flex items-center justify-center mb-3', normalizedAIReport.dna?.structural_dna === 'verified' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500']">
+                               <div :class="['w-8 h-8 rounded-lg flex items-center justify-center mb-3', normalizedAIReport.dna?.structural_dna === 'verified' ? 'bg-[#CBB48A]/10 text-[#CBB48A]' : 'bg-rose-500/10 text-rose-500']">
                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                        <path v-if="normalizedAIReport.dna?.structural_dna === 'verified'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                        <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                    </svg>
                                </div>
                                <div class="text-[9px] text-slate-500 font-bold uppercase mb-0.5">Structure DNA</div>
-                               <div class="text-[10px] text-white font-black uppercase tracking-tighter">{{ normalizedAIReport.dna?.structural_dna === 'verified' ? 'Match Confirmed' : 'Drift Detected' }}</div>
+                               <div class="text-[10px] text-white font-black uppercase tracking-tight">{{ normalizedAIReport.dna?.structural_dna === 'verified' ? 'Match Confirmed' : 'Drift Detected' }}</div>
                            </div>
 
                            <!-- Card 2: TECH STACK -->
@@ -1165,18 +1167,18 @@ const viewOnMarketplace = () => {
                                    </svg>
                                </div>
                                <div class="text-[9px] text-slate-500 font-bold uppercase mb-0.5">Tech Stack</div>
-                               <div class="text-[10px] text-white font-black uppercase tracking-tighter">{{ normalizedAIReport.dna?.tech_stack === 'verified' ? 'Verified (AI)' : 'Partial Match' }}</div>
+                               <div class="text-[10px] text-white font-black uppercase tracking-tight">{{ normalizedAIReport.dna?.tech_stack === 'verified' ? 'Verified (AI)' : 'Partial Match' }}</div>
                            </div>
 
                            <!-- Card 3: STRATEGIC CONTEXT -->
                            <div class="p-4 bg-[#050811] border border-white/5 rounded-xl flex flex-col items-center justify-center text-center">
-                               <div :class="['w-8 h-8 rounded-lg flex items-center justify-center mb-3', normalizedAIReport.dna?.strategic_context === 'verified' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500']">
+                               <div :class="['w-8 h-8 rounded-lg flex items-center justify-center mb-3', normalizedAIReport.dna?.strategic_context === 'verified' ? 'bg-[#CBB48A]/10 text-[#CBB48A]' : 'bg-rose-500/10 text-rose-500']">
                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                    </svg>
                                </div>
                                <div class="text-[9px] text-slate-500 font-bold uppercase mb-0.5">Strategic Context</div>
-                               <div class="text-[10px] text-white font-black uppercase tracking-tighter">{{ normalizedAIReport.dna?.strategic_context === 'verified' ? 'Context Match' : 'Domain Drift' }}</div>
+                               <div class="text-[10px] text-white font-black uppercase tracking-tight">{{ normalizedAIReport.dna?.strategic_context === 'verified' ? 'Context Match' : 'Domain Drift' }}</div>
                            </div>
                        </div>
                       
@@ -1189,7 +1191,7 @@ const viewOnMarketplace = () => {
 
                   <!-- Auditor Observations -->
                   <div class="space-y-3">
-                      <div class="text-[10px] text-indigo-400 font-black uppercase tracking-widest px-1">Auditor Observations</div>
+                      <div class="text-[10px] text-indigo-400 font-bold tracking-wider px-1">Auditor Observations</div>
                       <div class="p-6 bg-indigo-500/5 border border-indigo-500/10 rounded-2xl relative overflow-hidden group">
                            <div class="absolute -top-12 -right-12 w-32 h-32 bg-indigo-500/10 blur-3xl rounded-full"></div>
                             <div class="relative z-10 flex gap-6">
@@ -1213,29 +1215,29 @@ const viewOnMarketplace = () => {
                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                        <!-- Math log -->
                        <div class="space-y-4">
-                           <div class="text-[10px] text-slate-500 font-black uppercase tracking-widest px-1">Proof of Work (Additive Model)</div>
+                           <div class="text-[10px] text-slate-500 font-bold tracking-wider px-1">Proof of Work (Additive Model)</div>
                            <div class="space-y-2">
                                <div class="flex items-center justify-between p-3 bg-white/[0.02] border border-white/5 rounded-xl border-l-2 border-l-slate-700">
                                    <span class="text-[10px] text-slate-400 font-bold uppercase">Base Trust Score</span>
                                    <span class="text-xs font-mono text-slate-500">0.00</span>
                                </div>
-                                <div v-for="(log, logIdx) in finalCalculationLog" :key="logIdx" class="group relative flex items-center justify-between p-3 bg-emerald-500/5 border border-emerald-500/10 rounded-xl border-l-2 border-l-emerald-500/50 hover:bg-emerald-500/10 transition-all cursor-help">
+                                <div v-for="(log, logIdx) in finalCalculationLog" :key="logIdx" class="group relative flex items-center justify-between p-3 bg-[#CBB48A]/5 border border-[#CBB48A]/10 rounded-xl border-l-2 border-l-[#CBB48A]/50 hover:bg-[#CBB48A]/10 transition-all cursor-help">
                                     <div class="flex flex-col">
-                                        <span class="text-[10px] text-emerald-100/70 uppercase font-black tracking-tight">{{ log.label }}</span>
+                                        <span class="text-[10px] text-[#CBB48A]/10/70 uppercase font-black tracking-tight">{{ log.label }}</span>
                                         <span v-if="log.maxScore" class="text-[8px] text-slate-500 font-bold">{{ log.maxScore }}</span>
                                     </div>
-                                    <span class="text-xs font-mono text-emerald-400 font-bold">{{ log.score }}</span>
+                                    <span class="text-xs font-mono text-[#CBB48A] font-bold">{{ log.score }}</span>
                                     
                                     <!-- Attractive Glassmorphism Tooltip -->
                                     <div class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 p-3 bg-[#0b101b]/98 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 z-[130]">
-                                        <div class="text-[9px] text-indigo-400 font-black uppercase tracking-widest mb-1.5 border-b border-white/5 pb-1">Forensic Discussion</div>
+                                        <div class="text-[9px] text-indigo-400 font-bold tracking-wider mb-1.5 border-b border-white/5 pb-1">Forensic Discussion</div>
                                         <div class="text-[10px] text-slate-200 leading-relaxed font-medium italic">"{{ log.discussion }}"</div>
                                         <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#0b101b] border-r border-b border-white/10 rotate-45"></div>
                                     </div>
                                 </div>
                                <div class="mt-4 flex items-center justify-between p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl relative overflow-hidden">
                                    <div class="absolute inset-0 bg-indigo-500/5 blur-xl"></div>
-                                   <span class="text-[11px] text-white font-black uppercase tracking-widest relative">Final Sync Score</span>
+                                   <span class="text-[11px] text-white font-bold tracking-wider relative">Final Sync Score</span>
                                    <span class="text-xl font-black text-white font-mono relative">{{ Number(comparisonData?.sync_score ?? 0).toFixed(2) }}%</span>
                                </div>
                            </div>
@@ -1243,19 +1245,19 @@ const viewOnMarketplace = () => {
 
                        <!-- Vector Alignment Graph -->
                        <div class="space-y-4">
-                           <div class="text-[10px] text-slate-500 font-black uppercase tracking-widest px-1">Structural Alignment</div>
+                           <div class="text-[10px] text-slate-500 font-bold tracking-wider px-1">Structural Alignment</div>
                             <div class="p-5 bg-black/40 border border-white/5 rounded-2xl h-full flex flex-col justify-center gap-4">
                                  <div v-for="vec in vectorCorrelation" :key="vec.key" class="space-y-1.5">
                                      <div class="flex justify-between text-[8px] uppercase font-bold text-slate-600">
                                          <span>{{ vec.label }}</span>
-                                         <span :class="vec.status === 'match' ? 'text-emerald-400' : 'text-amber-400'">
+                                         <span :class="vec.status === 'match' ? 'text-[#CBB48A]' : 'text-amber-400'">
                                              {{ Math.max(0, 100 - vec.delta).toFixed(0) }}% Correlation
                                          </span>
                                      </div>
                                      <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
                                          <div 
                                             class="h-full transition-all duration-1000" 
-                                            :class="vec.status === 'match' ? 'bg-emerald-500/50' : 'bg-amber-500/50'"
+                                            :class="vec.status === 'match' ? 'bg-[#CBB48A]/50' : 'bg-amber-500/50'"
                                             :style="{ width: Math.max(0, 100 - vec.delta) + '%' }"
                                          ></div>
                                      </div>
@@ -1269,15 +1271,15 @@ const viewOnMarketplace = () => {
 
                    <!-- Remediation Roadmap -->
                    <div v-if="normalizedAIReport.roadmap?.length" class="space-y-4">
-                        <div class="text-[10px] text-emerald-500 font-black uppercase tracking-widest px-1">Remediation Roadmap</div>
+                        <div class="text-[10px] text-[#CBB48A] font-bold tracking-wider px-1">Remediation Roadmap</div>
                         <div class="grid grid-cols-1 gap-3">
-                            <div v-for="(task, tIdx) in normalizedAIReport.roadmap" :key="tIdx" class="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-xl flex flex-col gap-4 group hover:border-emerald-500/30 transition-all">
+                            <div v-for="(task, tIdx) in normalizedAIReport.roadmap" :key="tIdx" class="p-4 bg-[#CBB48A]/5 border border-[#CBB48A]/10 rounded-xl flex flex-col gap-4 group hover:border-[#CBB48A]/30 transition-all">
                                 <div 
                                     @click="expandedRoadmapTask = expandedRoadmapTask === tIdx ? null : tIdx"
                                     class="flex items-center justify-between cursor-pointer"
                                 >
                                     <div class="flex items-center gap-4">
-                                        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 text-[10px] font-black">
+                                        <div class="w-8 h-8 rounded-lg bg-[#CBB48A]/10 border border-[#CBB48A]/20 flex items-center justify-center text-[#CBB48A] text-[10px] font-black">
                                             {{ tIdx + 1 }}
                                         </div>
                                         <div>
@@ -1294,7 +1296,7 @@ const viewOnMarketplace = () => {
                                             <div class="text-[9px] text-slate-500 uppercase font-bold">{{ (task as any).priority }} Priority</div>
                                         </div>
                                     </div>
-                                    <div class="px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 text-[9px] font-black uppercase tracking-tighter">
+                                    <div class="px-2 py-1 rounded bg-[#CBB48A]/20 text-[#CBB48A] text-[9px] font-black uppercase tracking-tight">
                                         {{ (task as any).impact }}
                                     </div>
                                 </div>
@@ -1342,7 +1344,7 @@ const viewOnMarketplace = () => {
                                         </div>
                                     </div>
 
-                                    <button @click="generateVerificationFile" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-600/20">
+                                    <button @click="generateVerificationFile" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold tracking-wider rounded-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-600/20">
                                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                                         Download Handshake File
                                     </button>
@@ -1353,11 +1355,11 @@ const viewOnMarketplace = () => {
 
                    <!-- Recovery Path (Fallback for legacy) -->
                    <div v-else-if="(comparisonData?.sync_score ?? 0) < 95" class="space-y-3">
-                       <div class="text-[10px] text-emerald-500/70 font-bold uppercase tracking-widest px-1">Eligibility Recovery Path</div>
-                       <div class="p-5 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl space-y-4">
+                       <div class="text-[10px] text-[#CBB48A]/70 font-bold uppercase tracking-widest px-1">Eligibility Recovery Path</div>
+                       <div class="p-5 bg-[#CBB48A]/5 border border-[#CBB48A]/10 rounded-2xl space-y-4">
                            <div v-if="normalizedAIReport.path?.length" class="space-y-4">
                                 <div v-for="(step, sIdxInPath) in normalizedAIReport.path" :key="sIdxInPath" class="flex gap-4">
-                                    <div class="shrink-0 w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 text-[10px] font-black">
+                                    <div class="shrink-0 w-6 h-6 rounded-lg bg-[#CBB48A]/10 border border-[#CBB48A]/20 flex items-center justify-center text-[#CBB48A] text-[10px] font-black">
                                         {{ Number(sIdxInPath) + 1 }}
                                     </div>
                                     <p class="text-[11px] text-slate-300 leading-tight pt-1">{{ step }}</p>
@@ -1372,9 +1374,9 @@ const viewOnMarketplace = () => {
                   <div class="flex items-center gap-4">
                       <div class="text-[9px] text-slate-600 uppercase font-black tracking-widest">Sovereign Proof of Sync</div>
                       <div class="w-px h-3 bg-slate-800"></div>
-                      <div class="text-[9px] text-indigo-500 font-black uppercase tracking-widest">Hash Verified</div>
+                      <div class="text-[9px] text-indigo-500 font-bold tracking-wider">Hash Verified</div>
                   </div>
-                  <button @click="showCalculationReport = false; showPenEligibilityModal = false" class="px-6 py-2 bg-white/5 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-lg border border-white/10 transition-all">
+                  <button @click="showCalculationReport = false; showPenEligibilityModal = false" class="px-6 py-2 bg-white/5 hover:bg-white/10 text-white text-[10px] font-bold tracking-wider rounded-lg border border-white/10 transition-all">
                       Dismiss Report
                   </button>
               </div>
@@ -1406,11 +1408,11 @@ const viewOnMarketplace = () => {
 
                  <div class="grid grid-cols-2 gap-4">
                      <!-- Live Evidence -->
-                     <div class="p-4 bg-emerald-500/5 rounded-lg border border-emerald-500/10">
-                         <div class="text-xs font-bold text-emerald-400 uppercase mb-3">Live Site Evidence</div>
+                     <div class="p-4 bg-[#CBB48A]/5 rounded-lg border border-[#CBB48A]/10">
+                         <div class="text-xs font-bold text-[#CBB48A] uppercase mb-3">Live Site Evidence</div>
                          <ul class="space-y-2">
-                             <li v-for="tag in enrichedStackAnalysis.live_evidence" :key="tag" class="flex items-start gap-2 text-xs text-emerald-300 font-mono">
-                                 <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                             <li v-for="tag in enrichedStackAnalysis.live_evidence" :key="tag" class="flex items-start gap-2 text-xs text-[#CBB48A]/70 font-mono">
+                                 <svg class="w-4 h-4 text-[#CBB48A] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                                  {{ tag }}
                              </li>
                          </ul>
@@ -1434,17 +1436,17 @@ const viewOnMarketplace = () => {
     <!-- LUME VERIFICATION MODAL -->
     <div v-if="showVerificationModal" class="fixed inset-0 z-[130] flex items-center justify-center p-4 sm:p-6 md:p-10 backdrop-blur-sm bg-black/80 overflow-y-auto">
         <div class="absolute inset-0" @click="showVerificationModal = false"></div>
-        <div class="relative w-full max-w-xl my-auto bg-[#0b101b] rounded-2xl border border-cyan-500/30 shadow-[0_0_50px_rgba(6,182,212,0.2)] flex flex-col max-h-[90vh] overflow-hidden">
+        <div class="relative w-full max-w-xl my-auto bg-[#0b101b] rounded-2xl border border-[#F3E7C9]/30 shadow-[0_0_50px_rgba(6,182,212,0.2)] flex flex-col max-h-[90vh] overflow-hidden">
              <!-- Modal Glow -->
-             <div class="absolute -top-24 -left-24 w-48 h-48 bg-cyan-600/20 blur-3xl rounded-full"></div>
+             <div class="absolute -top-24 -left-24 w-48 h-48 bg-[#DCC8A5]/20 blur-3xl rounded-full"></div>
              
              <div class="flex-1 overflow-y-auto custom-scrollbar p-6 sm:p-8 relative">
                  <div class="flex items-center gap-4 mb-6">
-                     <div class="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center text-cyan-400">
+                     <div class="w-12 h-12 rounded-xl bg-[#F3E7C9]/20 flex items-center justify-center text-[#F3E7C9]">
                          <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
                      </div>
                      <div>
-                         <h3 class="text-xl font-black text-white uppercase tracking-tighter">Identity Handshake</h3>
+                         <h3 class="text-xl font-black text-white uppercase tracking-tight">Identity Handshake</h3>
                          <p class="text-[10px] text-slate-500 font-mono uppercase">Bridge the gap between Code & Production</p>
                      </div>
                  </div>
@@ -1453,7 +1455,7 @@ const viewOnMarketplace = () => {
                      <div class="p-4 bg-indigo-500/5 border border-indigo-500/10 rounded-xl">
                          <h4 class="text-xs font-bold text-indigo-300 uppercase mb-2">Why is this needed?</h4>
                          <p class="text-xs text-slate-400 leading-relaxed">
-                             Modern production environments (CDNs, minifiers, and hidden headers) can hide digital fingerprints. If you are the owner, you can manually link this asset and receive a <span class="text-emerald-400 font-bold">+16.00 score bonus</span>.
+                             Modern production environments (CDNs, minifiers, and hidden headers) can hide digital fingerprints. If you are the owner, you can manually link this asset and receive a <span class="text-[#CBB48A] font-bold">+16.00 score bonus</span>.
                          </p>
                      </div>
 
@@ -1473,7 +1475,7 @@ const viewOnMarketplace = () => {
                          <div class="flex items-start gap-3">
                              <div class="w-5 h-5 rounded-full bg-slate-800 text-[10px] font-bold flex items-center justify-center text-slate-400 shrink-0 mt-0.5">3</div>
                              <div class="text-xs text-slate-300">
-                                 Deploy your site so that <code class="text-emerald-400">yourdomain.com/lume_verification.txt</code> is publicly accessible.
+                                 Deploy your site so that <code class="text-[#CBB48A]">yourdomain.com/lume_verification.txt</code> is publicly accessible.
                              </div>
                          </div>
                          <div class="flex items-start gap-3">
@@ -1521,7 +1523,7 @@ const viewOnMarketplace = () => {
                                 <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                             </div>
                             <div>
-                                <h3 class="text-xl font-black text-white uppercase tracking-tighter">Eligibility Checker</h3>
+                                <h3 class="text-xl font-black text-white uppercase tracking-tight">Eligibility Checker</h3>
                                 <p class="text-[10px] text-red-400 font-mono uppercase tracking-widest">LUME_SEC_OPS // ACCESS_CONTROL</p>
                             </div>
                         </div>
@@ -1541,36 +1543,36 @@ const viewOnMarketplace = () => {
                                     <div class="flex justify-between items-center text-xs">
                                         <span class="text-slate-500">Sync Score (85+)</span>
                                         <div class="flex items-center gap-2">
-                                            <span :class="syncScore >= 85 ? 'text-emerald-400' : 'text-red-400'" class="font-mono font-bold">{{ syncScore.toFixed(2) }}%</span>
-                                            <svg v-if="syncScore >= 85" class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                            <span :class="syncScore >= 85 ? 'text-[#CBB48A]' : 'text-red-400'" class="font-mono font-bold">{{ syncScore.toFixed(2) }}%</span>
+                                            <svg v-if="syncScore >= 85" class="w-4 h-4 text-[#CBB48A]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                                             <svg v-else class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                                         </div>
                                     </div>
                                     <div class="flex justify-between items-center text-xs">
                                         <span class="text-slate-500">LUME Handshake Verified</span>
                                         <div class="flex items-center gap-2">
-                                            <span :class="isLumeVerified ? 'text-emerald-400' : 'text-red-400'" class="font-mono font-bold uppercase">{{ isLumeVerified ? 'Confirmed' : 'Missing' }}</span>
-                                            <svg v-if="isLumeVerified" class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                            <span :class="isLumeVerified ? 'text-[#CBB48A]' : 'text-red-400'" class="font-mono font-bold uppercase">{{ isLumeVerified ? 'Confirmed' : 'Missing' }}</span>
+                                            <svg v-if="isLumeVerified" class="w-4 h-4 text-[#CBB48A]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                                             <svg v-else class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div v-if="canPerformPentest" class="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-                                <p class="text-xs text-emerald-400 font-bold mb-1 uppercase tracking-widest text-center">Protocol Cleared</p>
-                                <p class="text-[10px] text-emerald-300/70 text-center uppercase tracking-tighter">Your asset meets the sovereign requirements for deep penetration testing.</p>
+                            <div v-if="canPerformPentest" class="p-4 bg-[#CBB48A]/10 border border-[#CBB48A]/20 rounded-xl">
+                                <p class="text-xs text-[#CBB48A] font-bold mb-1 uppercase tracking-widest text-center">Protocol Cleared</p>
+                                <p class="text-[10px] text-[#CBB48A]/70/70 text-center uppercase tracking-tight">Your asset meets the sovereign requirements for deep penetration testing.</p>
                             </div>
                             <div v-else class="p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl">
                                 <p class="text-xs text-orange-400 font-bold mb-1 uppercase tracking-widest text-center">Access Denied</p>
-                                <p class="text-[10px] text-orange-300/70 text-center uppercase tracking-tighter">You must achieve 85+ sync score and confirm ownership via LUME Handshake to unlock deep forensics.</p>
+                                <p class="text-[10px] text-orange-300/70 text-center uppercase tracking-tight">You must achieve 85+ sync score and confirm ownership via LUME Handshake to unlock deep forensics.</p>
                             </div>
                             -->
 
                             <button 
                                 @click="startPentest"
                                 :disabled="!canPerformPentest"
-                                class="w-full py-4 rounded-2xl font-black uppercase tracking-widest text-sm transition-all shadow-xl flex flex-col items-center justify-center gap-1"
+                                class="w-full py-4 rounded-2xl font-bold tracking-wider text-sm transition-all shadow-xl flex flex-col items-center justify-center gap-1"
                                 :class="canPerformPentest 
                                     ? 'bg-red-600 hover:bg-red-500 text-white shadow-red-900/40 hover:scale-[1.02] active:scale-95' 
                                     : 'bg-slate-800 text-slate-600 cursor-not-allowed border border-white/5'"

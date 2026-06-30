@@ -21,7 +21,7 @@ const form = useForm({
 <template>
     <section>
         <header>
-            <h2 class="text-xl font-black italic tracking-tighter text-white uppercase mt-1">
+            <h2 class="text-xl font-bold tracking-tight text-white uppercase mt-1">
                 Profile Information
             </h2>
 
@@ -35,12 +35,12 @@ const form = useForm({
             class="mt-6 space-y-6"
         >
             <div>
-                <InputLabel for="name" value="Name" class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
+                <InputLabel for="name" value="Name" class="text-[10px] font-bold tracking-wider text-gray-400 mb-2" />
 
                 <TextInput
                     id="name"
                     type="text"
-                    class="mt-1 block w-full bg-white/5 border-white/10 text-white text-sm font-bold tracking-tight px-4 py-3 rounded-xl focus:ring-emerald-400/30 focus:border-emerald-400/50"
+                    class="mt-1 block w-full bg-white/5 border-white/10 text-white text-sm font-bold tracking-tight px-4 py-3 rounded-xl focus:ring-[#CBB48A]/30 focus:border-[#CBB48A]/50"
                     v-model="form.name"
                     required
                     autofocus
@@ -51,12 +51,12 @@ const form = useForm({
             </div>
 
             <div>
-                <InputLabel for="email" value="Email" class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
+                <InputLabel for="email" value="Email" class="text-[10px] font-bold tracking-wider text-gray-400 mb-2" />
 
                 <TextInput
                     id="email"
                     type="email"
-                    class="mt-1 block w-full bg-white/5 border-white/10 text-white text-sm font-bold tracking-tight px-4 py-3 rounded-xl focus:ring-emerald-400/30 focus:border-emerald-400/50"
+                    class="mt-1 block w-full bg-white/5 border-white/10 text-white text-sm font-bold tracking-tight px-4 py-3 rounded-xl focus:ring-[#CBB48A]/30 focus:border-[#CBB48A]/50"
                     v-model="form.email"
                     required
                     autocomplete="username"
@@ -89,7 +89,7 @@ const form = useForm({
             <div class="flex items-center gap-4">
                 <PrimaryButton 
                     :disabled="form.processing"
-                    class="bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black italic tracking-tighter uppercase px-8 py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-emerald-400/10"
+                    class="bg-[#CBB48A] hover:bg-[#CBB48A]/70 text-slate-950 font-bold tracking-tight px-8 py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-[#CBB48A]/10"
                 >
                     Save Changes
                 </PrimaryButton>
@@ -102,7 +102,7 @@ const form = useForm({
                 >
                     <p
                         v-if="form.recentlySuccessful"
-                        class="text-[10px] font-black uppercase tracking-widest text-emerald-400 animate-pulse"
+                        class="text-[10px] font-bold tracking-wider text-[#CBB48A] animate-pulse"
                     >
                         Saved.
                     </p>

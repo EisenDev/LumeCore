@@ -69,7 +69,7 @@ function getStatusBadge(asset: VaultAsset): { text: string; class: string } {
 </script>
 
 <template>
-    <Head title="My Marketplace - LUME" />
+    <Head title="My Marketplace - Lume" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -156,10 +156,10 @@ function getStatusBadge(asset: VaultAsset): { text: string; class: string } {
                         <h4 class="text-lg font-medium text-white">No Marketplace Assets</h4>
                         <p class="mt-2 text-sm text-gray-400">Upload and verify assets to list them for sale.</p>
                         <Link
-                            :href="route('dashboard')"
+                            :href="route('overview')"
                             class="mt-6 rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary px-6 py-3 font-semibold text-white shadow-lg transition-all hover:brightness-110"
                         >
-                            Go to Dashboard
+                            Go to Overview
                         </Link>
                     </div>
 

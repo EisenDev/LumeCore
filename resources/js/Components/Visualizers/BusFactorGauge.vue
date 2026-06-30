@@ -26,7 +26,7 @@ const riskLabel = computed(() => {
     const score = props.data.bus_factor_score;
     if (score <= 1) return { text: 'CRITICAL', color: 'text-rose-500' };
     if (score <= 3) return { text: 'MODERATE', color: 'text-amber-500' };
-    return { text: 'HEALTHY', color: 'text-emerald-500' };
+    return { text: 'HEALTHY', color: 'text-[#CBB48A]' };
 });
 
 const chartData = computed(() => {
@@ -36,7 +36,7 @@ const chartData = computed(() => {
         datasets: [{
             data: authors.map(a => a.percent),
             backgroundColor: [
-                '#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', 
+                '#CBB48A', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', 
                 '#6366f1', '#ec4899', '#14b8a6', '#f97316', '#64748b'
             ],
             borderWidth: 0

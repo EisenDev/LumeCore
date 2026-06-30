@@ -195,14 +195,14 @@ function formatDate(dateString: string): string {
 }
 
 function getScoreColor(score: number): string {
-    if (score >= 85) return 'text-emerald-400';
+    if (score >= 85) return 'text-[#CBB48A]';
     if (score >= 70) return 'text-amber-400';
     return 'text-rose-400';
 }
 
 function getStatusBadge(status: string): string {
     switch (status) {
-        case 'verified': return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+        case 'verified': return 'bg-[#CBB48A]/20 text-[#CBB48A] border-[#CBB48A]/30';
         case 'verified_private': return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
         case 'flagged': return 'bg-rose-500/20 text-rose-400 border-rose-500/30';
         case 'action_required': return 'bg-amber-500/20 text-amber-400 border-amber-500/30';

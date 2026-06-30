@@ -41,7 +41,7 @@ const averageScore = computed(() => {
 
 <template>
     <Modal :show="show" @close="emit('close')" maxWidth="4xl">
-        <div class="bg-[#0a0f1a] border border-emerald-500/20 text-slate-300 p-6 rounded-lg relative overflow-hidden">
+        <div class="bg-[#0a0f1a] border border-[#CBB48A]/20 text-slate-300 p-6 rounded-lg relative overflow-hidden">
             
             <!-- Header -->
             <div class="flex justify-between items-start mb-8 relative z-10">
@@ -51,7 +51,7 @@ const averageScore = computed(() => {
                 </div>
                 <div class="text-right">
                     <div class="text-3xl font-black text-white">{{ averageScore }}<span class="text-base text-slate-500 font-normal">/100</span></div>
-                    <div class="text-[10px] uppercase tracking-widest text-emerald-400">Composite Score</div>
+                    <div class="text-[10px] uppercase tracking-widest text-[#CBB48A]">Composite Score</div>
                 </div>
             </div>
 
@@ -102,7 +102,7 @@ const averageScore = computed(() => {
             </div>
 
             <!-- Background FX -->
-            <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2"></div>
+            <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-[#CBB48A]/5 rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2"></div>
         </div>
     </Modal>
 </template>

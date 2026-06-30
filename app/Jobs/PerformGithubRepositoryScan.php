@@ -366,33 +366,37 @@ class PerformGithubRepositoryScan implements ShouldQueue
 
                     // Unified Scan Activity Record (New Requirement)
                     if (!$this->suppressActivityLog) {
-                        \App\Models\ScanActivity::updateOrCreate(
-                            [
-                                'primary_asset_id' => $vaultAsset->id,
-                                'batch_id' => $this->syncBatchId // Strict Context Isolation
-                            ],
-                            [
-                                'user_id' => $vaultAsset->user_id,
-                                'urls_and_sync' => $repoUrl,
-                                'type' => 'repository',
-                                'secondary_asset_id' => null,
-                                'sync_status' => null,
-                                'docu_and_urls_status' => $finalStatus,
-                                'sync_confidence_score' => null,
-                                'individual_score' => $score,
-                                'vectors' => $aiResult['hexagon_vectors'] ?? [], // New column
-                                'vectors' => $aiResult['hexagon_vectors'] ?? [], // New column
-                                'details' => json_encode(array_merge($aiResult, [
-                                    // TITAN V6.0: Legacy UI Support for ScanActivity
-                                    'tech_assessment' => [
-                                        'stack' => $aiResult['tech_stack'] ?? [],
-                                        'architecture' => 'Modern',
-                                        'quality_score' => $score
-                                    ]
-                                ])), // Capture Full Report with Legacy Props
-                                'scanned_at' => now(),
-                            ]
-                        );
+                        try {
+                            \App\Models\ScanActivity::updateOrCreate(
+                                [
+                                    'primary_asset_id' => $vaultAsset->id,
+                                    'batch_id' => $this->syncBatchId // Strict Context Isolation
+                                ],
+                                [
+                                    'user_id' => $vaultAsset->user_id,
+                                    'urls_and_sync' => $repoUrl,
+                                    'type' => 'repository',
+                                    'secondary_asset_id' => null,
+                                    'sync_status' => null,
+                                    'docu_and_urls_status' => $finalStatus,
+                                    'sync_confidence_score' => null,
+                                    'individual_score' => $score,
+                                    'vectors' => $aiResult['hexagon_vectors'] ?? [], // New column
+                                    'details' => json_encode(array_merge($aiResult, [
+                                        // TITAN V6.0: Legacy UI Support for ScanActivity
+                                        'tech_assessment' => [
+                                            'stack' => $aiResult['tech_stack'] ?? [],
+                                            'architecture' => 'Modern',
+                                            'quality_score' => $score
+                                        ]
+                                    ])), // Capture Full Report with Legacy Props
+                                    'scanned_at' => now(),
+                                ]
+                            );
+                        } catch (\Exception $activityError) {
+                            Log::error("PerformGithubRepositoryScan: ScanActivity creation FAILED: " . $activityError->getMessage());
+                            // Don't crash the repository scan if log fails
+                        }
                     }
                 }
             });

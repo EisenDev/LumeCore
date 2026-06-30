@@ -72,7 +72,7 @@ function renderChart() {
     const maxChurn = d3.max(cleanData, d => d.churn) || 100;
     const colorScale = d3.scaleSequential()
         .domain([0, maxChurn])
-        .interpolator(d3.interpolateRgb("rgba(16, 185, 129, 0.3)", "rgba(244, 63, 94, 0.8)")); 
+        .interpolator(d3.interpolateRgb("rgba(203, 180, 138, 0.3)", "rgba(244, 63, 94, 0.8)")); 
         // Emerald to Rose
 
     const nodes = svg.selectAll("g")

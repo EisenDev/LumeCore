@@ -56,4 +56,35 @@ class TeamController extends Controller
             'members' => $members,
         ]);
     }
+
+    /**
+     * Display the team management page for the active organization context.
+     */
+    public function indexGlobal(Request $request)
+    {
+        $user = $request->user();
+        $orgId = $user->active_organization_id;
+
+        if (!$orgId) {
+            $firstOrg = $user->organizations()->first();
+            if ($firstOrg) {
+                $orgId = $firstOrg->id;
+                $user->update(['active_organization_id' => $orgId]);
+            } else {
+                $org = \App\Models\Organization::create([
+                    'name' => 'Default Organization',
+                    'owner_id' => $user->id,
+                ]);
+                $org->members()->attach($user->id, [
+                    'role' => 'full_auditor',
+                    'email' => $user->email,
+                    'name' => $user->name,
+                ]);
+                $orgId = $org->id;
+                $user->update(['active_organization_id' => $orgId]);
+            }
+        }
+
+        return redirect()->route('team.index', ['organization' => $orgId]);
+    }
 }

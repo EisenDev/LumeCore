@@ -43,8 +43,8 @@ const repoData = computed(() => {
 const factors = computed(() => [
     {
         category: 'Live Website Integrity',
-        color: 'text-emerald-400',
-        barColor: 'bg-emerald-500',
+        color: 'text-[#CBB48A]',
+        barColor: 'bg-[#CBB48A]',
         items: [
             { label: 'Velocity', score: webData.value.client_side_velocity || 0, desc: 'Client-side render performance & TTFB.' },
             { label: 'Resilience', score: webData.value.code_efficiency || 0, desc: 'Error handling & uptime reliability.' },
@@ -78,7 +78,7 @@ const getGrade = (s: number) => {
 };
 
 const getGradeColor = (s: number) => {
-    if (s >= 90) return 'text-emerald-400';
+    if (s >= 90) return 'text-[#CBB48A]';
     if (s >= 75) return 'text-amber-400';
     return 'text-rose-400';
 };

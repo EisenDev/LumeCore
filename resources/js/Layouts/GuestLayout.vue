@@ -14,7 +14,7 @@ import { Link } from '@inertiajs/vue3';
             
             <!-- Floating Secondary Blobs -->
             <div class="absolute left-1/4 top-1/3 h-96 w-96 rounded-full bg-indigo-500/10 blur-[80px] animate-float" />
-            <div class="absolute right-1/4 bottom-1/3 h-96 w-96 rounded-full bg-emerald-500/10 blur-[80px] animate-float-delayed" />
+            <div class="absolute right-1/4 bottom-1/3 h-96 w-96 rounded-full bg-[#CBB48A]/10 blur-[80px] animate-float-delayed" />
             
             <!-- Mesh Texture / Noise Overlay -->
             <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] brightness-50 mix-blend-overlay" />
