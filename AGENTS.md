@@ -90,8 +90,4 @@ Record major workspace modifications here:
 | 2026-06-30 | `Integrations.vue` | Removed all hardcoded arrays, added TypeScript defineProps interface, wired stats/health/activity log to Inertia props, wired connect/disconnect buttons to toggle endpoint for [DEBT-010](https://app.clickup.com/t/86d3gx75d) | Antigravity|
 | 2026-06-30 | `web.php` | Added `POST /integrations/{platform}/toggle` route for [DEBT-010](https://app.clickup.com/t/86d3gx75d) | Antigravity|
 | 2026-06-30 | `IntegrationsTest.php` | Added 12 feature tests covering auth gates, DB-driven props, connect/disconnect CRUD, credential security, and stats computation for [DEBT-010](https://app.clickup.com/t/86d3gx75d) | Antigravity|
-
-
-
-
-
+| 2026-06-30 | `GlobalHelperController.php`, `AIAssistant.vue`, `web.php`, `AIAssistantChatHistoryTest.php` | Implemented chat history persistence, session grouping, New Chat/History drawer controls, and automated feature tests for [BUG-002](https://app.clickup.com/t/86d3h3309) | Antigravity|

@@ -29,7 +29,6 @@ Route::get('/', function () {
 
 // Global AI Architect Route (Publicly accessible for landing page)
 Route::post('/ai/chat', [\App\Http\Controllers\Api\GlobalHelperController::class, 'chat'])->name('ai.chat');
-Route::get('/ai/chat/history', [\App\Http\Controllers\Api\GlobalHelperController::class, 'history'])->name('ai.chat.history');
 Route::post('/ai/detect', [\App\Http\Controllers\Api\GlobalHelperController::class, 'aiDetection'])->name('ai.detect');
 
 Route::get('/overview', [DashboardController::class, 'index'])
@@ -123,6 +122,8 @@ Route::get('/organizations/roadmap', [OrganizationController::class, 'roadmap'])
     Route::post('/integrations/{platform}/toggle', [\App\Http\Controllers\IntegrationsController::class, 'toggle'])->name('integrations.toggle');
     Route::get('/schedules', [\App\Http\Controllers\SchedulesController::class, 'index'])->name('schedules.index');
     Route::get('/ai-assistant', [\App\Http\Controllers\AIAssistantController::class, 'index'])->name('ai-assistant.index');
+    Route::get('/ai/chat/history', [\App\Http\Controllers\Api\GlobalHelperController::class, 'history'])->name('ai.chat.history');
+    Route::get('/ai/history', [\App\Http\Controllers\Api\GlobalHelperController::class, 'sessions'])->name('ai.history');
     Route::get('/reports', [\App\Http\Controllers\ReportsController::class, 'index'])->name('reports.index');
     Route::get('/teams', [\App\Http\Controllers\TeamController::class, 'indexGlobal'])->name('teams.index');
 

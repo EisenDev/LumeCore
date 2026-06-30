@@ -16,23 +16,34 @@ class GlobalHelperController extends Controller
      * Handle chat requests for the LUME Architect.
      * Saves both user message and AI response to project_chats.
      */
+    /**
+     * Handle chat requests for the LUME Architect.
+     * Saves both user message and AI response to project_chats.
+     */
     public function chat(Request $request)
     {
         $request->validate([
             'message' => 'required|string|max:1000',
             'asset_id' => 'nullable|exists:vault_assets,id',
+            'conversation_id' => 'nullable|string',
         ]);
 
         $user = Auth::user();
         $userName = $user ? $user->name : 'Traveler';
         $assetId = $request->input('asset_id');
+        $conversationId = $request->input('conversation_id');
 
-        // Save user message if we have an asset context (gracefully handle missing table)
-        if ($user && $assetId) {
+        if (!$conversationId) {
+            $conversationId = (string) \Illuminate\Support\Str::uuid();
+        }
+
+        // Save user message (gracefully handle missing table)
+        if ($user) {
             try {
                 ProjectChat::create([
                     'user_id' => $user->id,
                     'vault_asset_id' => $assetId,
+                    'conversation_id' => $conversationId,
                     'message' => $request->input('message'),
                     'role' => 'user',
                 ]);
@@ -48,12 +59,13 @@ class GlobalHelperController extends Controller
             $assetId
         );
 
-        // Save AI response if we have an asset context (gracefully handle missing table)
-        if ($user && $assetId) {
+        // Save AI response (gracefully handle missing table)
+        if ($user) {
             try {
                 ProjectChat::create([
                     'user_id' => $user->id,
                     'vault_asset_id' => $assetId,
+                    'conversation_id' => $conversationId,
                     'message' => $response,
                     'role' => 'ai',
                 ]);
@@ -63,18 +75,19 @@ class GlobalHelperController extends Controller
         }
 
         return response()->json([
-            'reply' => $response
+            'reply' => $response,
+            'conversation_id' => $conversationId,
         ]);
     }
 
     /**
-     * Get chat history for a specific asset.
-     * Returns last 10 messages for preserved context.
+     * Get chat history for a specific asset or conversation.
      */
     public function history(Request $request)
     {
         $request->validate([
-            'asset_id' => 'required|exists:vault_assets,id',
+            'asset_id' => 'nullable|exists:vault_assets,id',
+            'conversation_id' => 'nullable|string',
         ]);
 
         $user = Auth::user();
@@ -84,15 +97,19 @@ class GlobalHelperController extends Controller
 
         try {
             $messages = ProjectChat::where('user_id', $user->id)
-                ->where('vault_asset_id', $request->input('asset_id'))
-                ->orderBy('created_at', 'desc')
-                ->take(10)
+                ->when($request->filled('conversation_id'), function ($query) use ($request) {
+                    return $query->where('conversation_id', $request->input('conversation_id'));
+                })
+                ->when($request->filled('asset_id') && !$request->filled('conversation_id'), function ($query) use ($request) {
+                    return $query->where('vault_asset_id', $request->input('asset_id'));
+                })
+                ->orderBy('created_at', 'asc')
                 ->get()
-                ->reverse() // Oldest first
-                ->values()
                 ->map(fn ($msg) => [
+                    'id' => $msg->id,
                     'role' => $msg->role,
                     'content' => $msg->message,
+                    'timestamp' => $msg->created_at->toISOString(),
                 ]);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::warning('Could not fetch chat history: ' . $e->getMessage());
@@ -101,6 +118,45 @@ class GlobalHelperController extends Controller
 
         return response()->json([
             'messages' => $messages
+        ]);
+    }
+
+    /**
+     * Get list of unique conversation sessions for the authenticated user.
+     */
+    public function sessions(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['conversations' => []]);
+        }
+
+        try {
+            $chats = ProjectChat::where('user_id', $user->id)
+                ->whereNotNull('conversation_id')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $sessions = $chats->groupBy('conversation_id')->map(function ($group) {
+                $latest = $group->first();
+                $userMessage = $group->where('role', 'user')->last();
+                $title = $userMessage ? \Illuminate\Support\Str::limit($userMessage->message, 40) : 'Conversation';
+
+                return [
+                    'conversation_id' => $latest->conversation_id,
+                    'title' => $title,
+                    'latest_message' => \Illuminate\Support\Str::limit($latest->message, 60),
+                    'timestamp' => $latest->created_at->toISOString(),
+                    'time' => $latest->created_at->diffForHumans(),
+                ];
+            })->values();
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('Could not fetch conversation sessions: ' . $e->getMessage());
+            $sessions = collect([]);
+        }
+
+        return response()->json([
+            'conversations' => $sessions
         ]);
     }
     /**
